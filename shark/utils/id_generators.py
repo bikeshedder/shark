@@ -94,6 +94,7 @@ class IdField(models.CharField):
         self.name = None
         kwargs.setdefault('max_length', generator.max_length)
         kwargs.setdefault('blank', True)
+        kwargs.setdefault('unique', True)
         super(IdField, self).__init__(**kwargs)
 
     def contribute_to_class(self, cls, name):
