@@ -12,10 +12,14 @@ class BaseCustomer(models.Model):
     updated = models.DateTimeField(_('updated'), auto_now=True)
 
     class Meta:
-        verbose_name = _('customer')
-        verbose_name_plural = _('customers')
         abstract = True
+
+    def __unicode__(self):
+        return self.number
 
 
 class Customer(BaseCustomer):
-    pass
+
+    class Meta:
+        verbose_name = _('customer')
+        verbose_name_plural = _('customers')
