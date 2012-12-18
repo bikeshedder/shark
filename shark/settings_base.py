@@ -1,5 +1,7 @@
 # Django settings for shark project.
 
+_ = lambda s: s
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -124,7 +126,20 @@ INSTALLED_APPS = (
     # Shark applications
     'shark',
     'shark.customer',
+    'shark.billing',
 )
+
+from decimal import Decimal
+from datetime import timedelta
+
+SHARK = {
+    'VAT_RATE_CHOICES': (
+        (Decimal('0.19'), u'19%'),
+        (Decimal('0.07'), u'7%'),
+        (Decimal('0.00'), u'0%% (%s)' % _('tax free')),
+    ),
+    'INVOICE_PAYMENT_TIMEFRAME': timedelta(days=14)
+}
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
