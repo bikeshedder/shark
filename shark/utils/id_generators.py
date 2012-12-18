@@ -21,7 +21,9 @@ class IdGenerator(object):
 
     def __init__(self, model_class=None, field_name=None):
         self.model_class = model_class
+        self.model_class_given = model_class is not None
         self.field_name = field_name
+        self.field_name_given = field_name is not None
 
     def get_queryset(self):
         return self.model_class.objects.all() \
@@ -41,7 +43,7 @@ class DaysSinceEpoch(IdGenerator):
     n: simple counter with n_length characters and to base n_base
     '''
 
-    def __init__(self, model_class=None, field_name='id', prefix='',
+    def __init__(self, model_class=None, field_name=None, prefix='',
             epoch=date(1970, 1, 1), days_length=5, days_base=10,
             n_length=3, n_base=10):
         super(DaysSinceEpoch, self).__init__(model_class, field_name)
@@ -91,7 +93,6 @@ class IdField(models.CharField):
 
     def __init__(self, generator, **kwargs):
         self.generator = generator
-        self.name = None
         kwargs.setdefault('max_length', generator.max_length)
         kwargs.setdefault('blank', True)
         kwargs.setdefault('unique', True)
@@ -99,10 +100,10 @@ class IdField(models.CharField):
 
     def contribute_to_class(self, cls, name):
         super(IdField, self).contribute_to_class(cls, name)
-        self.name = name
         generator = copy(self.generator)
-        if generator.model_class is None:
+        if not generator.model_class_given:
             generator.model_class = cls
+        if not generator.field_name_given:
             generator.field_name = name
         signals.pre_save.connect(curry(self._pre_save, generator=generator),
                 sender=cls, weak=False)
@@ -110,7 +111,8 @@ class IdField(models.CharField):
     # Do not name this method 'pre_save' as it will otherwise be called without
     # the generator argument.
     def _pre_save(self, generator, sender, instance, *args, **kwargs):
-        if getattr(sender, self.name, ''):
+        if getattr(instance, self.name, ''):
+            # Do not create an ID for objects that already have a value set.
             return
         value = generator.next()
         setattr(instance, self.name, value)
