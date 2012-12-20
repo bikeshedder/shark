@@ -9,4 +9,5 @@ urlpatterns = patterns('',
     # url(r'^shark/', include('shark.foo.urls')),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin_tools/', include('admin_tools.urls')),
 )

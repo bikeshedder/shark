@@ -1,4 +1,4 @@
 Django==1.4.2
 South==0.7.6
-distribute==0.6.19
-wsgiref==0.1.2
+dinbrief==0.1.1
+django-admin-tools==0.4.1
