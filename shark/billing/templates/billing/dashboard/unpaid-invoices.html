@@ -24,7 +24,7 @@
 	<tr>
 		<th style="color:#660000;">{% trans "more than 30 days" %}</th>
 		<td>{{ module.unpaid.gt30d.count }}</td>
-		<td><a href="{{ module.unpaid.gt30d }}">{% trans "show" %}</a></td>
+		<td><a href="{{ module.unpaid.gt30d.url }}">{% trans "show" %}</a></td>
 	</tr>
 	<tr>
 		<th>{% trans "Sum" %}</th>

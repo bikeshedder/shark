@@ -17,6 +17,7 @@ from admin_tools.dashboard import modules, Dashboard, AppIndexDashboard
 from admin_tools.utils import get_admin_site_name
 
 from shark.billing.dashboard import UnpaidInvoicesDashboardModule
+from shark.billing.dashboard import LooseItemsDashboardModule
 
 
 class CustomIndexDashboard(Dashboard):
@@ -41,6 +42,7 @@ class CustomIndexDashboard(Dashboard):
         ))
 
         self.children.append(UnpaidInvoicesDashboardModule())
+        self.children.append(LooseItemsDashboardModule())
 
         # append an app list module for "Applications"
         self.children.append(modules.AppList(

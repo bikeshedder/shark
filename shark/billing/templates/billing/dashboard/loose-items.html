@@ -1,0 +1,22 @@
+{% extends "admin_tools/dashboard/module.html" %}
+{% load i18n %}
+
+{% block module_content %}
+<table style="width:100%;">
+<thead>
+	<tr>
+		<th>{% trans "Item count" %}</th>
+		<th style="width:8em;">{% trans "Invoice" %}</th>
+		<th style="width:2em;">{% trans "Show" %}</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<td>{{ module.item_count }}</td>
+		<td><a href="{{ module.invoice_url }}">{% trans "Invoice" %}</a></td>
+		<td><a href="{{ module.list_url }}">{% trans "Show" %}</a></td>
+	</tr>
+</tbody>
+</table>
+
+{% endblock %}

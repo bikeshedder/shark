@@ -6,10 +6,12 @@ from datetime import timedelta
 from django.db.models import Sum
 from django.conf import settings
 from django.utils.translation import ugettext as _
+from django.conf import settings
+from django.core.urlresolvers import reverse
 
 from admin_tools.dashboard.modules import DashboardModule
 
-from shark.billing.models import Invoice
+from shark.billing.models import Invoice, InvoiceItem
 
 
 class UnpaidInvoicesDashboardModule(DashboardModule):
@@ -28,7 +30,7 @@ class UnpaidInvoicesDashboardModule(DashboardModule):
         two_weeks_ago = today - timedelta(days=14)
         thirty_days_ago = today - timedelta(days=30)
 
-        admin_url = '/admin/billing/invoice/'
+        admin_url = reverse('admin:%s_changelist' % settings.SHARK['MODELS']['billing.Invoice'].lower().replace('.', '_'))
         def get_admin_url(**kwargs):
             kwargs.setdefault('paid__isnull', True)
             return '%s?%s' % (admin_url, '&'.join('%s=%s' % item for item in kwargs.iteritems()))
@@ -56,3 +58,22 @@ class UnpaidInvoicesDashboardModule(DashboardModule):
                 'url': get_admin_url(),
             }
         }
+
+
+class LooseItemsDashboardModule(DashboardModule):
+
+    def __init__(self, **kwargs):
+        super(LooseItemsDashboardModule, self).__init__(**kwargs)
+
+        self.template = kwargs.get('template', 'billing/dashboard/loose-items.html')
+        self.display = kwargs.get('display', 'tabs')
+        self.layout = kwargs.get('layout', 'stacked')
+        self.title = kwargs.get('title', _('Loose invoice items'))
+
+        self.is_empty = False
+
+        self.items = InvoiceItem.objects.filter(invoice__isnull=True)
+        self.item_count = self.items.count()
+        self.list_url = reverse('admin:%s_changelist' % settings.SHARK['MODELS']['billing.InvoiceItem'].lower().replace('.', '_')) \
+                + '?invoice__isnull=True'
+        self.invoice_url = reverse('billing_admin:invoiceitem_invoice')

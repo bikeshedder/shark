@@ -162,7 +162,12 @@ SHARK = {
         (Decimal('0.07'), u'7%'),
         (Decimal('0.00'), u'0%% (%s)' % _('tax free')),
     ),
-    'INVOICE_PAYMENT_TIMEFRAME': timedelta(days=14)
+    'INVOICE_PAYMENT_TIMEFRAME': timedelta(days=14),
+    'MODELS': {
+        'customer.Custmoer': 'customer.Customer',
+        'billing.Invoice': 'billing.Invoice',
+        'billing.InvoiceItem': 'billing.InvoiceItem',
+    }
 }
 
 # A sample logging configuration. The only tangible logging
