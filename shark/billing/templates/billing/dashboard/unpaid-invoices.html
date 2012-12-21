@@ -1,0 +1,37 @@
+{% extends "admin_tools/dashboard/module.html" %}
+{% load i18n %}
+
+{% block module_content %}
+<table style="width:100%;">
+<thead>
+	<tr>
+		<th>{% trans "Age" %}</th>
+		<th style="width:2em;">{% trans "Count" %}</th>
+		<th style="width:2em;">{% trans "Link" %}</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<th style="color:#006600;">{% trans "less than 14 days" %}</th>
+		<td>{{ module.unpaid.lt14d.count }}</td>
+		<td><a href="{{ module.unpaid.lt14d.url }}">{% trans "show" %}</a></td>
+	</tr>
+	<tr>
+	<th style="color:#f88017;">{% trans "more than 14, less than 30 days" %}</th>
+		<td>{{ module.unpaid.gt14d.count }}</td>
+		<td><a href="{{ module.unpaid.gt14d.url }}">{% trans "show" %}</a></td>
+	</tr>
+	<tr>
+		<th style="color:#660000;">{% trans "more than 30 days" %}</th>
+		<td>{{ module.unpaid.gt30d.count }}</td>
+		<td><a href="{{ module.unpaid.gt30d }}">{% trans "show" %}</a></td>
+	</tr>
+	<tr>
+		<th>{% trans "Sum" %}</th>
+		<td>{{ module.unpaid.total.count }}</td>
+		<td><a href="{{ module.unpaid.total.url }}">{% trans "show" %}</a></td>
+	</tr>
+</tbody>
+</table>
+
+{% endblock %}

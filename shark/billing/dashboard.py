@@ -9,38 +9,50 @@ from django.utils.translation import ugettext as _
 
 from admin_tools.dashboard.modules import DashboardModule
 
-from webconf.billing.models import Invoice
+from shark.billing.models import Invoice
 
 
-class InvoicesDashboardModule(DashboardModule):
+class UnpaidInvoicesDashboardModule(DashboardModule):
 
     def __init__(self, **kwargs):
+        super(UnpaidInvoicesDashboardModule, self).__init__(**kwargs)
 
-        super(InvoicesDashboardModule, self).__init__(**kwargs)
-
-        self.template = kwargs.get('template', 'billing/dashboard/invoices.html')
+        self.template = kwargs.get('template', 'billing/dashboard/unpaid-invoices.html')
         self.display = kwargs.get('display', 'tabs')
         self.layout = kwargs.get('layout', 'stacked')
-        self.title = kwargs.get('title', _('Invoices'))
+        self.title = kwargs.get('title', _('Unpaid invoices'))
 
         self.is_empty = False
 
-        self.today = date.today()
-        self.two_weeks_ago = self.today - timedelta(days=14)
-        self.thirty_days_ago = self.today - timedelta(days=30)
+        today = date.today()
+        two_weeks_ago = today - timedelta(days=14)
+        thirty_days_ago = today - timedelta(days=30)
 
-        unpaid_invoices = Invoice.objects.filter(paid__isnull=True)
-        unpaid_invoices_lt14d = unpaid_invoices.filter(created__gt=self.two_weeks_ago)
-        unpaid_invoices_gt14d = unpaid_invoices.filter(created__lt=self.two_weeks_ago).filter(created__gte=self.thirty_days_ago)
-        unpaid_invoices_gt30d = unpaid_invoices.filter(created__lt=self.thirty_days_ago)
+        admin_url = '/admin/billing/invoice/'
+        def get_admin_url(**kwargs):
+            kwargs.setdefault('paid__isnull', True)
+            return '%s?%s' % (admin_url, '&'.join('%s=%s' % item for item in kwargs.iteritems()))
 
-        self.invoices = {
-                'unpaid': unpaid_invoices,
-                'unpaid_lt14d': unpaid_invoices_lt14d,
-                'unpaid_gt14d': unpaid_invoices_gt14d,
-                'unpaid_gt30d': unpaid_invoices_gt30d,
-                'recently_paid': Invoice.objects.filter(paid__isnull=False).order_by('-paid')[:5]
+        unpaid = Invoice.objects.filter(paid__isnull=True)
+        unpaid_lt14d = unpaid.filter(created__gt=two_weeks_ago)
+        unpaid_gt14d = unpaid.filter(created__lte=two_weeks_ago).filter(created__gt=thirty_days_ago)
+        unpaid_gt30d = unpaid.filter(created__lte=thirty_days_ago)
+
+        self.unpaid = {
+            'lt14d': {
+                'count': unpaid_lt14d.count(),
+                'url': get_admin_url(created__gt=two_weeks_ago),
+            },
+            'gt14d': {
+                'count': unpaid_gt14d.count(),
+                'url': get_admin_url(created__lte=two_weeks_ago, created__gt=thirty_days_ago),
+            },
+            'gt30d': {
+                'count': unpaid_gt30d.count(),
+                'url': get_admin_url(created__lte=thirty_days_ago),
+            },
+            'total': {
+                'count': unpaid.count(),
+                'url': get_admin_url(),
+            }
         }
-
-    def init_with_context(self, context):
-        pass
