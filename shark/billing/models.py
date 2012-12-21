@@ -9,6 +9,7 @@ from django.db.models import signals
 from django.utils.formats import date_format
 from django.utils.translation import ugettext_lazy as _
 
+from shark.customer.fields import AddressField
 from shark.utils.id_generators import IdField, DaysSinceEpoch
 from shark.utils.rounding import round_to_centi
 
@@ -29,7 +30,7 @@ class Invoice(models.Model):
     #
     # address
     #
-    address = models.TextField()
+    address = AddressField()
 
     net = models.DecimalField(max_digits=10, decimal_places=2,
             default=Decimal('0.00'),
@@ -101,6 +102,15 @@ class Invoice(models.Model):
             vat_list.append((vat_rate, vat_amount))
         vat_list.sort()
         return vat_list
+
+    @property
+    def vat_items(self):
+        # XXX either this or the vat property should be dropped
+        class VatItem(object):
+            def __init__(self, rate, amount):
+                self.rate = rate
+                self.amount = amount
+        return [VatItem(*t) for t in self.vat]
 
 
 UNIT_CHOICES = (

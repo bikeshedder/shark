@@ -37,7 +37,7 @@ class InvoiceAdmin(admin.ModelAdmin):
     )
     inlines = [InvoiceItemInline]
     raw_id_fields = ('customer',)
-    list_display = ('number', 'get_customer', 'get_address', 'net', 'gross', 'created', 'paid', 'is_okay')
+    list_display = ('number', 'get_customer', 'get_address', 'net', 'gross', 'created', 'paid', 'is_okay', 'invoice_pdf')
     list_editable = ('paid',)
     list_display_links = ('number',)
     list_select_related = True
@@ -55,10 +55,16 @@ class InvoiceAdmin(admin.ModelAdmin):
     get_customer.admin_order_field = 'customer'
     get_customer.allow_tags = True
 
-    def get_address(self, invoice):
-        return u'<br/>'.join(map(escape, invoice.address_lines))
+    def get_address(self, obj):
+        return u'<br/>'.join(map(escape, obj.address_lines))
     get_address.short_description = _('Address')
     get_address.allow_tags = True
+
+    def invoice_pdf(self, obj):
+        return u'<a href="%s">PDF</a>' % (
+            reverse('billing_admin:invoice_pdf', args=(obj.pk,)))
+    invoice_pdf.short_description = 'PDF'
+    invoice_pdf.allow_tags = True
 
 
 class InvoiceItemAdmin(admin.ModelAdmin):

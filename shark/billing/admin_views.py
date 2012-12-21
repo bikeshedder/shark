@@ -1,6 +1,49 @@
 from django.template.response import TemplateResponse
+from django.utils.translation import ugettext as _
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.utils.formats import date_format
+
+from shark import get_model
+InvoiceItem = get_model('billing.InvoiceItem')
+Invoice = get_model('billing.Invoice')
 
 
 def invoice(request):
-    # FIXME implement
-    pass
+    items = InvoiceItem.objects.filter(invoice=None)
+    return TemplateResponse(request, 'billing/admin/invoiceitem_invoice.html', {
+        'items': items
+    })
+
+
+def invoice_pdf(request, pk):
+    invoice = get_object_or_404(Invoice, pk=pk)
+    from reportlab.lib.units import mm
+    from reportlab.platypus import Paragraph
+    from reportlab.platypus.flowables import Spacer
+
+    from dinbrief.constants import CONTENT_WIDTH
+    from dinbrief.document import Document
+    from dinbrief.invoice import ItemTable, TotalTable
+    from dinbrief.styles import styles
+    from dinbrief.template import BriefTemplate
+
+    response = HttpResponse(content_type='application/pdf')
+    document = Document(
+        sender=[
+            u'Musterfirma',
+            u'Finkengasse 1',
+            u'00000 Musterort'
+        ],
+        recipient=invoice.address_lines,
+        date=date_format(invoice.created),
+        content=[
+            Paragraph('%s %s' % (_('Invoice'), invoice.number), styles['Subject']),
+            Spacer(CONTENT_WIDTH, 2*mm),
+            ItemTable(invoice),
+            TotalTable(invoice),
+        ])
+    template = BriefTemplate(response, document)
+    template.build(document.content)
+
+    return response
