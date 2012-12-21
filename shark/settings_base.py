@@ -150,6 +150,9 @@ INSTALLED_APPS = (
     'shark.billing',
 )
 
+ADMIN_TOOLS_INDEX_DASHBOARD = 'shark.dashboard.CustomIndexDashboard'
+ADMIN_TOOLS_APP_INDEX_DASHBOARD = 'shark.dashboard.CustomAppIndexDashboard'
+
 from decimal import Decimal
 from datetime import timedelta
 
