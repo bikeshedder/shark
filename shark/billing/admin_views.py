@@ -29,6 +29,10 @@ def invoice_pdf(request, pk):
     from dinbrief.template import BriefTemplate
 
     response = HttpResponse(content_type='application/pdf')
+    if 'download' in request.GET:
+        filename = '%s.pdf' % invoice.number
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
     document = Document(
         sender=[
             u'Musterfirma',
