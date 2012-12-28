@@ -40,7 +40,7 @@ def invoice_pdf(request, pk):
             u'00000 Musterort'
         ],
         recipient=invoice.address_lines,
-        date=date_format(invoice.created),
+        date=date_format(invoice.created, 'SHORT_DATE_FORMAT'),
         content=[
             Paragraph('%s %s' % (_('Invoice'), invoice.number), styles['Subject']),
             Spacer(CONTENT_WIDTH, 2*mm),

@@ -130,6 +130,8 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
+FORMAT_MODULE_PATH = 'shark.base.formats'
+
 INSTALLED_APPS = (
     'admin_tools',
     'admin_tools.theming',
