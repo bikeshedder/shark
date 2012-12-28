@@ -34,12 +34,8 @@ def invoice_pdf(request, pk):
         response['Content-Disposition'] = 'attachment; filename=%s' % filename
 
     document = Document(
-        sender=[
-            u'Musterfirma',
-            u'Finkengasse 1',
-            u'00000 Musterort'
-        ],
-        recipient=invoice.address_lines,
+        sender=invoice.sender_lines,
+        recipient=invoice.recipient_lines,
         date=date_format(invoice.created, 'SHORT_DATE_FORMAT'),
         content=[
             Paragraph('%s %s' % (_('Invoice'), invoice.number), styles['Subject']),

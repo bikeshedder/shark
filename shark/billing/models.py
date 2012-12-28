@@ -30,7 +30,8 @@ class Invoice(models.Model):
     #
     # address
     #
-    address = AddressField()
+    sender = AddressField()
+    recipient = AddressField()
 
     net = models.DecimalField(max_digits=10, decimal_places=2,
             default=Decimal('0.00'),

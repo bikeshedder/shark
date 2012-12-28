@@ -31,19 +31,19 @@ class InvoiceItemInline(admin.TabularInline):
 
 class InvoiceAdmin(admin.ModelAdmin):
     fieldsets = (
-        ('Allgemeines', {'fields': ('customer', 'number') }),
-        ('Adresse', {'fields': ('address',) }),
-        ('Daten', {'fields': ('created', 'reminded', 'paid') }),
+        (_('general'), {'fields': ('customer', 'number') }),
+        (_('address'), {'fields': ('sender', 'recipient') }),
+        (_('dates'), {'fields': ('created', 'reminded', 'paid') }),
     )
     inlines = [InvoiceItemInline]
     raw_id_fields = ('customer',)
-    list_display = ('number', 'get_customer', 'get_address', 'net',
+    list_display = ('number', 'get_customer', 'get_recipient', 'net',
             'gross', 'created', 'paid', 'is_okay', 'invoice_pdf')
     list_editable = ('paid',)
     list_display_links = ('number',)
     list_select_related = True
     ordering = ('-created',)
-    search_fields = ('number', 'customer__number', 'customer__name', 'address')
+    search_fields = ('number', 'customer__number', 'customer__name', 'recipient')
     list_filter = ('created', 'paid',)
     date_hierarchy = 'created'
     actions = ('create_document_action', 'remind_action')
@@ -56,10 +56,10 @@ class InvoiceAdmin(admin.ModelAdmin):
     get_customer.admin_order_field = 'customer'
     get_customer.allow_tags = True
 
-    def get_address(self, obj):
-        return u'<br/>'.join(map(escape, obj.address_lines))
-    get_address.short_description = _('Address')
-    get_address.allow_tags = True
+    def get_recipient(self, obj):
+        return u'<br/>'.join(map(escape, obj.recipient_lines))
+    get_recipient.short_description = _('Recipient')
+    get_recipient.allow_tags = True
 
     def invoice_pdf(self, obj):
         view = u'<a href="%s">View</a>' % (
@@ -96,7 +96,8 @@ class InvoiceItemAdmin(admin.ModelAdmin):
         for customer, items in customer_items_list:
             invoice = Invoice()
             invoice.customer = customer
-            invoice.address = customer.address
+            invoice.sender = '' # FIXME
+            invoice.recipient = customer.address
             invoice.save()
             for position, item in enumerate(items, 1):
                 item.position = position
