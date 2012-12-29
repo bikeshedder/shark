@@ -3,12 +3,14 @@ from django.utils.translation import ugettext as _
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.formats import date_format
+from django.contrib.auth.decorators import permission_required
 
 from shark import get_model
 InvoiceItem = get_model('billing.InvoiceItem')
 Invoice = get_model('billing.Invoice')
 
 
+permission_required('billing.add_invoice')
 def invoice(request):
     items = InvoiceItem.objects.filter(invoice=None)
     return TemplateResponse(request, 'billing/admin/invoiceitem_invoice.html', {
@@ -16,6 +18,7 @@ def invoice(request):
     })
 
 
+permission_required('billing.change_invoice')
 def invoice_pdf(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
     from reportlab.lib.units import mm
