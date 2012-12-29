@@ -1,0 +1,45 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+{% load url from future %}
+
+{% if not is_popup %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label='billing' %}">{% trans "Billing" %}</a>
+&rsaquo; {% trans "Import invoice items" %}
+</div>
+{% endblock %}
+{% endif %}
+
+{% block content_title %}<h1>{% trans "Import invoice items" %}</h1>{% endblock %}
+
+{% block form_top %}
+{% if errnous_rows %}
+<div class="box">
+<p>Der Import folgender Artikel war nicht erfolgreich:</p>
+<ul>
+{% for row, fields in errnous_rows %}
+<li>Zeile {{ row }}:<ul>
+{% for field_name, field_errors in fields %}
+<li>{{ field_name }}: {{ field_errors|join:";" }}</li>
+{% endfor %}
+</ul>
+</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{% endblock %}
+
+{% block submit_buttons_top %}
+<div class="submit-row">
+<input type="submit" value="{% trans 'Import' %}" name="_import" {{ onclick_attrib }}/>
+</div>
+{% endblock %}
+
+{% block submit_buttons_bottom %}
+<div class="submit-row">
+<input type="submit" value="{% trans 'Import' %}" name="_import" {{ onclick_attrib }}/>
+</div>
+{% endblock %}

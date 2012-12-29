@@ -1,11 +1,15 @@
-from django.template.response import TemplateResponse
-from django.utils.translation import ugettext as _
+from django.contrib import messages
+from django.contrib.auth.decorators import permission_required
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
 from django.utils.formats import date_format
-from django.contrib.auth.decorators import permission_required
+from django.utils.translation import ugettext
+from django.utils.translation import ungettext
 
 from shark import get_model
+from shark.billing.admin_forms import ImportItemsForm
+
 InvoiceItem = get_model('billing.InvoiceItem')
 Invoice = get_model('billing.Invoice')
 
@@ -41,7 +45,7 @@ def invoice_pdf(request, pk):
         recipient=invoice.recipient_lines,
         date=date_format(invoice.created, 'SHORT_DATE_FORMAT'),
         content=[
-            Paragraph('%s %s' % (_('Invoice'), invoice.number), styles['Subject']),
+            Paragraph('%s %s' % (ugettext(u'Invoice'), invoice.number), styles['Subject']),
             Spacer(CONTENT_WIDTH, 2*mm),
             ItemTable(invoice),
             TotalTable(invoice),
@@ -50,3 +54,36 @@ def invoice_pdf(request, pk):
     template.build(document.content)
 
     return response
+
+
+permission_required('billing.add_invoiceitem')
+def import_items(request):
+    if request.method == 'POST':
+        form = ImportItemsForm(request.POST, request.FILES)
+        if form.is_valid():
+            items = form.cleaned_data['items']
+            for item in items:
+                item.save()
+            messages.success(request, ungettext(
+                '%(count)d invoice item imported.',
+                '%(count)d invoice items imported.',
+                len(items)
+            ) % { 'count': len(items) })
+    else:
+        form = ImportItemsForm()
+    from django.contrib.admin.helpers import AdminForm
+    return TemplateResponse(request, 'billing/admin/import_items.html', {
+        'form': form,
+        'adminform': AdminForm(
+            form=form,
+            fieldsets=[
+                (None, {
+                    'fields': form.fields
+                })
+            ],
+            prepopulated_fields={}),
+        # The admin templates depend on those variables
+        'add': True,
+        'has_file_field': True,
+        'errors': form.errors,
+    })
