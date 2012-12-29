@@ -1,167 +1,238 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-12-17 18:41-0600\n"
+"POT-Creation-Date: 2012-12-29 17:26-0600\n"
 "Last-Translator: Michael P. Jung <michael.jung@terreon.de>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: admin.py:54 models.py:25
+#: admin.py:32
+msgid "general"
+msgstr "Allgemein"
+
+#: admin.py:33
+msgid "address"
+msgstr "Adresse"
+
+#: admin.py:34
+msgid "dates"
+msgstr "Daten"
+
+#: admin.py:53 models.py:27
 msgid "Customer"
 msgstr "Kunde"
 
-#: admin.py:60
-msgid "Address"
-msgstr "Adresse"
+#: admin.py:59
+msgid "Recipient"
+msgstr "Empfänger"
 
-#: admin.py:97
+#: admin.py:106
 msgid "Create invoice(s) for selected item(s)"
 msgstr "Rechnung(en) für ausgewählte(n) Posten erzeugen"
 
-#: dashboard.py:24 models.py:55
-msgid "Invoices"
-msgstr "Rechnungen"
+#: admin_forms.py:31
+msgid "Customer does not exist."
+msgstr "Kunde existiert nicht."
 
-#: models.py:36
-msgid "net"
-msgstr "Netto"
+#: admin_forms.py:45
+msgid ""
+"Please specify a CSV file to be imported. The following fields are supported:"
+msgstr ""
+"Bitte geben Sie eine CSV Datei an, welche importiert werden soll. Die folgenden"
+"Felder werden unterstützt:"
 
-#: models.py:39
-msgid "gross"
-msgstr "Brutto"
+#: admin_forms.py:114
+msgid "Line"
+msgstr "Zeile"
 
-#: models.py:46
-msgid "Created"
-msgstr "Erstellt"
-
-#: models.py:48
-msgid "Reminded"
-msgstr "Erinnert"
-
-#: models.py:50
-msgid "Paid"
-msgstr "Bezahlt"
-
-#: models.py:54 models.py:60
+#: admin_views.py:52 models.py:57 models.py:63
+#: templates/billing/dashboard/loose-items.html:9
+#: templates/billing/dashboard/loose-items.html:16
 msgid "Invoice"
 msgstr "Rechnung"
 
-#: models.py:70
+#: admin_views.py:97
+#, python-format
+msgid "%(count)d invoice item imported."
+msgid_plural "%(count)d invoice items imported."
+msgstr[0] "%(count)d Rechnungsposten importiert."
+msgstr[1] "%(count)d Rechnungsposten importiert."
+
+#: dashboard.py:25
+msgid "Unpaid invoices"
+msgstr "Nichtbezahlte Rechnungen"
+
+#: dashboard.py:71
+msgid "Loose invoice items"
+msgstr "Lose Rechnungsposten"
+
+#: models.py:39
+msgid "net"
+msgstr "Netto"
+
+#: models.py:42
+msgid "gross"
+msgstr "Brutto"
+
+#: models.py:49
+msgid "Created"
+msgstr "Erstellt"
+
+#: models.py:51
+msgid "Reminded"
+msgstr "Erinnert"
+
+#: models.py:53
+msgid "Paid"
+msgstr "Bezahlt"
+
+#: models.py:58
+msgid "Invoices"
+msgstr "Rechnungen"
+
+#: models.py:73
 msgid "Okay"
 msgstr "In Ordnung"
 
-#: models.py:107
+#: models.py:119
 msgid "month"
 msgstr "Monat"
 
-#: models.py:108
+#: models.py:120
 msgid "year"
 msgstr "Jahr"
 
-#: models.py:115
+#: models.py:127
 msgid "invoice"
 msgstr "Rechnung"
 
-#: models.py:117
+#: models.py:129
 msgid "customer"
 msgstr "Kunde"
 
-#: models.py:119
+#: models.py:131
 msgid "position"
 msgstr "Position"
 
-#: models.py:122
+#: models.py:134
 msgid "quantity"
 msgstr "Anzahl"
 
-#: models.py:124
+#: models.py:136
 msgid "SKU"
 msgstr "SKU"
 
-#: models.py:125
+#: models.py:137
 msgid "Stock-keeping unit (e.g. Article number)"
 msgstr "Stock Keeping Unit (z.B. Artikelnummer)"
 
-#: models.py:127
+#: models.py:139
 msgid "description"
 msgstr "Beschreibung"
 
-#: models.py:129
+#: models.py:141
 msgid "begin"
 msgstr "Anfang"
 
-#: models.py:131
+#: models.py:143
 msgid "end"
 msgstr "Ende"
 
-#: models.py:133
+#: models.py:145
 msgid "price"
 msgstr "Preis"
 
-#: models.py:136
+#: models.py:148
 msgid "unit"
 msgstr "Einheit"
 
-#: models.py:146
+#: models.py:158
 msgid "Item"
 msgstr "Posten"
 
-#: models.py:147
+#: models.py:159
 msgid "Items"
 msgstr "Posten"
 
-#: models.py:166
+#: models.py:178
 msgid "one-time"
 msgstr "einmalig"
 
-#: models.py:168
+#: models.py:180
 msgid "Billing period"
 msgstr "Abrechnungszeitraum"
 
-#: models.py:173
+#: models.py:185
 msgid "Subtotal"
 msgstr "Zwischensumme"
 
-#: models.py:186
+#: models.py:198
 msgid "Sum of line"
 msgstr "Zeilensumme"
 
-#: templates/billing/dashboard/invoices.html:5
-msgid "Overdue invoices"
-msgstr "Überfällige Rechnungen"
+#: templates/billing/admin/import_items.html:8
+msgid "Home"
+msgstr "Start"
 
-#: templates/billing/dashboard/invoices.html:9
-msgid "Overdue since"
-msgstr "Überfällig seit"
+#: templates/billing/admin/import_items.html:9
+msgid "Billing"
+msgstr "Fakturierung"
 
-#: templates/billing/dashboard/invoices.html:10
+#: templates/billing/admin/import_items.html:10
+#: templates/billing/admin/import_items.html:15
+msgid "Import invoice items"
+msgstr "Rechnungsposten importieren"
+
+#: templates/billing/admin/import_items.html:37
+#: templates/billing/admin/import_items.html:43
+msgid "Import"
+msgstr "Import"
+
+#: templates/billing/dashboard/loose-items.html:8
+msgid "Item count"
+msgstr "Postenanzahl"
+
+#: templates/billing/dashboard/loose-items.html:10
+#: templates/billing/dashboard/loose-items.html:17
+msgid "Show"
+msgstr "Anzeigen"
+
+#: templates/billing/dashboard/loose-items.html:23
+msgid "Import items"
+msgstr "Posten importieren"
+
+#: templates/billing/dashboard/unpaid-invoices.html:8
+msgid "Age"
+msgstr "Alter"
+
+#: templates/billing/dashboard/unpaid-invoices.html:9
 msgid "Count"
 msgstr "Anzahl"
 
-#: templates/billing/dashboard/invoices.html:11
+#: templates/billing/dashboard/unpaid-invoices.html:10
 msgid "Link"
 msgstr "Link"
 
-#: templates/billing/dashboard/invoices.html:16
+#: templates/billing/dashboard/unpaid-invoices.html:15
 msgid "less than 14 days"
 msgstr "weniger als 14 Tage"
 
-#: templates/billing/dashboard/invoices.html:18
-#: templates/billing/dashboard/invoices.html:23
-#: templates/billing/dashboard/invoices.html:28
-#: templates/billing/dashboard/invoices.html:33
+#: templates/billing/dashboard/unpaid-invoices.html:17
+#: templates/billing/dashboard/unpaid-invoices.html:22
+#: templates/billing/dashboard/unpaid-invoices.html:27
+#: templates/billing/dashboard/unpaid-invoices.html:32
 msgid "show"
 msgstr "Anzeigen"
 
-#: templates/billing/dashboard/invoices.html:21
+#: templates/billing/dashboard/unpaid-invoices.html:20
 msgid "more than 14, less than 30 days"
 msgstr "mehr als 14, weniger als 30 Tage"
 
-#: templates/billing/dashboard/invoices.html:26
+#: templates/billing/dashboard/unpaid-invoices.html:25
 msgid "more than 30 days"
 msgstr "mehr als 30 Tage"
 
-#: templates/billing/dashboard/invoices.html:31
+#: templates/billing/dashboard/unpaid-invoices.html:30
 msgid "Sum"
 msgstr "Summe"
