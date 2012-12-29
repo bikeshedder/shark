@@ -3,3 +3,4 @@ South==0.7.6
 dinbrief==0.1.3
 django-admin-tools==0.4.1
 unicodecsv==0.9.0
+pyPdf==1.13

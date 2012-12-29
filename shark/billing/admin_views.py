@@ -1,3 +1,6 @@
+import tempfile
+
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.http import HttpResponse
@@ -6,6 +9,7 @@ from django.template.response import TemplateResponse
 from django.utils.formats import date_format
 from django.utils.translation import ugettext
 from django.utils.translation import ungettext
+from pyPdf import PdfFileWriter, PdfFileReader
 
 from shark import get_model
 from shark.billing.admin_forms import ImportItemsForm
@@ -45,13 +49,38 @@ def invoice_pdf(request, pk):
         recipient=invoice.recipient_lines,
         date=date_format(invoice.created, 'SHORT_DATE_FORMAT'),
         content=[
-            Paragraph('%s %s' % (ugettext(u'Invoice'), invoice.number), styles['Subject']),
+            Paragraph('%s %s' % (ugettext(u'Invoice'), invoice.number),
+                    styles['Subject']),
             Spacer(CONTENT_WIDTH, 2*mm),
             ItemTable(invoice),
             TotalTable(invoice),
         ])
-    template = BriefTemplate(response, document)
-    template.build(document.content)
+
+    if settings.SHARK['INVOICE']['BACKGROUND']:
+        with tempfile.TemporaryFile() as tmp:
+            # Create content in a temporary file
+            template = BriefTemplate(tmp, document)
+            template.build(document.content)
+            # Combine background with the content
+            writer = PdfFileWriter()
+            content = PdfFileReader(tmp)
+            info_dict = writer._info.getObject()
+            info_dict.update(content.getDocumentInfo())
+            first_bg = PdfFileReader(file(
+                    settings.SHARK['INVOICE']['BACKGROUND']['FIRST_PAGE']))
+            later_bg = PdfFileReader(file(
+                    settings.SHARK['INVOICE']['BACKGROUND']['LATER_PAGE']))
+            bg = [first_bg.getPage(0), later_bg.getPage(0)]
+            for i, page in enumerate(content.pages):
+                page.mergePage(bg[min(i, 1)])
+                page.compressContentStreams()
+                writer.addPage(page)
+            writer.write(response)
+    else:
+        # Render content directly to the HTTP response object if no
+        # background images are configured.
+        template = BriefTemplate(response, document)
+        template.build(document.content)
 
     return response
 
