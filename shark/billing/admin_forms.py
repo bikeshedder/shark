@@ -14,7 +14,7 @@ Customer = get_model('customer.Customer')
 
 
 class ItemForm(forms.ModelForm):
-    customer_number = forms.CharField(max_length=50, required=False)
+    customer_number = forms.CharField(max_length=Customer._meta.get_field('number').max_length)
 
     class Meta:
         model = InvoiceItem
@@ -77,26 +77,26 @@ class ImportItemsForm(forms.Form):
         customer_dict = {}
         # create item forms
         for row, data in enumerate(reader, 2):
-            for field_name, field_value in data.iteritems():
-                if field_value == u'':
+            for field_name in ItemForm._meta.fields:
+                field_value = data.get(field_name, '')
+                if field_value == '':
                     try:
                         field = ItemForm.base_fields[field_name]
                     except KeyError:
                         continue
                     data[field_name] = field.initial
             item_form = ItemForm(data)
-            item_forms.append(item_form)
-            item_form.is_valid()
+            item_forms.append((row, item_form))
             # get customer numbers from all rows
-            if 'customer_number' in item_form.cleaned_data:
+            if item_form.is_valid() and 'customer_number' in item_form.cleaned_data:
                 customer_number = item_form.cleaned_data['customer_number']
                 customer_dict[customer_number] = None
         # load all customers
         for customer in Customer.objects.filter(number__in=customer_dict.keys()):
             customer_dict[customer.number] = customer
         # prepare list of errnous rows
-        for item_form in item_forms:
-            if 'customer_number' in item_form.cleaned_data:
+        for row, item_form in item_forms:
+            if item_form.is_valid() and 'customer_number' in item_form.cleaned_data:
                 # resolve customer
                 item_form.resolve_customer(customer_dict)
             if not item_form.is_valid():
@@ -114,6 +114,6 @@ class ImportItemsForm(forms.Form):
                     ugettext('Line'), row, u''.join(row_errors))))
         else:
             self.cleaned_data['items'] = [
-                    form.save(commit=False)
-                    for form in item_forms]
+                    item_form.save(commit=False)
+                    for row, item_form in item_forms]
         return self.cleaned_data
