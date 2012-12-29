@@ -24,7 +24,7 @@ class Invoice(models.Model):
     #
     customer = models.ForeignKey(CUSTOMER_MODEL,
             verbose_name=_('Customer'))
-    # XXX replace this field by an IdField
+    # FIXME look up invoice number generator from settings
     number = IdField(DaysSinceEpoch())
 
     #
