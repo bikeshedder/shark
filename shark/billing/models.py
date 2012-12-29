@@ -9,13 +9,14 @@ from django.db.models import signals
 from django.utils.formats import date_format
 from django.utils.translation import ugettext_lazy as _
 
+from shark import get_model_name
 from shark.customer.fields import AddressField
 from shark.utils.id_generators import IdField, DaysSinceEpoch
 from shark.utils.rounding import round_to_centi
 
 INVOICE_PAYMENT_TIMEFRAME = settings.SHARK.get('INVOICE_PAYMENT_TIMEFRAME', 14)
 VAT_RATE_CHOICES = settings.SHARK.get('VAT_RATE_CHOICES', (Decimal(0), '0%'))
-CUSTOMER_MODEL = settings.SHARK.get('CUSTOMER_MODEL', 'customer.Customer')
+CUSTOMER_MODEL = get_model_name('customer.Customer')
 
 
 class Invoice(models.Model):
