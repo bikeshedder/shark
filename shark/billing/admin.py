@@ -24,6 +24,7 @@ class InvoiceItemInline(admin.TabularInline):
     model = models.InvoiceItem
     extra = 3
     ordering = ('position',)
+    exclude = ('customer',)
 
 
 class InvoiceAdmin(admin.ModelAdmin):
