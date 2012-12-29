@@ -165,6 +165,9 @@ SHARK = {
         (Decimal('0.00'), u'0%% (%s)' % _('tax free')),
     ),
     'INVOICE_PAYMENT_TIMEFRAME': timedelta(days=14),
+    'INVOICE': {
+        'BACKGROUND': None
+    },
     'MODELS': {
         'customer.Custmoer': 'customer.Customer',
         'billing.Invoice': 'billing.Invoice',
