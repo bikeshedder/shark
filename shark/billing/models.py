@@ -163,9 +163,9 @@ class InvoiceItem(models.Model):
         return u'#%d %s' % (self.position or 0, self.text)
 
     def save(self):
-        if self.customer is None:
-            if self.invoice is None:
-                self.customer = self.invoice.customer
+        if not self.customer_id:
+            if self.invoice_id:
+                self.customer_id = self.invoice.customer_id
             else:
                 raise RuntimeError('The customer must be set if no invoice is given')
         super(InvoiceItem, self).save()
