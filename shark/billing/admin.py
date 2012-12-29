@@ -3,11 +3,11 @@
 from datetime import date
 from datetime import datetime
 
-from django.contrib import admin
 from django.conf import settings
+from django.contrib import admin
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
 from django.http import HttpResponse
+from django.http import HttpResponseRedirect
 from django.utils.formats import date_format
 from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
@@ -93,7 +93,7 @@ class InvoiceItemAdmin(admin.ModelAdmin):
         for customer, items in customer_items_list:
             invoice = Invoice()
             invoice.customer = customer
-            invoice.sender = '' # FIXME
+            invoice.sender_lines = settings.SHARK['INVOICE']['SENDER']
             invoice.recipient = customer.address
             invoice.save()
             for position, item in enumerate(items, 1):
