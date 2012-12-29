@@ -12,15 +12,12 @@ from django.utils.formats import date_format
 from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext
-from django.db.models import get_model
 
+from shark import get_model
 from shark.billing import models
 
-
-CUSTOMER_MODEL = settings.SHARK.get('CUSTOMER_MODEL', 'customer.Customer')
-Customer = get_model(*CUSTOMER_MODEL.split('.'))
-INVOICE_MODEL = settings.SHARK.get('INVOICE_MODEL', 'billing.Invoice')
-Invoice = get_model(*INVOICE_MODEL.split('.'))
+Customer = get_model('customer.Customer')
+Invoice = get_model('billing.Invoice')
 
 
 class InvoiceItemInline(admin.TabularInline):
