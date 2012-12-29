@@ -83,7 +83,7 @@ class InvoiceItemAdmin(admin.ModelAdmin):
         items_dict = {}
         # [(customer, items)]
         customer_items_list = []
-        for item in queryset:
+        for item in queryset.filter(invoice=None):
             try:
                 items = items_dict[item.customer_id]
             except KeyError:
