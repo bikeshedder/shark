@@ -89,6 +89,47 @@ class DaysSinceEpoch(IdGenerator):
             return start
 
 
+class YearCustomerN(IdGenerator):
+    '''
+    Generate numbers of the format
+    <prefix><year><separator><customer_number><separator><n>
+    e.g. 2012-EXAMPLE-01
+
+    prefix: defaults to ''
+    separator: defaults to '-'
+    n: simple counter with n_length characters to the base n_base
+    '''
+
+    def __init__(self, model_class=None, field_name=None, prefix='',
+            separator='-', customer_number_length=20, n_length=3, n_base=10):
+        # FIXME Is there a way to figure out the customer number length
+        #       automatically?
+        super(YearCustomer, self).__init__(model_class, field_name)
+        self.prefix = prefix
+        self.n_length = n_length
+        self.n_base = n_base
+        self.epoch = epoch
+        self.format_string = u'{}{}{:>04d}{:>0%ds}{}{:>0%ds}' % (
+                customer_number_length, n_length)
+        self.max_length = len(prefix) + len(separator) + 4 + \
+                customer_number_length + len(separator) + n_length
+
+    def format(self, year, customer, n):
+        return self.format_string.format(self.prefix,
+                year, self.format_n(n))
+
+    def format_n(self, n):
+        return int2base(n, self.n_base)
+
+    def parse(self, s):
+        pass
+        # WORK IN PROGRESS
+        #prefix, rest = ...
+        #lp = len(self.prefix)
+        #ly = 4
+        #return (s[:lp], int(s[lp:lp+ly]),
+
+
 class IdField(models.CharField):
 
     def __init__(self, generator, **kwargs):
