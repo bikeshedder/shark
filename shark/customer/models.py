@@ -3,6 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from shark.customer.fields import AddressField
 from shark.utils.id_generators import IdField, DaysSinceEpoch
+from shark import get_model_name, is_model_overridden
 
 
 class BaseCustomer(models.Model):
@@ -13,6 +14,8 @@ class BaseCustomer(models.Model):
 
     class Meta:
         abstract = True
+        verbose_name = _('customer')
+        verbose_name_plural = _('customers')
 
     def __unicode__(self):
         return self.number
@@ -20,6 +23,5 @@ class BaseCustomer(models.Model):
 
 class Customer(BaseCustomer):
 
-    class Meta:
-        verbose_name = _('customer')
-        verbose_name_plural = _('customers')
+    class Meta(BaseCustomer.Meta):
+        abstract = is_model_overridden('customer.Customer')

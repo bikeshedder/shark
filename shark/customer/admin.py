@@ -18,4 +18,5 @@ class CustomerAdmin(admin.ModelAdmin):
     address_html.admin_order_field = 'address'
 
 
-admin.site.register(models.Customer, CustomerAdmin)
+if not models.Customer._meta.abstract:
+    admin.site.register(models.Customer, CustomerAdmin)

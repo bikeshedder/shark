@@ -11,3 +11,7 @@ def get_model(name):
 def get_model_name(name):
     MODELS = settings.SHARK.get('MODELS', {})
     return MODELS.get(name, name)
+
+
+def is_model_overridden(name):
+    return get_model_name(name) != name
