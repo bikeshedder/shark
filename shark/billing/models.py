@@ -137,7 +137,7 @@ class InvoiceItem(models.Model):
             help_text=_('Stock-keeping unit (e.g. Article number)'))
     text = models.CharField(max_length=200,
             verbose_name=_('description'))
-    begin = models.DateField(default=date.today,
+    begin = models.DateField(blank=True, null=True,
             verbose_name=_('begin'))
     end = models.DateField(blank=True, null=True,
             verbose_name=_('end'))
@@ -172,11 +172,14 @@ class InvoiceItem(models.Model):
         super(InvoiceItem, self).save()
 
     def get_period(self):
-        begin = date_format(self.begin, 'SHORT_DATE_FORMAT')
-        end = date_format(self.end, 'SHORT_DATE_FORMAT') \
-                if self.end is not None \
-                else _('one-time')
-        return u'%s – %s' % (begin, end)
+        if self.begin:
+            begin = date_format(self.begin, 'SHORT_DATE_FORMAT')
+            end = date_format(self.end, 'SHORT_DATE_FORMAT') \
+                    if self.end is not None \
+                    else _('one-time')
+            return u'%s – %s' % (begin, end)
+        else:
+            return None
     get_period.short_description = _('Billing period')
     period = property(get_period)
 
