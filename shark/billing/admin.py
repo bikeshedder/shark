@@ -13,7 +13,7 @@ from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext
 
-from shark import get_model
+from shark import get_model, get_admin_change_url
 from shark.billing import models
 
 Customer = get_model('customer.Customer')
@@ -49,7 +49,7 @@ class InvoiceAdmin(admin.ModelAdmin):
 
     def get_customer(self, obj):
         return u'<a href="%s">%s</a>' % (
-            reverse('admin:customer_customer_change', args=(obj.customer.id,)), obj.customer.name)
+                get_admin_change_url(obj.customer), obj.customer)
     get_customer.short_description = _('Customer')
     get_customer.admin_order_field = 'customer'
     get_customer.allow_tags = True
