@@ -101,33 +101,63 @@ class YearCustomerN(IdGenerator):
     '''
 
     def __init__(self, model_class=None, field_name=None, prefix='',
-            separator='-', customer_number_length=20, n_length=3, n_base=10):
+            separator='-', customer_number_length=20, n_length=2, n_base=10):
         # FIXME Is there a way to figure out the customer number length
         #       automatically?
-        super(YearCustomer, self).__init__(model_class, field_name)
+        super(YearCustomerN, self).__init__(model_class, field_name)
         self.prefix = prefix
+        self.separator = separator
         self.n_length = n_length
         self.n_base = n_base
-        self.epoch = epoch
-        self.format_string = u'{}{}{:>04d}{:>0%ds}{}{:>0%ds}' % (
-                customer_number_length, n_length)
+        # <prefix><year><separator><customer_number><separator><n>
+        self.format_string = u'{}{:>04d}{}{}{}{:>0%ds}' % n_length
         self.max_length = len(prefix) + len(separator) + 4 + \
                 customer_number_length + len(separator) + n_length
 
-    def format(self, year, customer, n):
+    def format(self, year, customer_number, n):
         return self.format_string.format(self.prefix,
-                year, self.format_n(n))
+                year, self.separator, customer_number,
+                self.separator, self.format_n(n))
 
     def format_n(self, n):
         return int2base(n, self.n_base)
 
     def parse(self, s):
-        pass
-        # WORK IN PROGRESS
-        #prefix, rest = ...
-        #lp = len(self.prefix)
-        #ly = 4
-        #return (s[:lp], int(s[lp:lp+ly]),
+        lp = len(self.prefix)
+        ls = len(self.separator)
+        prefix, rest = (s[:lp], s[lp:])
+        year, rest = rest.split(self.separator, 1)
+        year = int(year)
+        customer_number, n = rest.rsplit(self.separator, 1)
+        n = int(n, self.n_base)
+        return (year, customer_number, n)
+
+    def get_start(self, customer, today=None):
+        today = today or date.today()
+        return self.format(today.year, customer.number, 1)
+
+    def next(self, instance, today=None):
+        customer = instance
+        today = today or date.today()
+        start = self.get_start(customer, today)
+        try:
+            last = self.get_last(customer, today)
+            if start > last:
+                return start
+            (year, customer_number, last_n) = self.parse(last)
+            return self.format(year, customer_number, last_n+1)
+        except self.model_class.DoesNotExist:
+            return start
+
+    def get_queryset(self, customer, today):
+        prefix = u'%s%s' % (self.prefix, today.year)
+        return self.model_class.objects.all() \
+                .filter(**{ ('%s__startswith' % self.field_name): prefix }) \
+                .order_by('-%s' % self.field_name)
+
+    def get_last(self, customer, today):
+        obj = self.get_queryset(customer, today)[:1].get()
+        return getattr(obj, self.field_name)
 
 
 class IdField(models.CharField):
