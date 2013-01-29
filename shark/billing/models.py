@@ -11,7 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from shark import get_model_name
 from shark.customer.fields import AddressField
-from shark.utils.id_generators import IdField, DaysSinceEpoch
+from shark.utils.id_generators import IdField, YearCustomerN
 from shark.utils.rounding import round_to_centi
 
 INVOICE_PAYMENT_TIMEFRAME = settings.SHARK.get('INVOICE_PAYMENT_TIMEFRAME', 14)
@@ -26,7 +26,7 @@ class Invoice(models.Model):
     customer = models.ForeignKey(CUSTOMER_MODEL,
             verbose_name=_('Customer'))
     # FIXME look up invoice number generator from settings
-    number = IdField(DaysSinceEpoch())
+    number = IdField(YearCustomerN())
 
     #
     # address
