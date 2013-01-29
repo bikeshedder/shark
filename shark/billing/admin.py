@@ -14,6 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext
 
 from shark import get_model, get_admin_change_url
+from shark import get_admin_changelist_url
 from shark.billing import models
 
 Customer = get_model('customer.Customer')
@@ -101,6 +102,7 @@ class InvoiceItemAdmin(admin.ModelAdmin):
                 item.save()
             invoice.recalculate()
             invoice.save()
+        return HttpResponseRedirect(get_admin_changelist_url(Invoice))
     action_create_invoice.short_description = _('Create invoice(s) for selected item(s)')
 
 
