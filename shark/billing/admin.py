@@ -94,8 +94,6 @@ class InvoiceItemAdmin(admin.ModelAdmin):
         for customer, items in customer_items_list:
             invoice = Invoice()
             invoice.customer = customer
-            invoice.sender_lines = settings.SHARK['INVOICE']['SENDER']
-            invoice.recipient = customer.address
             invoice.save()
             for position, item in enumerate(items, 1):
                 item.position = position

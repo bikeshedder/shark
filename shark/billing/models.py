@@ -17,6 +17,7 @@ from shark.utils.rounding import round_to_centi
 INVOICE_PAYMENT_TIMEFRAME = settings.SHARK.get('INVOICE_PAYMENT_TIMEFRAME', 14)
 VAT_RATE_CHOICES = settings.SHARK.get('VAT_RATE_CHOICES', (Decimal(0), '0%'))
 CUSTOMER_MODEL = get_model_name('customer.Customer')
+INVOICE_SENDER = settings.SHARK['INVOICE']['SENDER']
 
 
 class Invoice(models.Model):
@@ -31,8 +32,10 @@ class Invoice(models.Model):
     #
     # address
     #
-    sender = AddressField()
-    recipient = AddressField()
+    sender = AddressField(blank=True,
+            default='\n'.join(INVOICE_SENDER))
+    recipient = AddressField(blank=True,
+            help_text='This field will be automatically filled with the address of the customer.')
 
     net = models.DecimalField(max_digits=10, decimal_places=2,
             default=Decimal('0.00'),
@@ -61,6 +64,11 @@ class Invoice(models.Model):
 
     def __unicode__(self):
         return u'%s %s' % (_('Invoice'), self.number)
+
+    def save(self):
+        if not self.recipient:
+            self.recipient = self.customer.address
+        super(Invoice, self).save()
 
     def is_okay(self):
         if self.paid:
