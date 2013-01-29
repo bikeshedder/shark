@@ -72,7 +72,9 @@ class InvoiceAdmin(admin.ModelAdmin):
 
 class InvoiceItemAdmin(admin.ModelAdmin):
     raw_id_fields = ('customer', 'invoice')
-    list_display = ('customer', 'invoice', 'position', 'sku', 'text', 'begin', 'end', 'price', 'total', 'discount', 'vat_rate')
+    list_display = ('customer', 'invoice', 'position', 'sku', 'text',
+            'begin', 'end', 'quantity', 'price', 'total', 'discount',
+            'vat_rate')
     list_display_links = ('position', 'text')
     list_filter = ('begin', 'end', 'vat_rate')
     ordering = ('customer__number', 'invoice__number', 'position')
