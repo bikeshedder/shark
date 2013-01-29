@@ -77,7 +77,7 @@ class DaysSinceEpoch(IdGenerator):
         days = (today - self.epoch).days
         return self.format(days, 0)
 
-    def next(self, today=None):
+    def next(self, instance=None, today=None):
         start = self.get_start(today)
         try:
             last = self.get_last()
@@ -155,5 +155,5 @@ class IdField(models.CharField):
         if getattr(instance, self.name, ''):
             # Do not create an ID for objects that already have a value set.
             return
-        value = generator.next()
+        value = generator.next(instance=instance)
         setattr(instance, self.name, value)
