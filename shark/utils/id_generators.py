@@ -137,7 +137,7 @@ class YearCustomerN(IdGenerator):
         return self.format(today.year, customer.number, 1)
 
     def next(self, instance, today=None):
-        customer = instance
+        customer = instance.customer
         today = today or date.today()
         start = self.get_start(customer, today)
         try:

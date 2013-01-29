@@ -34,11 +34,14 @@ class YearCustomerNTestCase(unittest.TestCase):
         gen.field_name = 'number'
         today = date.today()
         prefix = '{:>04d}-JOHNDOE'.format(today.year)
-        invoice1 = Invoice.objects.create(
-                customer=customer,
-                number=gen.next(instance=customer, today=today))
+        invoice1 = Invoice.objects.create(customer=customer)
         self.assertEqual('%s-01' % prefix, invoice1.number)
-        invoice2 = Invoice.objects.create(
-                customer=customer,
-                number=gen.next(instance=customer, today=today))
+        invoice2 = Invoice.objects.create(customer=customer)
         self.assertEqual('%s-02' % prefix, invoice2.number)
+
+    def test_invoice(self):
+        customer = Customer.objects.create(number='JANEDOE')
+        invoice = Invoice.objects.create(customer=customer)
+        today = date.today()
+        prefix = '{:>04d}-JANEDOE'.format(today.year)
+        self.assertEqual('%s-01' % prefix, invoice.number)
