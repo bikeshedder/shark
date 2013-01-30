@@ -7,7 +7,7 @@ from shark import get_model_name, is_model_overridden
 
 
 class BaseCustomer(models.Model):
-    number = IdField(DaysSinceEpoch())
+    number = IdField(DaysSinceEpoch(), max_length=20)
     address = AddressField(_('address'))
     created = models.DateTimeField(_('created'), auto_now_add=True)
     updated = models.DateTimeField(_('updated'), auto_now=True)

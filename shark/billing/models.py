@@ -27,7 +27,7 @@ class Invoice(models.Model):
     customer = models.ForeignKey(CUSTOMER_MODEL,
             verbose_name=_('Customer'))
     # FIXME look up invoice number generator from settings
-    number = IdField(YearCustomerN())
+    number = IdField(YearCustomerN(), max_length=30)
 
     #
     # address
