@@ -17,6 +17,8 @@ from shark.billing.admin_forms import ImportItemsForm
 InvoiceItem = get_model('billing.InvoiceItem')
 Invoice = get_model('billing.Invoice')
 
+INVOICE_TERMS = settings.SHARK['INVOICE']['TERMS']
+
 
 permission_required('billing.add_invoice')
 def invoice(request):
@@ -54,6 +56,10 @@ def invoice_pdf(request, pk):
             Spacer(CONTENT_WIDTH, 2*mm),
             ItemTable(invoice),
             TotalTable(invoice),
+            Spacer(CONTENT_WIDTH, 10*mm),
+        ] + [
+            Paragraph(term, styles['Terms'])
+            for term in INVOICE_TERMS
         ])
 
     if settings.SHARK['INVOICE']['BACKGROUND']:
