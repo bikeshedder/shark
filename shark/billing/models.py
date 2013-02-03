@@ -12,6 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 from shark import get_model_name
 from shark.customer.fields import AddressField
 from shark.utils.id_generators import IdField, YearCustomerN
+from shark.utils.fields import LanguageField
 from shark.utils.rounding import round_to_centi
 
 INVOICE_PAYMENT_TIMEFRAME = settings.SHARK.get('INVOICE_PAYMENT_TIMEFRAME', 14)
@@ -28,6 +29,8 @@ class Invoice(models.Model):
             verbose_name=_('Customer'))
     # FIXME look up invoice number generator from settings
     number = IdField(YearCustomerN(), max_length=30)
+    language = LanguageField(blank=True,
+            help_text=_('This field will be automatically filled with the language of the customer. If no language for the customer is specified the default language (%s) will be used.' % settings.LANGUAGE_CODE))
 
     #
     # address
@@ -35,7 +38,7 @@ class Invoice(models.Model):
     sender = AddressField(blank=True,
             default='\n'.join(INVOICE_SENDER))
     recipient = AddressField(blank=True,
-            help_text='This field will be automatically filled with the address of the customer.')
+            help_text=_('This field will be automatically filled with the address of the customer.'))
 
     net = models.DecimalField(max_digits=10, decimal_places=2,
             default=Decimal('0.00'),
@@ -68,6 +71,10 @@ class Invoice(models.Model):
     def save(self):
         if not self.recipient:
             self.recipient = self.customer.address
+        if not self.language:
+            self.language = self.customer.language \
+                    if self.customer.language \
+                    else settings.LANGUAGE_CODE
         super(Invoice, self).save()
 
     def is_okay(self):
