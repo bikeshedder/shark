@@ -76,4 +76,5 @@ class LooseItemsDashboardModule(DashboardModule):
         self.item_count = self.items.count()
         self.list_url = reverse('admin:%s_changelist' % settings.SHARK['MODELS']['billing.InvoiceItem'].lower().replace('.', '_')) \
                 + '?invoice__isnull=True'
-        self.invoice_url = reverse('billing_admin:invoiceitem_invoice')
+        # XXX disabled for now
+        #self.invoice_url = reverse('billing_admin:invoiceitem_invoice')
