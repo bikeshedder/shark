@@ -68,14 +68,14 @@ class Invoice(models.Model):
     def __unicode__(self):
         return u'%s %s' % (_('Invoice'), self.number)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         if not self.recipient:
             self.recipient = self.customer.address
         if not self.language:
             self.language = self.customer.language \
                     if self.customer.language \
                     else settings.LANGUAGE_CODE
-        super(Invoice, self).save()
+        super(Invoice, self).save(*args, **kwargs)
 
     def is_okay(self):
         if self.paid:
