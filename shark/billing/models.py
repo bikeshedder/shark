@@ -131,6 +131,8 @@ class Invoice(models.Model):
 
 
 UNIT_CHOICES = (
+    ('hour', _('hour')),
+    ('day', _('day')),
     ('month', _('month')),
     ('year', _('year')),
 )
