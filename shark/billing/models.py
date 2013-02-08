@@ -189,7 +189,7 @@ class InvoiceItem(models.Model):
         super(InvoiceItem, self).save()
 
     def get_period(self):
-        if self.begin:
+        if self.begin and self.end:
             begin = date_format(self.begin, 'SHORT_DATE_FORMAT')
             end = date_format(self.end, 'SHORT_DATE_FORMAT') \
                     if self.end is not None \
@@ -199,6 +199,12 @@ class InvoiceItem(models.Model):
             return None
     get_period.short_description = _('Billing period')
     period = property(get_period)
+
+    @property
+    def date(self):
+        return self.begin or self.end \
+                if bool(self.begin) != bool(self.end) \
+                else None
 
     def get_subtotal(self):
         return round_to_centi(self.quantity * self.price)
