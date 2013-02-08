@@ -53,12 +53,15 @@ class DaysSinceEpoch(IdGenerator):
         self.n_length = n_length
         self.n_base = n_base
         self.epoch = epoch
-        self.format_string = u'{}{:>0%ds}{:>0%ds}' % (days_length, n_length)
+        self.format_string = u'{prefix}{days:0%ds}{n:0>%ds}' % (
+                days_length, n_length)
         self.max_length = len(prefix) + days_length + n_length
 
     def format(self, days, n):
-        return self.format_string.format(self.prefix,
-                self.format_days(days), self.format_n(n))
+        return self.format_string.format(
+            prefix=self.prefix,
+            days=self.format_days(days),
+            n=self.format_n(n))
 
     def format_days(self, days):
         return int2base(days, self.days_base)
@@ -110,14 +113,18 @@ class YearCustomerN(IdGenerator):
         self.n_length = n_length
         self.n_base = n_base
         # <prefix><year><separator><customer_number><separator><n>
-        self.format_string = u'{}{:>04d}{}{}{}{:>0%ds}' % n_length
+        self.format_string = u'{prefix}{year:04d}{separator}' \
+                u'{customer_number}{separator}{n:0>%ds}' % n_length
         self.max_length = len(prefix) + len(separator) + 4 + \
                 customer_number_length + len(separator) + n_length
 
     def format(self, year, customer_number, n):
-        return self.format_string.format(self.prefix,
-                year, self.separator, customer_number,
-                self.separator, self.format_n(n))
+        return self.format_string.format(
+            prefix=self.prefix,
+            year=year,
+            separator=self.separator,
+            customer_number=customer_number,
+            n=self.format_n(n))
 
     def format_n(self, n):
         return int2base(n, self.n_base)
