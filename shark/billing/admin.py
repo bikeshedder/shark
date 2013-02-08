@@ -69,6 +69,16 @@ class InvoiceAdmin(admin.ModelAdmin):
     invoice_pdf.short_description = 'Invoice'
     invoice_pdf.allow_tags = True
 
+    def response_add(self, request, obj, *args, **kwargs):
+        obj.recalculate()
+        obj.save()
+        return super(InvoiceAdmin, self).response_add(request, obj, *args, **kwargs)
+
+    def response_change(self, request, obj, *args, **kwargs):
+        obj.recalculate()
+        obj.save()
+        return super(InvoiceAdmin, self).response_change(request, obj, *args, **kwargs)
+
 
 class InvoiceItemAdmin(admin.ModelAdmin):
     raw_id_fields = ('customer', 'invoice')
