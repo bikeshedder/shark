@@ -62,9 +62,9 @@ class InvoiceAdmin(admin.ModelAdmin):
 
     def invoice_pdf(self, obj):
         view = u'<a href="%s">View</a>' % (
-            reverse('billing_admin:invoice_pdf', args=(obj.pk,)))
+            reverse('billing_admin:invoice_pdf', args=(obj.number,)))
         download = u'<a href="%s?download">Download</a>' % (
-            reverse('billing_admin:invoice_pdf', args=(obj.pk,)))
+            reverse('billing_admin:invoice_pdf', args=(obj.number,)))
         return '%s | %s' % (view, download)
     invoice_pdf.short_description = 'Invoice'
     invoice_pdf.allow_tags = True

@@ -30,8 +30,8 @@ def invoice(request):
 
 
 permission_required('billing.change_invoice')
-def invoice_pdf(request, pk):
-    invoice = get_object_or_404(Invoice, pk=pk)
+def invoice_pdf(request, number):
+    invoice = get_object_or_404(Invoice, number=number)
     from reportlab.lib.units import mm
     from reportlab.platypus import Paragraph
     from reportlab.platypus.flowables import Spacer
