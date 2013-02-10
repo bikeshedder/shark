@@ -19,6 +19,7 @@ INVOICE_PAYMENT_TIMEFRAME = settings.SHARK.get('INVOICE_PAYMENT_TIMEFRAME', 14)
 VAT_RATE_CHOICES = settings.SHARK.get('VAT_RATE_CHOICES', (Decimal(0), '0%'))
 CUSTOMER_MODEL = get_model_name('customer.Customer')
 INVOICE_SENDER = settings.SHARK['INVOICE']['SENDER']
+UNIT_CHOICES = settings.SHARK['INVOICE']['UNIT_CHOICES']
 
 
 class Invoice(models.Model):
@@ -128,14 +129,6 @@ class Invoice(models.Model):
                 self.rate = rate
                 self.amount = amount
         return [VatItem(*t) for t in self.vat]
-
-
-UNIT_CHOICES = (
-    ('hour', _('hour')),
-    ('day', _('day')),
-    ('month', _('month')),
-    ('year', _('year')),
-)
 
 
 class InvoiceItem(models.Model):

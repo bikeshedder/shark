@@ -1,6 +1,6 @@
 # Django settings for shark project.
 
-_ = lambda s: s
+from django.utils.translation import ugettext_lazy as _
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -170,6 +170,15 @@ SHARK = {
         'BACKGROUND': None,
         'SENDER': [
             "settings.SHARK['INVOICE']['SENDER']"
+        ],
+        'UNIT_CHOICES': [
+            ('s', _('second [s]')),
+            ('min', _('minute [min]')),
+            ('h', _('hour [h]')),
+            ('d', _('day [d]')),
+            ('w', _('week [w]')),
+            ('m', _('month [m]')),
+            ('a', _('year [a]')),
         ]
     },
     'MODELS': {
