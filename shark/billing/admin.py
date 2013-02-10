@@ -30,7 +30,7 @@ class InvoiceItemInline(admin.TabularInline):
 
 class InvoiceAdmin(admin.ModelAdmin):
     fieldsets = (
-        (_('general'), {'fields': ('customer', 'number') }),
+        (_('general'), {'fields': ('customer', 'number', 'language') }),
         (_('address'), {'fields': ('sender', 'recipient') }),
         (_('dates'), {'fields': ('created', 'reminded', 'paid') }),
     )
