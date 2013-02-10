@@ -97,7 +97,7 @@ class InvoiceItemAdmin(admin.ModelAdmin):
         # [(customer, items)]
         customer_items_list = []
         for item in queryset \
-                .filter(invoice=None)
+                .filter(invoice=None) \
                 .order_by('text'):
             try:
                 items = items_dict[item.customer_id]
