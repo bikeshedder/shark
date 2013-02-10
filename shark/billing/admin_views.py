@@ -42,28 +42,29 @@ def invoice_pdf(request, pk):
     from dinbrief.styles import styles
     from dinbrief.template import BriefTemplate
 
-    response = HttpResponse(content_type='application/pdf')
-    if 'download' in request.GET:
-        filename = '%s.pdf' % invoice.number
-        response['Content-Disposition'] = 'attachment; filename=%s' % filename
-
-    document = Document(
-        sender=invoice.sender_lines,
-        recipient=invoice.recipient_lines,
-        date=date_format(invoice.created, 'SHORT_DATE_FORMAT'),
-        content=[
-            Paragraph('%s %s' % (ugettext(u'Invoice'), invoice.number),
-                    styles['Subject']),
-            Spacer(CONTENT_WIDTH, 2*mm),
-            ItemTable(invoice),
-            TotalTable(invoice),
-            Spacer(CONTENT_WIDTH, 10*mm),
-        ] + [
-            Paragraph(term, styles['Terms'])
-            for term in INVOICE_TERMS
-        ])
-
     with trans_override(invoice.language):
+
+        response = HttpResponse(content_type='application/pdf')
+        if 'download' in request.GET:
+            filename = '%s.pdf' % invoice.number
+            response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+        document = Document(
+            sender=invoice.sender_lines,
+            recipient=invoice.recipient_lines,
+            date=date_format(invoice.created, 'SHORT_DATE_FORMAT'),
+            content=[
+                Paragraph('%s %s' % (ugettext(u'Invoice'), invoice.number),
+                        styles['Subject']),
+                Spacer(CONTENT_WIDTH, 2*mm),
+                ItemTable(invoice),
+                TotalTable(invoice),
+                Spacer(CONTENT_WIDTH, 10*mm),
+            ] + [
+                Paragraph(term, styles['Terms'])
+                for term in INVOICE_TERMS
+            ])
+
         if settings.SHARK['INVOICE']['BACKGROUND']:
             with tempfile.TemporaryFile() as tmp:
                 # Create content in a temporary file
