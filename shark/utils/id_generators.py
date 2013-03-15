@@ -53,7 +53,7 @@ class DaysSinceEpoch(IdGenerator):
         self.n_length = n_length
         self.n_base = n_base
         self.epoch = epoch
-        self.format_string = u'{prefix}{days:0%ds}{n:0>%ds}' % (
+        self.format_string = u'{prefix}{days:0>%ds}{n:0>%ds}' % (
                 days_length, n_length)
         self.max_length = len(prefix) + days_length + n_length
 
