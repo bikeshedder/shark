@@ -113,8 +113,11 @@ class YearCustomerN(IdGenerator):
         self.n_length = n_length
         self.n_base = n_base
         # <prefix><year><separator><customer_number><separator><n>
-        self.format_string = u'{prefix}{year:04d}{separator}' \
-                u'{customer_number}{separator}{n:0>%ds}' % n_length
+        self.year_customer_format_string = \
+                u'{prefix}{year:04d}{separator}' \
+                u'{customer_number}{separator}'
+        self.format_string = self.year_customer_format_string + \
+                u'{n:0>%ds}' % n_length
         self.max_length = len(prefix) + len(separator) + 4 + \
                 customer_number_length + len(separator) + n_length
 
@@ -157,7 +160,11 @@ class YearCustomerN(IdGenerator):
             return start
 
     def get_queryset(self, customer, today):
-        prefix = u'%s%s' % (self.prefix, today.year)
+        prefix = self.year_customer_format_string.format(
+            prefix=self.prefix,
+            year=today.year,
+            separator=self.separator,
+            customer_number=customer.number)
         return self.model_class.objects.all() \
                 .filter(**{ ('%s__startswith' % self.field_name): prefix }) \
                 .order_by('-%s' % self.field_name)
