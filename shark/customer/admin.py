@@ -6,9 +6,9 @@ from shark.customer import models
 
 
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ['id', 'address_html', 'created']
+    list_display = ['number', 'address_html', 'created']
     list_filter = ['created']
-    search_fields = ['id', 'address', 'created']
+    search_fields = ['number', 'address', 'created']
     date_hierarchy = 'created'
 
     def address_html(self, instance):
