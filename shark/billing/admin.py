@@ -2,6 +2,7 @@
 
 from datetime import date
 from datetime import datetime
+from decimal import Decimal
 
 from django.conf import settings
 from django.contrib import admin
