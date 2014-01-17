@@ -45,7 +45,7 @@ class InvoiceAdmin(admin.ModelAdmin):
     search_fields = ('number', 'customer__number', 'customer__name', 'recipient')
     list_filter = ('created', 'paid',)
     date_hierarchy = 'created'
-    actions = ('create_document_action', 'remind_action')
+    actions = ('total_value_action',)
     save_on_top = True
 
     def get_customer(self, obj):
@@ -78,6 +78,21 @@ class InvoiceAdmin(admin.ModelAdmin):
         obj.recalculate()
         obj.save()
         return super(InvoiceAdmin, self).response_change(request, obj, *args, **kwargs)
+
+    def total_value_action(self, request, queryset):
+        net = Decimal(0)
+        gross = Decimal(0)
+        for invoice in queryset:
+            net += invoice.net
+            gross += invoice.gross
+        value = ugettext('%(net)s net, %(gross)s gross') % {
+                'net': net, 'gross': gross }
+        self.message_user(request, ungettext(
+            'Total value of %(count)d invoice: %(value)s',
+            'Total value of %(count)d invoices: %(value)s',
+            len(queryset)) % { 'count': len(queryset), 'value': value })
+    total_value_action.short_description = _('Calculate total value of selected invoices')
+
 
 
 class InvoiceItemAdmin(admin.ModelAdmin):
