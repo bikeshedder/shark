@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.003.02">
+
+<CstmrDrctDbtInitn>
+
+<GrpHdr>
+	<MsgId>{{ dd.id }}</MsgId><!-- FIXME -->
+	<CreDtTm>{% now 'c' %}</CreDtTm>
+	<NbOfTxs>{{ dd.transactions|length }}</NbOfTxs>
+	<CtrlSum>{{ dd.control_sum }}</CtrlSum>
+	<InitgPty>
+		<Nm>{{ dd.creditor_name }}</Nm>
+	</InitgPty>
+</GrpHdr>
+<PmtInf>
+	<PmtInfId>{{ dd.id }}</PmtInfId><!-- FIXME -->
+	<PmtMtd>DD</PmtMtd>
+	<!--<BtchBookg>false</BtchBookg>-->
+	<PmtTpInf>
+		<SvcLvl>
+			<Cd>SEPA</Cd>
+		</SvcLvl>
+		<LclInstrm>
+			<!-- B2B = without revocation for preauthorized payments -->
+			<!-- http://www.zahlungsverkehrsfragen.de/sdd_sepa_lastschrift.html -->
+			<Cd>COR1</Cd>
+		</LclInstrm>
+		<SeqTp>FRST</SeqTp>
+		<!-- FRST/RCUR XXX to be used for the 2nd, 3rd, 4th, etc txn of this mandate -->
+	</PmtTpInf>
+	<ReqdColltnDt>{% now 'Y-m-d' %}</ReqdColltnDt>
+	<Cdtr>
+		<Nm>{{ dd.creditor_name }}</Nm>
+		<!--
+		<PstlAdr>
+			<Ctry>{{ dd.creditor_country }}</Ctry>
+		</PstlAdr>
+		-->
+	</Cdtr>
+	<CdtrAcct>
+		<Id>
+			<IBAN>{{ dd.creditor_iban }}</IBAN>
+		</Id>
+	</CdtrAcct>
+	<CdtrAgt>
+		<FinInstnId>
+			<BIC>{{ dd.creditor_bic }}</BIC>
+		</FinInstnId>
+	</CdtrAgt>
+	<ChrgBr>SLEV</ChrgBr>
+	<CdtrSchmeId>
+		<Id>
+			<PrvtId>
+				<Othr>
+					<Id>{{ dd.creditor_id }}</Id>
+					<SchmeNm>
+						<Prtry>SEPA</Prtry>
+					</SchmeNm>
+				</Othr>
+			</PrvtId>
+		</Id>
+	</CdtrSchmeId>
+	{% for txn in dd.transactions %}
+	<DrctDbtTxInf>
+		<PmtId>
+			<EndToEndId>NOTPROVIDED</EndToEndId>
+		</PmtId>
+		<!-- opt.
+		<PmtTpInf>
+			<SvcLvl>
+				<Cd>SEPA</Cd>
+			</SvcLvl>
+		</PmtTpInf>
+		-->
+		<InstdAmt Ccy="EUR">{{ txn.amount }}</InstdAmt>
+		<!--<ChrgBr>SLEV</ChrgBr>-->
+		<DrctDbtTx>
+			<MndtRltdInf>
+				<MndtId>{{ txn.mandate_id }}</MndtId>
+				<DtOfSgntr>{{ txn.mandate_date|date:'c' }}</DtOfSgntr>
+				<!--<AmdmntInd>true</AmdmntInd> -->
+				<!-- true if the mandate has been changed -->
+				<!--
+				<AmdmntInfDtls>
+					...
+				</AmdmntInfDtls>
+				-->
+			</MndtRltdInf>
+			<!--
+			<CdtrSchemId>
+				<Id>
+					<PrvtId>
+						<OthrId>
+							<Id>...</Id>
+							<IdTp>...</IdTp>
+						</OthrId>
+					</PrvtId>
+				</Id>
+			</CdtrSchemId>
+			-->
+		</DrctDbtTx>
+		<!-- 3 -->
+
+		<DbtrAgt>
+			<FinInstnId>
+				<BIC>{{ txn.debitor_bic }}</BIC>
+			</FinInstnId>
+		</DbtrAgt>
+		<Dbtr>
+			<Nm>{{ txn.debitor_name }}</Nm>
+			<!--
+			<PstlAdr>
+				<Ctry>{{ txn.debitor_country }}</Ctry>
+			</PstlAdr>
+			-->
+		</Dbtr>
+		<DbtrAcct>
+			<Id>
+				<IBAN>{{ txn.debitor_iban }}</IBAN>
+			</Id>
+		</DbtrAcct>
+
+		<RmtInf>
+			<Ustrd>{{ txn.reference }}</Ustrd>
+			<!--<Ustrd>{{ txn.remittance_information }}</Ustrd>-->
+		</RmtInf>
+
+	</DrctDbtTxInf>
+	{% endfor %}
+
+</PmtInf>
+
+</CstmrDrctDbtInitn>
+
+</Document>

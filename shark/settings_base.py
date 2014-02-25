@@ -151,6 +151,7 @@ INSTALLED_APPS = (
     'shark',
     'shark.customer',
     'shark.billing',
+    'shark.sepa',
 )
 
 ADMIN_TOOLS_INDEX_DASHBOARD = 'shark.dashboard.CustomIndexDashboard'
