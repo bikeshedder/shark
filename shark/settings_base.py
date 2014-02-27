@@ -148,10 +148,12 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'south',
     'dinbrief',
+    'taggit',
     # Shark applications
     'shark',
-    'shark.customer',
     'shark.billing',
+    'shark.customer',
+    'shark.documents',
     'shark.sepa',
 )
 
