@@ -9,11 +9,12 @@
 .git
 .orig
 
-/build
-/.settings
-/.pydevproject
 /.project
-/media
-/static
+/.pydevproject
+/.settings
 
+/build
+/db.sqlite
+/htdocs/media
+/htdocs/static
 /settings.py
