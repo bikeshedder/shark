@@ -21,7 +21,7 @@ Invoice = get_model('billing.Invoice')
 INVOICE_TERMS = settings.SHARK['INVOICE']['TERMS']
 
 
-permission_required('billing.add_invoice')
+@permission_required('billing.add_invoice')
 def invoice(request):
     items = InvoiceItem.objects.filter(invoice=None)
     return TemplateResponse(request, 'billing/admin/invoiceitem_invoice.html', {
@@ -29,7 +29,7 @@ def invoice(request):
     })
 
 
-permission_required('billing.change_invoice')
+@permission_required('billing.change_invoice')
 def invoice_pdf(request, number):
     invoice = get_object_or_404(Invoice, number=number)
     from reportlab.lib.units import mm
@@ -94,7 +94,7 @@ def invoice_pdf(request, number):
     return response
 
 
-permission_required('billing.add_invoiceitem')
+@permission_required('billing.add_invoiceitem')
 def import_items(request):
     if request.method == 'POST':
         form = ImportItemsForm(request.POST, request.FILES)
