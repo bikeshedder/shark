@@ -1,6 +1,7 @@
 # Django settings for shark project.
 
 from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import string_concat
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -164,7 +165,7 @@ SHARK = {
     'VAT_RATE_CHOICES': (
         (Decimal('0.19'), u'19%'),
         (Decimal('0.07'), u'7%'),
-        (Decimal('0.00'), u'0%% (%s)' % _('tax free')),
+        (Decimal('0.00'), string_concat(u'0%% (', _('tax free'), ')')),
     ),
     'INVOICE_PAYMENT_TIMEFRAME': timedelta(days=14),
     'INVOICE': {
