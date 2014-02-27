@@ -151,6 +151,7 @@ INSTALLED_APPS = (
     'taggit',
     # Shark applications
     'shark',
+    'shark.banking',
     'shark.billing',
     'shark.customer',
     'shark.documents',
