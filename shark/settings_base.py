@@ -170,7 +170,10 @@ SHARK = {
     'INVOICE': {
         'BACKGROUND': None,
         'SENDER': [
-            "settings.SHARK['INVOICE']['SENDER']"
+            "settings.SHARK['INVOICE']['SENDER']",
+        ],
+        'TERMS': [
+            "settings.SHARK['INVOICE']['TERMS']",
         ],
         'UNIT_CHOICES': [
             ('s', _('second [s]')),
@@ -180,7 +183,7 @@ SHARK = {
             ('w', _('week [w]')),
             ('m', _('month [m]')),
             ('a', _('year [a]')),
-        ]
+        ],
     },
     'MODELS': {
         'customer.Custmoer': 'customer.Customer',
