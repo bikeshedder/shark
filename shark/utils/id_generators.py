@@ -95,37 +95,40 @@ class DaysSinceEpoch(IdGenerator):
 class YearCustomerN(IdGenerator):
     '''
     Generate numbers of the format
-    <prefix><year><separator><customer_number><separator><n>
+    <prefix><year><separator1><customer_number><separator2><n>
     e.g. 2012-EXAMPLE-01
 
     prefix: defaults to ''
-    separator: defaults to '-'
+    separator1: defaults to '-'
+    separator2: defaults to '-'
     n: simple counter with n_length characters to the base n_base
     '''
 
     def __init__(self, model_class=None, field_name=None, prefix='',
-            separator='-', customer_number_length=20, n_length=2, n_base=10):
+            separator1='-', separator2='-', customer_number_length=20, n_length=2, n_base=10):
         # FIXME Is there a way to figure out the customer number length
         #       automatically?
         super(YearCustomerN, self).__init__(model_class, field_name)
         self.prefix = prefix
-        self.separator = separator
+        self.separator1 = separator1
+        self.separator2 = separator2
         self.n_length = n_length
         self.n_base = n_base
-        # <prefix><year><separator><customer_number><separator><n>
+        # <prefix><year><separator1><customer_number><separator2><n>
         self.year_customer_format_string = \
-                u'{prefix}{year:04d}{separator}' \
-                u'{customer_number}{separator}'
+                u'{prefix}{year:04d}{separator1}' \
+                u'{customer_number}{separator2}'
         self.format_string = self.year_customer_format_string + \
                 u'{n:0>%ds}' % n_length
-        self.max_length = len(prefix) + len(separator) + 4 + \
-                customer_number_length + len(separator) + n_length
+        self.max_length = len(prefix) + len(separator1) + 4 + \
+                customer_number_length + len(separator2) + n_length
 
     def format(self, year, customer_number, n):
         return self.format_string.format(
             prefix=self.prefix,
             year=year,
-            separator=self.separator,
+            separator1=self.separator1,
+            separator2=self.separator2,
             customer_number=customer_number,
             n=self.format_n(n))
 
@@ -134,11 +137,10 @@ class YearCustomerN(IdGenerator):
 
     def parse(self, s):
         lp = len(self.prefix)
-        ls = len(self.separator)
         prefix, rest = (s[:lp], s[lp:])
-        year, rest = rest.split(self.separator, 1)
+        year, rest = rest.split(self.separator1, 1)
         year = int(year)
-        customer_number, n = rest.rsplit(self.separator, 1)
+        customer_number, n = rest.rsplit(self.separator2, 1)
         n = int(n, self.n_base)
         return (year, customer_number, n)
 
@@ -163,7 +165,8 @@ class YearCustomerN(IdGenerator):
         prefix = self.year_customer_format_string.format(
             prefix=self.prefix,
             year=today.year,
-            separator=self.separator,
+            separator1=self.separator1,
+            separator2=self.separator2,
             customer_number=customer.number)
         return self.model_class.objects.all() \
                 .filter(**{ ('%s__startswith' % self.field_name): prefix }) \
