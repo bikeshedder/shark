@@ -49,6 +49,14 @@ def invoice_pdf(request, number):
             filename = '%s.pdf' % invoice.number
             response['Content-Disposition'] = 'attachment; filename=%s' % filename
 
+        if callable(INVOICE_TERMS):
+            terms = INVOICE_TERMS(invoice)
+        else:
+            terms = [
+                Paragraph(term, styles['Terms'])
+                for term in INVOICE_TERMS
+            ]
+
         document = Document(
             sender=invoice.sender_lines,
             recipient=invoice.recipient_lines,
@@ -60,10 +68,7 @@ def invoice_pdf(request, number):
                 ItemTable(invoice),
                 TotalTable(invoice),
                 Spacer(CONTENT_WIDTH, 10*mm),
-            ] + [
-                Paragraph(term, styles['Terms'])
-                for term in INVOICE_TERMS
-            ])
+            ] + terms)
 
         if settings.SHARK['INVOICE']['BACKGROUND']:
             with tempfile.TemporaryFile() as tmp:
