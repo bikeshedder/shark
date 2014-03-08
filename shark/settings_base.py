@@ -179,6 +179,7 @@ SHARK = {
         'TERMS': [
             "settings.SHARK['INVOICE']['TERMS']",
         ],
+        'NUMBER_GENERATOR': 'shark.utils.id_generators.YearCustomerN',
         'UNIT_CHOICES': [
             ('s', _('second [s]')),
             ('min', _('minute [min]')),

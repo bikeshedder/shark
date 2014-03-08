@@ -11,15 +11,20 @@ from django.utils.translation import ugettext_lazy as _
 
 from shark import get_model_name
 from shark.customer.fields import AddressField
-from shark.utils.id_generators import IdField, YearCustomerN
+from shark.utils.id_generators import IdField
 from shark.utils.fields import LanguageField
 from shark.utils.rounding import round_to_centi
+from shark.utils.importlib import import_object
 
 INVOICE_PAYMENT_TIMEFRAME = settings.SHARK.get('INVOICE_PAYMENT_TIMEFRAME', 14)
 VAT_RATE_CHOICES = settings.SHARK.get('VAT_RATE_CHOICES', (Decimal(0), '0%'))
 CUSTOMER_MODEL = get_model_name('customer.Customer')
 INVOICE_SENDER = settings.SHARK['INVOICE']['SENDER']
 UNIT_CHOICES = settings.SHARK['INVOICE']['UNIT_CHOICES']
+NUMBER_GENERATOR = settings.SHARK['INVOICE']['NUMBER_GENERATOR']
+
+if isinstance(NUMBER_GENERATOR, basestring):
+    NUMBER_GENERATOR = import_object(NUMBER_GENERATOR)
 
 
 class Invoice(models.Model):
@@ -28,8 +33,7 @@ class Invoice(models.Model):
     #
     customer = models.ForeignKey(CUSTOMER_MODEL,
             verbose_name=_('Customer'))
-    # FIXME look up invoice number generator from settings
-    number = IdField(YearCustomerN(), max_length=30)
+    number = IdField(NUMBER_GENERATOR, max_length=30)
     language = LanguageField(blank=True,
             help_text=_('This field will be automatically filled with the language of the customer. If no language for the customer is specified the default language (%s) will be used.' % settings.LANGUAGE_CODE))
 
