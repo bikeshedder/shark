@@ -177,6 +177,98 @@ class YearCustomerN(IdGenerator):
         return getattr(obj, self.field_name)
 
 
+class CustomerYearN(IdGenerator):
+    '''
+    Generate numbers of the format
+    <prefix><customer_number><separator1><year><separator2><n>
+    e.g. EXAMPLE-2012-01
+
+    prefix: defaults to ''
+    separator1: defaults to '-'
+    separator2: defaults to '-', optional
+    n: simple counter with n_length characters to the base n_base
+    '''
+
+    def __init__(self, model_class=None, field_name=None, prefix='',
+            customer_number_length=20, separator1='-', year_length=4,
+            separator2='-', n_length=2, n_base=10):
+        super(CustomerYearN, self).__init__(model_class, field_name)
+        self.prefix = prefix
+        self.separator1 = separator1
+        self.year_length = year_length
+        self.separator2 = separator2
+        self.n_length = n_length
+        self.n_base = n_base
+        # <prefix><year><separator1><customer_number><separator2><n>
+        self.customer_year_format_string = \
+                u'{prefix}{customer_number}{separator1}' \
+                u'{year:0>%ds}{separator2}' % year_length
+        self.format_string = self.customer_year_format_string + \
+                u'{n:0>%ds}' % n_length
+        self.max_length = len(prefix) + len(separator1) + 4 + \
+                customer_number_length + len(separator2) + n_length
+
+    def format(self, customer_number, year, n):
+        return self.format_string.format(
+            prefix=self.prefix,
+            year=self.format_year(year),
+            separator1=self.separator1,
+            separator2=self.separator2,
+            customer_number=customer_number,
+            n=self.format_n(n))
+
+    def format_year(self, year):
+        return (('%%0%dd' % self.year_length) % year)[-self.year_length:]
+
+    def format_n(self, n):
+        return int2base(n, self.n_base)
+
+    def parse(self, s):
+        lp = len(self.prefix)
+        prefix, rest = (s[:lp], s[lp:])
+        customer_number, rest = rest.split(self.separator1, 1)
+        if self.separator2:
+            year, n = rest.rsplit(self.separator2, 1)
+        else:
+            ly = self.year_length
+            year, n = (rest[:ly], rest[ly:])
+        year = int(year)
+        n = int(n, self.n_base)
+        return (customer_number, year, n)
+
+    def get_start(self, customer, today=None):
+        today = today or date.today()
+        return self.format(customer.number, today.year, 1)
+
+    def next(self, instance, today=None):
+        customer = instance.customer
+        today = today or date.today()
+        start = self.get_start(customer, today)
+        try:
+            last = self.get_last(customer, today)
+            if start > last:
+                return start
+            (customer_number, year, last_n) = self.parse(last)
+            return self.format(customer_number, year, last_n+1)
+        except self.model_class.DoesNotExist:
+            return start
+
+    def get_queryset(self, customer, today):
+        prefix = self.customer_year_format_string.format(
+            prefix=self.prefix,
+            customer_number=customer.number,
+            separator1=self.separator1,
+            year=self.format_year(today.year),
+            separator2=self.separator2)
+        return self.model_class.objects.all() \
+                .filter(**{ ('%s__startswith' % self.field_name): prefix }) \
+                .order_by('-%s' % self.field_name)
+
+    def get_last(self, customer, today):
+        obj = self.get_queryset(customer, today)[:1].get()
+        return getattr(obj, self.field_name)
+
+
 class IdField(models.CharField):
 
     def __init__(self, generator, **kwargs):
