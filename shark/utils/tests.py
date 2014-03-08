@@ -1,6 +1,6 @@
 from datetime import date
 
-from django.utils import unittest
+from django.test import TestCase
 
 from shark.customer.models import Customer
 from shark.billing.models import Invoice
@@ -8,7 +8,7 @@ from shark.utils.id_generators import DaysSinceEpoch
 from shark.utils.id_generators import YearCustomerN
 
 
-class DaysSinceEpochTestCase(unittest.TestCase):
+class DaysSinceEpochTestCase(TestCase):
 
     def test_next(self):
         gen = DaysSinceEpoch(Customer, 'number')
@@ -25,7 +25,7 @@ class DaysSinceEpochTestCase(unittest.TestCase):
         self.assertNotEqual(customer2.number, customer1.number)
 
 
-class YearCustomerNTestCase(unittest.TestCase):
+class YearCustomerNTestCase(TestCase):
 
     def test_next(self):
         customer = Customer.objects.create(number='JOHNDOE')
