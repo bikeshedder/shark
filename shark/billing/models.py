@@ -2,6 +2,7 @@
 
 from decimal import Decimal
 from datetime import datetime, date, timedelta
+import inspect
 
 from django.conf import settings
 from django.db import models
@@ -25,6 +26,8 @@ NUMBER_GENERATOR = settings.SHARK['INVOICE']['NUMBER_GENERATOR']
 
 if isinstance(NUMBER_GENERATOR, basestring):
     NUMBER_GENERATOR = import_object(NUMBER_GENERATOR)
+if inspect.isclass(NUMBER_GENERATOR):
+    NUMBER_GENERATOR = NUMBER_GENERATOR()
 
 
 class Invoice(models.Model):
