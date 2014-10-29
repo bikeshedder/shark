@@ -1,10 +1,9 @@
-Django==1.6.2
-South==0.8.4
-dinbrief==0.2.0
-https://bitbucket.org/izi/django-admin-tools/downloads/django-admin-tools-0.5.1.tar.gz
+Django==1.7.1
+dinbrief==0.3.4
+django-admin-tools==0.5.2
 unicodecsv==0.9.0
-http://pybrary.net/pyPdf/pyPdf-1.13.tar.gz
-django-taggit==0.11.2
+pyPdf==1.13
+django-taggit==0.12.2
 django-hashedfilenamestorage==1.0
 django-iban==0.3.0
 django-countries==3.0.1
