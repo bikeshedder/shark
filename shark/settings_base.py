@@ -149,6 +149,7 @@ INSTALLED_APPS = (
     'south',
     'dinbrief',
     'taggit',
+    'django_iban',
     # Shark applications
     'shark',
     'shark.banking',

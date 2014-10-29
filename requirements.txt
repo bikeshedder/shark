@@ -6,3 +6,5 @@ unicodecsv==0.9.0
 http://pybrary.net/pyPdf/pyPdf-1.13.tar.gz
 django-taggit==0.11.2
 django-hashedfilenamestorage==1.0
+django-iban==0.3.0
+django-countries==3.0.1
