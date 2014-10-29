@@ -7,6 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 from django_hashedfilenamestorage.storage import HashedFilenameMetaStorage
 from taggit.managers import TaggableManager
 
+from shark.utils.date import today
+
 
 DocumentStorage = HashedFilenameMetaStorage(storage_class=get_storage_class())
 
@@ -14,8 +16,8 @@ DocumentStorage = HashedFilenameMetaStorage(storage_class=get_storage_class())
 class Document(models.Model):
     title = models.CharField(_('title'),
             max_length=100)
-    date = models.DateField(_('date'),
-            default=lambda: timezone.now().date())
+    date = models.DateField(_('date'), default=today,
+            help_text='Date as written on the document.')
     file = models.FileField(_('file'),
             upload_to='documents', storage=DocumentStorage())
     size = models.BigIntegerField(_('file size'),
@@ -43,6 +45,9 @@ class Document(models.Model):
             blank=True)
     tags = TaggableManager(_('tags'),
             blank=True)
+    created = models.DateTimeField(_('created'), auto_now_add=True)
+    received = models.DateField(_('received'), default=today,
+            help_text='Date when the document was received.')
 
     def __unicode__(self):
         return self.title
