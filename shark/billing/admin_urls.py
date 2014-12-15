@@ -8,4 +8,6 @@ urlpatterns = patterns('',
             name='import_items'),
     url(r'^invoice/(.*)\.pdf$', 'shark.billing.admin_views.invoice_pdf',
             name='invoice_pdf'),
+    url(r'^correction/(.*)\.pdf$', 'shark.billing.admin_views.correction_pdf',
+            name='correction_pdf'),
 )

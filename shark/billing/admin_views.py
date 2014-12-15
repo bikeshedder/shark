@@ -30,8 +30,10 @@ def invoice(request):
 
 
 @permission_required('billing.change_invoice')
-def invoice_pdf(request, number):
+def invoice_pdf(request, number, correction=False):
     invoice = get_object_or_404(Invoice, number=number)
+    if correction:
+        invoice = invoice.correction
     from reportlab.lib.units import mm
     from reportlab.platypus import Paragraph
     from reportlab.platypus.flowables import Spacer
@@ -62,7 +64,7 @@ def invoice_pdf(request, number):
             recipient=invoice.recipient_lines,
             date=date_format(invoice.created, 'SHORT_DATE_FORMAT'),
             content=[
-                Paragraph('%s %s' % (ugettext(u'Invoice'), invoice.number),
+                Paragraph('%s %s' % (ugettext(u'Invoice') if not correction else ugettext(u'Correction of invoice'), invoice.number),
                         styles['Subject']),
                 Spacer(CONTENT_WIDTH, 2*mm),
                 ItemTable(invoice),
@@ -97,6 +99,11 @@ def invoice_pdf(request, number):
             template.build(document.content)
 
     return response
+
+
+@permission_required('billing.change_invoice')
+def correction_pdf(request, number):
+    return invoice_pdf(request, number, correction=True)
 
 
 @permission_required('billing.add_invoiceitem')

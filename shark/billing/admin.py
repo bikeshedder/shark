@@ -39,7 +39,7 @@ class InvoiceAdmin(admin.ModelAdmin):
     inlines = [InvoiceItemInline]
     raw_id_fields = ('customer',)
     list_display = ('number', 'get_customer', 'get_recipient', 'net',
-            'gross', 'created', 'paid', 'is_okay', 'invoice_pdf')
+            'gross', 'created', 'paid', 'is_okay', 'invoice_pdf', 'correction_pdf')
     list_editable = ('paid',)
     list_display_links = ('number',)
     list_select_related = True
@@ -70,6 +70,15 @@ class InvoiceAdmin(admin.ModelAdmin):
         return '%s | %s' % (view, download)
     invoice_pdf.short_description = 'Invoice'
     invoice_pdf.allow_tags = True
+
+    def correction_pdf(self, obj):
+        view = u'<a href="%s">View</a>' % (
+            reverse('billing_admin:correction_pdf', args=(obj.number,)))
+        download = u'<a href="%s?download">Download</a>' % (
+            reverse('billing_admin:correction_pdf', args=(obj.number,)))
+        return '%s | %s' % (view, download)
+    correction_pdf.short_description = 'Correction'
+    correction_pdf.allow_tags = True
 
     def response_add(self, request, obj, *args, **kwargs):
         obj.recalculate()

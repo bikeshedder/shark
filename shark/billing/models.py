@@ -102,6 +102,31 @@ class Invoice(models.Model):
             self._item_cache = self.item_set.all()
         return self._item_cache
 
+    @property
+    def correction(self):
+        c = Invoice(
+                customer=self.customer,
+                number=self.number,
+                language=self.language,
+                sender=self.sender,
+                recipient=self.recipient)
+        c._item_cache = [item.clone() for item in self.items]
+        for item in c.items:
+            item.quantity = -item.quantity
+        c.recalculate()
+        return c
+
+    #
+    # status
+    #
+    created = models.DateField(
+            default=date.today,
+            verbose_name=_('Created'))
+    reminded = models.DateField(blank=True, null=True,
+            verbose_name=_('Reminded'))
+    paid = models.DateField(blank=True, null=True,
+            verbose_name=_('Paid'))
+
     def recalculate(self):
         self.net = sum(item.total for item in self.items)
         vat_amount = sum(vat_amount for vat_rate, vat_amount in self.vat)
@@ -179,6 +204,21 @@ class InvoiceItem(models.Model):
 
     def __unicode__(self):
         return u'#%d %s' % (self.position or 0, self.text)
+
+    def clone(self):
+        return InvoiceItem(
+                invoice=self.invoice,
+                customer=self.customer,
+                position=self.position,
+                quantity=self.quantity,
+                sku=self.sku,
+                text=self.text,
+                begin=self.begin,
+                end=self.end,
+                price=self.price,
+                unit=self.unit,
+                discount=self.discount,
+                vat_rate=self.vat_rate)
 
     def save(self):
         if not self.customer_id:

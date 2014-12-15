@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-08 11:53-0600\n"
+"POT-Creation-Date: 2014-12-15 10:26-0600\n"
 "Last-Translator: Michael P. Jung <michael.jung@terreon.de>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -19,7 +19,7 @@ msgstr "Adresse"
 msgid "dates"
 msgstr "Daten"
 
-#: admin.py:56 models.py:35
+#: admin.py:56 models.py:38
 msgid "Customer"
 msgstr "Kunde"
 
@@ -27,23 +27,23 @@ msgstr "Kunde"
 msgid "Recipient"
 msgstr "Empfänger"
 
-#: admin.py:90
+#: admin.py:99
 #, python-format
 msgid "%(net)s net, %(gross)s gross"
 msgstr "%(net)s netto, %(gross)s brutto"
 
-#: admin.py:93
+#: admin.py:102
 #, python-format
 msgid "Total value of %(count)d invoice: %(value)s"
 msgid_plural "Total value of %(count)d invoices: %(value)s"
 msgstr[0] "Der Gesamtwert von %(count)d Rechnung: %(value)s"
 msgstr[1] "Der Gesamtwert von %(count)d Rechnungen: %(value)s"
 
-#: admin.py:96
+#: admin.py:105
 msgid "Calculate total value of selected invoices"
 msgstr "Gesamtwert der ausgewählten Rechnungen berechnen"
 
-#: admin.py:137
+#: admin.py:146
 msgid "Create invoice(s) for selected item(s)"
 msgstr "Rechnung(en) für ausgewählte(n) Posten erzeugen"
 
@@ -62,11 +62,15 @@ msgstr ""
 msgid "Line"
 msgstr "Zeile"
 
-#: admin_views.py:65 models.py:68 models.py:74
+#: admin_views.py:65 models.py:71 models.py:77
 msgid "Invoice"
 msgstr "Rechnung"
 
-#: admin_views.py:111
+#: admin_views.py:65
+msgid "Correction of invoice"
+msgstr "Rechnungskorrektur"
+
+#: admin_views.py:116
 #, python-format
 msgid "%(count)d invoice item imported."
 msgid_plural "%(count)d invoice items imported."
@@ -81,7 +85,7 @@ msgstr "Nichtbezahlte Rechnungen"
 msgid "Loose invoice items"
 msgstr "Lose Rechnungsposten"
 
-#: models.py:38
+#: models.py:41
 #, python-format
 msgid ""
 "This field will be automatically filled with the language of the customer. "
@@ -92,104 +96,104 @@ msgstr ""
 "den Kunden keine Sprache festgelegt wurde, dann wird die Standardsprache "
 "(%s) verwendet."
 
-#: models.py:46
+#: models.py:49
 msgid ""
 "This field will be automatically filled with the address of the customer."
 msgstr "Dieses Feld wird automatisch mit der Adresse des Kunden gefüllt."
 
-#: models.py:50
+#: models.py:53
 msgid "net"
 msgstr "Netto"
 
-#: models.py:53
+#: models.py:56
 msgid "gross"
 msgstr "Brutto"
 
-#: models.py:60
+#: models.py:63
 msgid "Created"
 msgstr "Erstellt"
 
-#: models.py:62
+#: models.py:65
 msgid "Reminded"
 msgstr "Erinnert"
 
-#: models.py:64
+#: models.py:67
 msgid "Paid"
 msgstr "Bezahlt"
 
-#: models.py:69
+#: models.py:72
 msgid "Invoices"
 msgstr "Rechnungen"
 
-#: models.py:93
+#: models.py:96
 msgid "Okay"
 msgstr "i. O."
 
-#: models.py:141
+#: models.py:144
 msgid "invoice"
 msgstr "Rechnung"
 
-#: models.py:143
+#: models.py:146
 msgid "customer"
 msgstr "Kunde"
 
-#: models.py:145
+#: models.py:148
 msgid "position"
 msgstr "Position"
 
-#: models.py:148
+#: models.py:151
 msgid "quantity"
 msgstr "Anzahl"
 
-#: models.py:150
+#: models.py:153
 msgid "SKU"
 msgstr "SKU"
 
-#: models.py:151
+#: models.py:154
 msgid "Stock-keeping unit (e.g. Article number)"
 msgstr "Stock Keeping Unit (z.B. Artikelnummer)"
 
-#: models.py:153
+#: models.py:156
 msgid "description"
 msgstr "Beschreibung"
 
-#: models.py:155
+#: models.py:158
 msgid "begin"
 msgstr "Anfang"
 
-#: models.py:157
+#: models.py:160
 msgid "end"
 msgstr "Ende"
 
-#: models.py:159
+#: models.py:162
 msgid "price"
 msgstr "Preis"
 
-#: models.py:162
+#: models.py:165
 msgid "unit"
 msgstr "Einheit"
 
-#: models.py:172
+#: models.py:175
 msgid "Item"
 msgstr "Posten"
 
-#: models.py:173
+#: models.py:176
 msgid "Items"
 msgstr "Posten"
 
-#: models.py:193
+#: models.py:196
 msgid "one-time"
 msgstr "einmalig"
 
-#: models.py:197
+#: models.py:200
 msgid "Billing period"
 msgstr "Abrechnungszeitraum"
 
-#: models.py:208
+#: models.py:211
 msgid "Subtotal"
 msgstr "Zwischensumme"
 
-#: models.py:221
+#: models.py:224
 msgid "Sum of line"
 msgstr "Zeilensumme"
 
