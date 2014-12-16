@@ -51,13 +51,16 @@ def invoice_pdf(request, number, correction=False):
             filename = '%s.pdf' % invoice.number
             response['Content-Disposition'] = 'attachment; filename=%s' % filename
 
-        if callable(INVOICE_TERMS):
-            terms = INVOICE_TERMS(invoice)
+        if invoice.type == Invoice.TYPE_INVOICE:
+            if callable(INVOICE_TERMS):
+                terms = INVOICE_TERMS(invoice)
+            else:
+                terms = [
+                    Paragraph(term, styles['Terms'])
+                    for term in INVOICE_TERMS
+                ]
         else:
-            terms = [
-                Paragraph(term, styles['Terms'])
-                for term in INVOICE_TERMS
-            ]
+            terms = []
 
         document = Document(
             sender=invoice.sender_lines,
