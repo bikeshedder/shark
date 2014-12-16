@@ -45,7 +45,7 @@ class InvoiceAdmin(admin.ModelAdmin):
     list_select_related = True
     ordering = ('-created',)
     search_fields = ('number', 'customer__number', 'customer__address', 'recipient')
-    list_filter = ('created', 'paid',)
+    list_filter = ('created', 'paid', 'type')
     date_hierarchy = 'created'
     actions = ('total_value_action',)
     save_on_top = True

@@ -36,6 +36,10 @@ class Invoice(models.Model):
     #
     customer = models.ForeignKey(CUSTOMER_MODEL,
             verbose_name=_('Customer'))
+    type = models.CharField(max_length=20, choices=(
+        ('invoice', _('Invoice')),
+        ('correction', _('Correction of invoice')),
+    ))
     number = IdField(NUMBER_GENERATOR, max_length=30)
     language = LanguageField(blank=True,
             help_text=_('This field will be automatically filled with the language of the customer. If no language for the customer is specified the default language (%s) will be used.' % settings.LANGUAGE_CODE))

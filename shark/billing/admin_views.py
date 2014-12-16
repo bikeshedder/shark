@@ -64,7 +64,7 @@ def invoice_pdf(request, number, correction=False):
             recipient=invoice.recipient_lines,
             date=date_format(invoice.created, 'SHORT_DATE_FORMAT'),
             content=[
-                Paragraph('%s %s' % (ugettext(u'Invoice') if not correction else ugettext(u'Correction of invoice'), invoice.number),
+                Paragraph('%s %s' % (invoice.get_type_display if not correction else ugettext(u'Correction of invoice'), invoice.number),
                         styles['Subject']),
                 Spacer(CONTENT_WIDTH, 2*mm),
                 ItemTable(invoice),
