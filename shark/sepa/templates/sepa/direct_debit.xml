@@ -15,27 +15,24 @@
 <PmtInf>
 	<PmtInfId>{{ dd.id }}</PmtInfId><!-- FIXME -->
 	<PmtMtd>DD</PmtMtd>
-	<!--<BtchBookg>false</BtchBookg>-->
+	<BtchBookg>{{ dd.batch_booking|yesno:'true,false' }}</BtchBookg>
 	<PmtTpInf>
 		<SvcLvl>
 			<Cd>SEPA</Cd>
 		</SvcLvl>
 		<LclInstrm>
-			<!-- B2B = without revocation for preauthorized payments -->
-			<!-- http://www.zahlungsverkehrsfragen.de/sdd_sepa_lastschrift.html -->
-			<Cd>COR1</Cd>
+			<Cd>{{ dd.mandate_type }}</Cd>
 		</LclInstrm>
-		<SeqTp>FRST</SeqTp>
-		<!-- FRST/RCUR XXX to be used for the 2nd, 3rd, 4th, etc txn of this mandate -->
+		<SeqTp>{{ dd.sequence_type }}</SeqTp>
 	</PmtTpInf>
-	<ReqdColltnDt>{% now 'Y-m-d' %}</ReqdColltnDt>
+	<ReqdColltnDt>{{ dd.due_date|date:'c' }}</ReqdColltnDt>
 	<Cdtr>
 		<Nm>{{ dd.creditor_name }}</Nm>
-		<!--
+		{% if dd.creditor_country %}
 		<PstlAdr>
 			<Ctry>{{ dd.creditor_country }}</Ctry>
 		</PstlAdr>
-		-->
+		{% endif %}
 	</Cdtr>
 	<CdtrAcct>
 		<Id>
@@ -65,42 +62,13 @@
 		<PmtId>
 			<EndToEndId>NOTPROVIDED</EndToEndId>
 		</PmtId>
-		<!-- opt.
-		<PmtTpInf>
-			<SvcLvl>
-				<Cd>SEPA</Cd>
-			</SvcLvl>
-		</PmtTpInf>
-		-->
 		<InstdAmt Ccy="EUR">{{ txn.amount }}</InstdAmt>
-		<!--<ChrgBr>SLEV</ChrgBr>-->
 		<DrctDbtTx>
 			<MndtRltdInf>
 				<MndtId>{{ txn.mandate_id }}</MndtId>
 				<DtOfSgntr>{{ txn.mandate_date|date:'c' }}</DtOfSgntr>
-				<!--<AmdmntInd>true</AmdmntInd> -->
-				<!-- true if the mandate has been changed -->
-				<!--
-				<AmdmntInfDtls>
-					...
-				</AmdmntInfDtls>
-				-->
 			</MndtRltdInf>
-			<!--
-			<CdtrSchemId>
-				<Id>
-					<PrvtId>
-						<OthrId>
-							<Id>...</Id>
-							<IdTp>...</IdTp>
-						</OthrId>
-					</PrvtId>
-				</Id>
-			</CdtrSchemId>
-			-->
 		</DrctDbtTx>
-		<!-- 3 -->
-
 		<DbtrAgt>
 			<FinInstnId>
 				<BIC>{{ txn.debitor_bic }}</BIC>
@@ -108,11 +76,11 @@
 		</DbtrAgt>
 		<Dbtr>
 			<Nm>{{ txn.debitor_name }}</Nm>
-			<!--
+			{% if txn.debitor_country %}
 			<PstlAdr>
 				<Ctry>{{ txn.debitor_country }}</Ctry>
 			</PstlAdr>
-			-->
+			{% endif %}
 		</Dbtr>
 		<DbtrAcct>
 			<Id>
@@ -122,7 +90,6 @@
 
 		<RmtInf>
 			<Ustrd>{{ txn.reference }}</Ustrd>
-			<!--<Ustrd>{{ txn.remittance_information }}</Ustrd>-->
 		</RmtInf>
 
 	</DrctDbtTxInf>

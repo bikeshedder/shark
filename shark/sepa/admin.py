@@ -1,6 +1,7 @@
 from xml.sax.saxutils import escape
 
 from django.contrib import admin
+from django.utils.translation import ugettext_lazy as _
 
 from shark.sepa import models
 
@@ -14,8 +15,7 @@ class DirectDebitMandateAdmin(admin.ModelAdmin):
     def address_html(self, instance):
         return '<br/>'.join(map(escape, instance.address_lines))
     address_html.allow_tags = True
-    address_html.short_description = models.DirectDebitMandate._meta.get_field('address').verbose_name
-    address_html.admin_order_field = 'address'
+    address_html.short_description = _('address')
 
 
 
