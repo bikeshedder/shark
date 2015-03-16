@@ -190,6 +190,14 @@ SHARK = {
             ('a', _('year [a]')),
         ],
     },
+    'SEPA': {
+        'CREDITOR_ID': '',
+        'CREDITOR_NAME': '',
+        'CREDITOR_COUNTRY': 'DE',
+        'CREDITOR_IBAN': '',
+        'CREDITOR_BIC': '',
+        'DEFAULT_MANDATE_TYPE': 'CORE',
+    },
     'MODELS': {
         'customer.Customer': 'customer.Customer',
         'billing.Invoice': 'billing.Invoice',
