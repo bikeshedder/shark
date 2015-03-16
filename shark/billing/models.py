@@ -43,7 +43,7 @@ class Invoice(models.Model):
         (TYPE_CORRECTION, _('Correction of invoice')),
     )
     type = models.CharField(max_length=20, choices=TYPE_CHOICES, default=TYPE_INVOICE)
-    number = IdField(NUMBER_GENERATOR, max_length=30)
+    number = IdField(generator=NUMBER_GENERATOR)
     language = LanguageField(blank=True,
             help_text=_('This field will be automatically filled with the language of the customer. If no language for the customer is specified the default language (%s) will be used.' % settings.LANGUAGE_CODE))
 

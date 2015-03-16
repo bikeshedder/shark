@@ -9,7 +9,7 @@ from shark import get_model_name, is_model_overridden
 
 class BaseCustomer(models.Model):
     # FIXME look up customer number generator from settings
-    number = IdField(DaysSinceEpoch(), max_length=20)
+    number = IdField(generator=DaysSinceEpoch())
     address = AddressField(_('address'))
     language = LanguageField(blank=True)
     created = models.DateTimeField(_('created'), auto_now_add=True)

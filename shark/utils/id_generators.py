@@ -14,7 +14,11 @@ from shark.utils.int2base import int2base
 
 
 class IdGenerator(object):
-    max_length = 20 # this value should be overwritten by subclasses
+    # This value should be overwritten by subclasses.
+    # Typically an invoice number should not exceed 16 characters as a lot
+    # of accounting software assumes this limit. 32 chars also allows the
+    # use of UUIDs for an ID field which I assume is a sane maximum length.
+    max_length = 32
     '''
     This is just an interface class and does not contain any implementation.
     '''
@@ -271,9 +275,12 @@ class CustomerYearN(IdGenerator):
 
 class IdField(models.CharField):
 
-    def __init__(self, generator, **kwargs):
-        self.generator = generator
-        kwargs.setdefault('max_length', generator.max_length)
+    def __init__(self, **kwargs):
+        self.generator = kwargs.pop('generator', None)
+        kwargs.setdefault('max_length', 32)
+        if self.generator:
+            if self.generator.max_length > kwargs['max_length']:
+                raise RuntimeError('The generator is capable of generating IDs exceeding the max_length of this field. Consider using a different generator class or setting a higher max_length value to this field.')
         kwargs.setdefault('blank', True)
         kwargs.setdefault('unique', True)
         super(IdField, self).__init__(**kwargs)
