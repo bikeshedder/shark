@@ -24,6 +24,7 @@ class DirectDebitMandate(models.Model):
             help_text='International Bank Account Number')
     bic = SWIFTBICField('BIC',
             help_text='Bank Identifier Code')
+    bank_name = models.CharField(max_length=50, blank=True)
     created = models.DateTimeField(_('created'), auto_now_add=True)
     updated = models.DateTimeField(_('updated'), auto_now=True)
     signed = models.DateField(blank=True, null=True)
