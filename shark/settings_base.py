@@ -191,7 +191,7 @@ SHARK = {
         ],
     },
     'MODELS': {
-        'customer.Custmoer': 'customer.Customer',
+        'customer.Customer': 'customer.Customer',
         'billing.Invoice': 'billing.Invoice',
         'billing.InvoiceItem': 'billing.InvoiceItem',
     }
