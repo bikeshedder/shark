@@ -287,13 +287,14 @@ class IdField(models.CharField):
 
     def contribute_to_class(self, cls, name):
         super(IdField, self).contribute_to_class(cls, name)
-        generator = copy(self.generator)
-        if not generator.model_class_given:
-            generator.model_class = cls
-        if not generator.field_name_given:
-            generator.field_name = name
-        signals.pre_save.connect(curry(self._pre_save, generator=generator),
-                sender=cls, weak=False)
+        if self.generator:
+            generator = copy(self.generator)
+            if not generator.model_class_given:
+                generator.model_class = cls
+            if not generator.field_name_given:
+                generator.field_name = name
+            signals.pre_save.connect(curry(self._pre_save, generator=generator),
+                    sender=cls, weak=False)
 
     # Do not name this method 'pre_save' as it will otherwise be called without
     # the generator argument.
