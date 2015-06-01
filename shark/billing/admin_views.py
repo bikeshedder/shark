@@ -37,6 +37,7 @@ def invoice_pdf(request, number, correction=False):
     from reportlab.lib.units import mm
     from reportlab.platypus import Paragraph
     from reportlab.platypus.flowables import Spacer
+    from reportlab.platypus.flowables import KeepTogether
 
     from dinbrief.constants import CONTENT_WIDTH
     from dinbrief.document import Document
@@ -71,7 +72,7 @@ def invoice_pdf(request, number, correction=False):
                         styles['Subject']),
                 Spacer(CONTENT_WIDTH, 2*mm),
                 ItemTable(invoice),
-                TotalTable(invoice),
+                KeepTogether(TotalTable(invoice)),
                 Spacer(CONTENT_WIDTH, 10*mm),
             ] + terms)
 
