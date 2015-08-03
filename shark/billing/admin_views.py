@@ -39,7 +39,6 @@ def invoice_pdf(request, number, correction=False):
     from reportlab.platypus.flowables import Spacer
     from reportlab.platypus.flowables import KeepTogether
 
-    from dinbrief.constants import CONTENT_WIDTH
     from dinbrief.document import Document
     from dinbrief.invoice import ItemTable, TotalTable
     from dinbrief.styles import styles
@@ -71,10 +70,10 @@ def invoice_pdf(request, number, correction=False):
             content=[
                 Paragraph('%s %s' % (invoice.get_type_display() if not correction else ugettext(u'Correction of invoice'), invoice.number),
                         styles['Subject']),
-                Spacer(CONTENT_WIDTH, 2*mm),
+                Spacer(template.CONTENT_WIDTH, 2*mm),
                 ItemTable(template, invoice),
                 KeepTogether(TotalTable(template, invoice)),
-                Spacer(CONTENT_WIDTH, 10*mm),
+                Spacer(template.CONTENT_WIDTH, 10*mm),
             ] + terms)
 
         if settings.SHARK['INVOICE']['BACKGROUND']:
