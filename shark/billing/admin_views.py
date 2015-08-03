@@ -63,6 +63,7 @@ def invoice_pdf(request, number, correction=False):
         else:
             terms = []
 
+        template = BriefTemplate()
         document = Document(
             sender=invoice.sender_lines,
             recipient=invoice.recipient_lines,
@@ -71,16 +72,15 @@ def invoice_pdf(request, number, correction=False):
                 Paragraph('%s %s' % (invoice.get_type_display() if not correction else ugettext(u'Correction of invoice'), invoice.number),
                         styles['Subject']),
                 Spacer(CONTENT_WIDTH, 2*mm),
-                ItemTable(invoice),
-                KeepTogether(TotalTable(invoice)),
+                ItemTable(template, invoice),
+                KeepTogether(TotalTable(template, invoice)),
                 Spacer(CONTENT_WIDTH, 10*mm),
             ] + terms)
 
         if settings.SHARK['INVOICE']['BACKGROUND']:
             with tempfile.TemporaryFile() as tmp:
                 # Create content in a temporary file
-                template = BriefTemplate(tmp, document)
-                template.build(document.content)
+                template.render(document, tmp)
                 # Combine background with the content
                 writer = PdfFileWriter()
                 content = PdfFileReader(tmp)
@@ -99,8 +99,7 @@ def invoice_pdf(request, number, correction=False):
         else:
             # Render content directly to the HTTP response object if no
             # background images are configured.
-            template = BriefTemplate(response, document)
-            template.build(document.content)
+            template.render(document, response)
 
     return response
 
