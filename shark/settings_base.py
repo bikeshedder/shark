@@ -134,10 +134,20 @@ TEMPLATE_DIRS = (
 FORMAT_MODULE_PATH = 'shark.base.formats'
 
 INSTALLED_APPS = (
+    # Shark applications
+    'shark',
+    'shark.base',
+    'shark.banking',
+    'shark.billing',
+    'shark.customer',
+    'shark.documents',
+    'shark.sepa',
+    # Admin tools
     'admin_tools',
     'admin_tools.theming',
     'admin_tools.menu',
     'admin_tools.dashboard',
+    # Django contrib
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -146,16 +156,11 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
+    # Misc
+    'autocomplete_light',
     'dinbrief',
     'taggit',
     'django_iban',
-    # Shark applications
-    'shark',
-    'shark.banking',
-    'shark.billing',
-    'shark.customer',
-    'shark.documents',
-    'shark.sepa',
 )
 
 ADMIN_TOOLS_INDEX_DASHBOARD = 'shark.dashboard.CustomIndexDashboard'

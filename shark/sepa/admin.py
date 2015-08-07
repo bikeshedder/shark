@@ -1,5 +1,6 @@
 from xml.sax.saxutils import escape
 
+import autocomplete_light
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
@@ -10,7 +11,8 @@ class DirectDebitMandateAdmin(admin.ModelAdmin):
     list_display = ['customer', 'address_html', 'iban', 'bic']
     list_filter = ['created', 'signed']
     search_fields = ['number', 'address', 'created']
-    raw_id_fields = ['customer', 'document']
+    form = autocomplete_light.modelform_factory(models.DirectDebitMandate, exclude=[])
+    raw_id_fields = ['document']
 
     def address_html(self, instance):
         return '<br/>'.join(map(escape, instance.address_lines))

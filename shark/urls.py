@@ -13,6 +13,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^admin_tools/', include('admin_tools.urls')),
     url(r'^accounting/', include('shark.accounting.urls', namespace='accounting')),
+    url(r'^autocomplete/', include('autocomplete_light.urls')),
 )
 
 if settings.DEBUG:

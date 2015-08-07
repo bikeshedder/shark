@@ -4,6 +4,7 @@ from datetime import date
 from datetime import datetime
 from decimal import Decimal
 
+import autocomplete_light
 from django.conf import settings
 from django.contrib import admin
 from django.core.urlresolvers import reverse
@@ -31,13 +32,13 @@ class InvoiceItemInline(admin.TabularInline):
 
 
 class InvoiceAdmin(admin.ModelAdmin):
+    form = autocomplete_light.modelform_factory(models.Invoice, exclude=[])
     fieldsets = (
         (_('general'), {'fields': ('customer', 'type', 'number', 'language') }),
         (_('address'), {'fields': ('sender', 'recipient') }),
         (_('dates'), {'fields': ('created', 'reminded', 'paid') }),
     )
     inlines = [InvoiceItemInline]
-    raw_id_fields = ('customer',)
     list_display = ('number', 'get_customer', 'get_recipient', 'net',
             'gross', 'created', 'paid', 'is_okay', 'invoice_pdf', 'correction_pdf')
     list_editable = ('paid',)
@@ -107,7 +108,6 @@ class InvoiceAdmin(admin.ModelAdmin):
 
 
 class InvoiceItemAdmin(admin.ModelAdmin):
-    raw_id_fields = ('customer', 'invoice')
     list_display = ('customer', 'invoice', 'position', 'sku', 'text',
             'begin', 'end', 'quantity', 'price', 'total', 'discount',
             'vat_rate')
@@ -116,6 +116,8 @@ class InvoiceItemAdmin(admin.ModelAdmin):
     ordering = ('customer__number', 'invoice__number', 'position')
     search_fields = ('invoice__number', 'customer__number', 'sku', 'text')
     actions = ('action_create_invoice',)
+    form = autocomplete_light.modelform_factory(models.InvoiceItem, exclude=[])
+    raw_id_fields = ('invoice',)
 
     def action_create_invoice(self, request, queryset):
         # customer_id -> items
