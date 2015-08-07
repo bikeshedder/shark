@@ -1,11 +1,12 @@
 import autocomplete_light
 
+from shark import get_model
 from shark.customer import models
 
 
 class CustomerAutocomplete(autocomplete_light.AutocompleteModelBase):
     search_fields = ['number', 'address']
-    model = models.Customer
+    model = get_model('customer.Customer')
 
     def choices_for_request(self):
         if not self.request.user.is_superuser:
