@@ -160,7 +160,7 @@ INSTALLED_APPS = (
     'autocomplete_light',
     'dinbrief',
     'taggit',
-    'django_iban',
+    'localflavor',
 )
 
 ADMIN_TOOLS_INDEX_DASHBOARD = 'shark.dashboard.CustomIndexDashboard'

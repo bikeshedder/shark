@@ -2,9 +2,9 @@ import uuid
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from django_iban.fields import IBANField
-from django_iban.fields import SWIFTBICField
 from django_countries.fields import CountryField
+from localflavor.generic.models import BICField
+from localflavor.generic.models import IBANField
 
 from shark import get_model_name, is_model_overridden
 from shark.utils.settings import get_settings_value
@@ -23,7 +23,7 @@ class DirectDebitMandate(models.Model):
     country = CountryField(default='DE')
     iban = IBANField('IBAN',
             help_text='International Bank Account Number')
-    bic = SWIFTBICField('BIC',
+    bic = BICField('BIC',
             help_text='Bank Identifier Code')
     bank_name = models.CharField(max_length=50, blank=True)
     created = models.DateTimeField(_('created'), auto_now_add=True)
@@ -83,7 +83,7 @@ class DirectDebitBatch(models.Model):
             default=get_settings_value('SEPA.CREDITOR_COUNTRY', ''))
     creditor_iban = IBANField(_('creditor IBAN'),
             default=get_settings_value('SEPA.CREDITOR_IBAN', ''))
-    creditor_bic = SWIFTBICField(_('creditor BIC'),
+    creditor_bic = BICField(_('creditor BIC'),
             default=get_settings_value('SEPA.CREDITOR_BIC', ''))
     due_date = models.DateTimeField(_('due date'),
             help_text=_('Must be min. 5 TARGET dates in the future for the first transaction and 2 target days in the future for recurring transactions.'))

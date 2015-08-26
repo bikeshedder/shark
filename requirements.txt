@@ -5,6 +5,6 @@ unicodecsv==0.9.4
 pyPdf==1.13
 django-taggit==0.16.2
 django-hashedfilenamestorage==1.0
-django-iban==0.3.1
+django-localflavor==1.1
 django-countries==3.2
 django-autocomplete-light==2.2.5

@@ -5,7 +5,7 @@ import uuid
 
 from django.db import models, migrations
 import django_countries.fields
-import django_iban.fields
+import localflavor.generic.models
 
 
 class Migration(migrations.Migration):
@@ -25,8 +25,8 @@ class Migration(migrations.Migration):
                 ('creditor_id', models.CharField(default=b'', max_length=20, verbose_name='creditor id')),
                 ('creditor_name', models.CharField(default=b'', max_length=70, verbose_name='creditor name')),
                 ('creditor_country', models.CharField(default=b'DE', max_length=2, verbose_name='creditor country')),
-                ('creditor_iban', django_iban.fields.IBANField(default=b'', max_length=34)),
-                ('creditor_bic', django_iban.fields.SWIFTBICField(default=b'', max_length=11, verbose_name='creditor BIC')),
+                ('creditor_iban', localflavor.generic.models.IBANField(default=b'', max_length=34)),
+                ('creditor_bic', localflavor.generic.models.BICField(default=b'', max_length=11, verbose_name='creditor BIC')),
                 ('due_date', models.DateTimeField(help_text='Must be min. 5 TARGET dates in the future for the first transaction and 2 target days in the future for recurring transactions.', verbose_name='due date')),
                 ('mandate_type', models.CharField(max_length=4, verbose_name='mandate type', choices=[(b'CORE', b'CORE'), (b'COR1', b'COR1'), (b'B2B', b'B2B')])),
                 ('sequence_type', models.CharField(max_length=4, verbose_name='sequence type', choices=[(b'FRST', b'FRST'), (b'RCUR', b'RCUR')])),
@@ -47,8 +47,8 @@ class Migration(migrations.Migration):
                 ('postal_code', models.CharField(max_length=20)),
                 ('city', models.CharField(max_length=100)),
                 ('country', django_countries.fields.CountryField(default=b'DE', max_length=2)),
-                ('iban', django_iban.fields.IBANField(help_text=b'International Bank Account Number', max_length=34)),
-                ('bic', django_iban.fields.SWIFTBICField(help_text=b'Bank Identifier Code', max_length=11, verbose_name=b'BIC')),
+                ('iban', localflavor.generic.models.IBANField(help_text=b'International Bank Account Number', max_length=34)),
+                ('bic', localflavor.generic.models.BICField(help_text=b'Bank Identifier Code', max_length=11, verbose_name=b'BIC')),
                 ('created', models.DateTimeField(auto_now_add=True, verbose_name='created')),
                 ('updated', models.DateTimeField(auto_now=True, verbose_name='updated')),
                 ('signed', models.DateField(null=True, blank=True)),
