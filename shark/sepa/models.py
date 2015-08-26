@@ -1,9 +1,10 @@
+import uuid
+
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_iban.fields import IBANField
 from django_iban.fields import SWIFTBICField
 from django_countries.fields import CountryField
-from uuidfield import UUIDField
 
 from shark import get_model_name, is_model_overridden
 from shark.utils.settings import get_settings_value
@@ -73,7 +74,7 @@ class DirectDebitBatch(models.Model):
     together. This is typically achieved by generating a SEPA XML
     file.
     '''
-    uuid = UUIDField(auto=True)
+    uuid = models.UUIDField(_('UUID'), default=uuid.uuid4)
     creditor_id = models.CharField(_('creditor id'), max_length=20,
             default=get_settings_value('SEPA.CREDITOR_ID', ''))
     creditor_name = models.CharField(_('creditor name'), max_length=70,

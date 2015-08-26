@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import uuid
+
 from django.db import models, migrations
 import django_countries.fields
 import django_iban.fields
-import uuidfield.fields
 
 
 class Migration(migrations.Migration):
@@ -20,7 +21,7 @@ class Migration(migrations.Migration):
             name='DirectDebitBatch',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('uuid', uuidfield.fields.UUIDField(unique=True, max_length=32, editable=False, blank=True)),
+                ('uuid', models.UUIDField(default=uuid.uuid4, verbose_name='UUID')),
                 ('creditor_id', models.CharField(default=b'', max_length=20, verbose_name='creditor id')),
                 ('creditor_name', models.CharField(default=b'', max_length=70, verbose_name='creditor name')),
                 ('creditor_country', models.CharField(default=b'DE', max_length=2, verbose_name='creditor country')),
