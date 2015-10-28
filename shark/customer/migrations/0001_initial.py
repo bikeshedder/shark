@@ -5,6 +5,7 @@ from django.db import models, migrations
 import shark.customer.fields
 import shark.utils.fields
 import shark.utils.id_generators
+from shark import is_model_overridden
 
 
 class Migration(migrations.Migration):
@@ -30,4 +31,4 @@ class Migration(migrations.Migration):
             },
             bases=(models.Model,),
         ),
-    ]
+    ] if not is_model_overridden('customer.Customer') else []

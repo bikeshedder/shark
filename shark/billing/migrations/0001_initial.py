@@ -7,6 +7,7 @@ from decimal import Decimal
 import shark.utils.fields
 import shark.customer.fields
 import shark.utils.id_generators
+from shark import get_model_name
 
 
 class Migration(migrations.Migration):
@@ -30,7 +31,7 @@ class Migration(migrations.Migration):
                 ('created', models.DateField(default=datetime.date.today, verbose_name='Created')),
                 ('reminded', models.DateField(null=True, verbose_name='Reminded', blank=True)),
                 ('paid', models.DateField(null=True, verbose_name='Paid', blank=True)),
-                ('customer', models.ForeignKey(verbose_name='Customer', to='customer.Customer')),
+                ('customer', models.ForeignKey(verbose_name='Customer', to=get_model_name('customer.Customer'))),
             ],
             options={
                 'ordering': ('-created',),
@@ -54,7 +55,7 @@ class Migration(migrations.Migration):
                 ('unit', models.CharField(blank=True, max_length=10, verbose_name='unit', choices=[(b's', 'second [s]'), (b'min', 'minute [min]'), (b'h', 'hour [h]'), (b'd', 'day [d]'), (b'w', 'week [w]'), (b'm', 'month [m]'), (b'a', 'year [a]')])),
                 ('discount', models.DecimalField(default=Decimal('0.00'), verbose_name=b'discount', max_digits=3, decimal_places=2)),
                 ('vat_rate', models.DecimalField(verbose_name=b'VAT rate', max_digits=3, decimal_places=2, choices=[(Decimal('0.19'), '19%'), (Decimal('0.07'), '7%'), (Decimal('0.00'), '0%% (tax free)')])),
-                ('customer', models.ForeignKey(verbose_name='customer', to='customer.Customer')),
+                ('customer', models.ForeignKey(verbose_name='customer', to=get_model_name('customer.Customer'))),
                 ('invoice', models.ForeignKey(related_name='item_set', verbose_name='invoice', blank=True, to='billing.Invoice', null=True)),
             ],
             options={
