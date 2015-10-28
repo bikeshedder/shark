@@ -161,10 +161,21 @@ INSTALLED_APPS = (
     'dinbrief',
     'taggit',
     'localflavor',
+    'rest_framework',
 )
 
 ADMIN_TOOLS_INDEX_DASHBOARD = 'shark.dashboard.CustomIndexDashboard'
 ADMIN_TOOLS_APP_INDEX_DASHBOARD = 'shark.dashboard.CustomAppIndexDashboard'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAdminUser',
+    )
+}
 
 from decimal import Decimal
 from datetime import timedelta

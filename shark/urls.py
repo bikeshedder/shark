@@ -5,15 +5,13 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'shark.views.home', name='home'),
-    # url(r'^shark/', include('shark.foo.urls')),
     url(r'^admin/billing/', include('shark.billing.admin_urls', namespace='billing_admin')),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^admin_tools/', include('admin_tools.urls')),
     url(r'^accounting/', include('shark.accounting.urls', namespace='accounting')),
     url(r'^autocomplete/', include('autocomplete_light.urls')),
+    url(r'^api/', include('shark.api_urls', namespace='api')),
 )
 
 if settings.DEBUG:
