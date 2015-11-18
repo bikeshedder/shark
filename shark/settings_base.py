@@ -188,7 +188,10 @@ SHARK = {
     ),
     'INVOICE_PAYMENT_TIMEFRAME': timedelta(days=14),
     'INVOICE': {
-        'BACKGROUND': None,
+        'BACKGROUND': {
+            # 'FIRST_PAGE': ...
+            # 'LATER_PAGE': ...
+        },
         'SENDER': [
             "settings.SHARK['INVOICE']['SENDER']",
         ],
