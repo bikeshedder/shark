@@ -1,3 +1,4 @@
+from functools import partial
 import uuid
 
 from django.db import models
@@ -68,6 +69,22 @@ class DirectDebitTransaction(models.Model):
     created = models.DateTimeField(_('created'), auto_now_add=True)
 
 
+def get_default_creditor_id():
+    return get_settings_value('SEPA.CREDITOR_ID', '')
+
+def get_default_creditor_name():
+    return get_settings_value('SEPA.CREDITOR_NAME', '')
+
+def get_default_creditor_country():
+    return get_settings_value('SEPA.CREDITOR_COUNTRY', '')
+
+def get_default_creditor_iban():
+    return get_settings_value('SEPA.CREDITOR_IBAN', '')
+
+def get_default_creditor_bic():
+    return get_settings_value('SEPA.CREDITOR_BIC', '')
+
+
 class DirectDebitBatch(models.Model):
     '''
     This model is used to process multiple SEPA DD transactions
@@ -76,15 +93,15 @@ class DirectDebitBatch(models.Model):
     '''
     uuid = models.UUIDField(_('UUID'), default=uuid.uuid4)
     creditor_id = models.CharField(_('creditor id'), max_length=20,
-            default=get_settings_value('SEPA.CREDITOR_ID', ''))
+            default=get_default_creditor_id)
     creditor_name = models.CharField(_('creditor name'), max_length=70,
-            default=get_settings_value('SEPA.CREDITOR_NAME', ''))
+            default=get_default_creditor_name)
     creditor_country = models.CharField(_('creditor country'), max_length=2,
-            default=get_settings_value('SEPA.CREDITOR_COUNTRY', ''))
+            default=get_default_creditor_country)
     creditor_iban = IBANField(_('creditor IBAN'),
-            default=get_settings_value('SEPA.CREDITOR_IBAN', ''))
+            default=get_default_creditor_iban)
     creditor_bic = BICField(_('creditor BIC'),
-            default=get_settings_value('SEPA.CREDITOR_BIC', ''))
+            default=get_default_creditor_bic)
     due_date = models.DateTimeField(_('due date'),
             help_text=_('Must be min. 5 TARGET dates in the future for the first transaction and 2 target days in the future for recurring transactions.'))
     mandate_type = models.CharField(_('mandate type'),
