@@ -125,9 +125,11 @@ class DirectDebitBatch(models.Model):
             help_text=_('Must be min. 5 TARGET dates in the future for the first transaction and 2 target days in the future for recurring transactions.'))
     mandate_type = models.CharField(_('mandate type'),
             max_length=4, choices=DirectDebitMandate.TYPE_CHOICES)
+    SEQUENCE_TYPE_FRST = "FRST"
+    SEQUENCE_TYPE_RCUR = "RCUR"
     SEQUENCE_TYPE_CHOICES = (
-        ('FRST', 'FRST'),
-        ('RCUR', 'RCUR'),
+        (SEQUENCE_TYPE_FRST, 'FRST'),
+        (SEQUENCE_TYPE_RCUR, 'RCUR'),
     )
     sequence_type = models.CharField(_('sequence type'),
             max_length=4, choices=SEQUENCE_TYPE_CHOICES)
