@@ -1,7 +1,9 @@
 from functools import partial
 import uuid
 
+from django.conf import settings
 from django.db import models
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
 from localflavor.generic.models import BICField
@@ -9,6 +11,8 @@ from localflavor.generic.models import IBANField
 
 from shark import get_model_name, is_model_overridden
 from shark.utils.settings import get_settings_value
+
+from . import sepaxml
 
 
 class DirectDebitMandate(models.Model):
@@ -137,3 +141,37 @@ class DirectDebitBatch(models.Model):
             auto_now_add=True)
     executed = models.DateTimeField(_('executed'),
             blank=True, null=True)
+
+    @property
+    def transactions(self):
+        return list(self.directdebittransaction_set.all())
+
+    def render_sepa_xml(self):
+        '''
+        Create SEPA XML document according to ISO20222.
+        '''
+        dd = sepaxml.DirectDebit(
+            id=self.uuid,
+            creditor_id=self.creditor_id,
+            creditor_name=self.creditor_name,
+            creditor_country=self.creditor_country,
+            creditor_iban=self.creditor_iban,
+            creditor_bic=self.creditor_bic,
+            due_date=self.due_date,
+            mandate_type=self.mandate_type,
+            sequence_type=self.sequence_type,
+            transactions=[
+                sepaxml.Transaction(
+                    debitor_name=txn.mandate.name,
+                    debitor_country=txn.mandate.country,
+                    debitor_iban=txn.mandate.iban,
+                    debitor_bic=txn.mandate.bic,
+                    reference=settings.SHARK['SEPA']['TRANSACTION_REFERENCE_PREFIX'] + txn.reference,
+                    amount=txn.amount,
+                    mandate_id=txn.mandate.reference,
+                    mandate_date=txn.mandate.signed
+                )
+                for txn in self.directdebittransaction_set.all()
+            ]
+        )
+        return dd.render_xml()
