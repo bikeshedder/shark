@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_hashedfilenamestorage.storage import HashedFilenameMetaStorage
+import magic
 from taggit.managers import TaggableManager
 
 from shark.utils.date import today
@@ -55,4 +56,4 @@ class Document(models.Model):
 @receiver(signals.pre_save, sender=Document)
 def document_pre_save(instance, **kwargs):
     instance.size = instance.file.size
-    # TODO autodetect mime type from file content
+    instance.mime_type = magic.from_file(instance.file.file, mime=True)

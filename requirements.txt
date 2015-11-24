@@ -9,3 +9,4 @@ django-localflavor==1.1
 django-countries==3.4.1
 django-autocomplete-light==2.2.10
 djangorestframework==3.3.0
+python-magic==0.4.10
