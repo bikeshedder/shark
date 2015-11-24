@@ -74,6 +74,19 @@ class DirectDebitTransaction(models.Model):
     batch = models.ForeignKey('sepa.DirectDebitBatch', verbose_name=_('SEPA DD batch'))
     created = models.DateTimeField(_('created'), auto_now_add=True)
 
+    @classmethod
+    def from_invoice(cls, invoice):
+        mandate = DirectDebitMandate.objects \
+                .filter(customer=invoice.customer, revoked=None) \
+                .order_by('-created')[:1].get()
+        obj = cls(
+                customer=invoice.customer,
+                mandate=mandate,
+                reference=invoice.number,
+                amount=invoice.gross,
+                invoice=invoice)
+        return obj
+
 
 def get_default_creditor_id():
     return get_settings_value('SEPA.CREDITOR_ID', '')
