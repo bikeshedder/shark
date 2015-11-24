@@ -102,7 +102,7 @@ class DirectDebitBatch(models.Model):
             default=get_default_creditor_iban)
     creditor_bic = BICField(_('creditor BIC'),
             default=get_default_creditor_bic)
-    due_date = models.DateTimeField(_('due date'),
+    due_date = models.DateField(_('due date'),
             help_text=_('Must be min. 5 TARGET dates in the future for the first transaction and 2 target days in the future for recurring transactions.'))
     mandate_type = models.CharField(_('mandate type'),
             max_length=4, choices=DirectDebitMandate.TYPE_CHOICES)
