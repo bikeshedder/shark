@@ -46,6 +46,12 @@ class DirectDebitMandate(models.Model):
         verbose_name = _('SEPA direct debit mandate')
         verbose_name_plural = _('SEPA direct debit mandates')
 
+    def __unicode__(self):
+        if self.reference:
+            return self.reference
+        else:
+            return '<no reference>'
+
     def address_lines(self):
         return [
             self.name,

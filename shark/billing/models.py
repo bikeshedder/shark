@@ -47,6 +47,18 @@ class Invoice(models.Model):
     language = LanguageField(blank=True,
             help_text=_('This field will be automatically filled with the language of the customer. If no language for the customer is specified the default language (%s) will be used.' % settings.LANGUAGE_CODE))
 
+    PAYMENT_TYPE_INVOICE = 'invoice'
+    PAYMENT_TYPE_DIRECT_DEBIT = 'direct_debit'
+    PAYMENT_TYPE_CHOICES = (
+        (PAYMENT_TYPE_INVOICE, _('Invoice')),
+        (PAYMENT_TYPE_DIRECT_DEBIT, _('Direct debit')),
+    )
+    payment_type = models.CharField(_('Payment Type'),
+            max_length=20,
+            choices=PAYMENT_TYPE_CHOICES,
+            default='invoice',
+            help_text=_('Will be copied from customer\'s preferences automatically.'))
+
     #
     # address
     #
