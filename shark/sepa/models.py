@@ -16,7 +16,7 @@ class DirectDebitMandate(models.Model):
             verbose_name=_('customer'),
             related_name='direct_debit_mandate_set')
     reference = models.CharField(_('mandate reference'),
-            max_length=35, unique=True, blank=True)
+            max_length=35, unique=True, blank=True, null=True)
     name = models.CharField(max_length=100)
     street = models.CharField(max_length=100)
     postal_code = models.CharField(max_length=20)
@@ -114,4 +114,5 @@ class DirectDebitBatch(models.Model):
             max_length=4, choices=SEQUENCE_TYPE_CHOICES)
     created = models.DateTimeField(_('created'),
             auto_now_add=True)
-    executed = models.DateTimeField(_('executed'))
+    executed = models.DateTimeField(_('executed')
+            blank=True, null=True)
