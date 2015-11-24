@@ -114,5 +114,5 @@ class DirectDebitBatch(models.Model):
             max_length=4, choices=SEQUENCE_TYPE_CHOICES)
     created = models.DateTimeField(_('created'),
             auto_now_add=True)
-    executed = models.DateTimeField(_('executed')
+    executed = models.DateTimeField(_('executed'),
             blank=True, null=True)
