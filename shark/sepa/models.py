@@ -36,10 +36,13 @@ class DirectDebitMandate(models.Model):
     signed = models.DateField(blank=True, null=True)
     revoked = models.DateField(_('revoked'), blank=True, null=True)
     last_used = models.DateField(_('last_used'), blank=True, null=True)
+    TYPE_CORE = 'CORE'
+    TYPE_COR1 = 'COR1'
+    TYPE_B2B = 'B2B'
     TYPE_CHOICES = (
-        ('CORE', 'CORE'),
-        ('COR1', 'COR1'),
-        ('B2B', 'B2B'),
+        (TYPE_CORE, 'CORE'),
+        (TYPE_COR1, 'COR1'),
+        (TYPE_B2B, 'B2B'),
     )
     type = models.CharField(max_length=4, choices=TYPE_CHOICES)
     document = models.ForeignKey('documents.Document',
