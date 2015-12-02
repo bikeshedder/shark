@@ -217,6 +217,8 @@ SHARK = {
         'CREDITOR_BIC': '',
         'DEFAULT_MANDATE_TYPE': 'CORE',
         'TRANSACTION_REFERENCE_PREFIX': '',
+        'PRE_NOTIFICATION_EMAIL_FROM': '',
+        'PRE_NOTIFICATION_EMAIL_BCC': [],
     },
     'MODELS': {
         'customer.Customer': 'customer.Customer',

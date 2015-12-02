@@ -1,0 +1,1 @@
+Ankündigung SEPA-Lastschrifteinzug: {{ transaction.reference|safe }}

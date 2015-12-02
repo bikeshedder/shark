@@ -1,0 +1,21 @@
+Wir ziehen am {{ batch.due_date|date:"SHORT_DATE_FORMAT" }} wie vereinbart Geld per SEPA-Lastschrift
+von ihrem Bankkonto ein:
+
+    Kontoinhaber: {{ mandate.name|safe }}
+    IBAN: {{ mandate.iban }}
+    BIC: {{ mandate.bic }}
+    Betrag: {{ transaction.amount }} €
+    Verwendungszweck: {{ transaction.reference }}
+
+    Ihre Mandatsreferenz: {{ mandate.reference }}
+    Unsere Gläubiger-Identifikationsnummer: {{ creditor_id }}
+
+
+Änderungen an ihrer Bankverbindung können wir für diese Abbuchung
+leider nicht mehr berücksichtigen.
+
+
+Mit freundlichen Grüßen,
+Ihr PYROX™ Team
+
+{% include "email_signature.txt" %}
