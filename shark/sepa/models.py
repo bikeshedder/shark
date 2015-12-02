@@ -59,6 +59,7 @@ class DirectDebitMandate(models.Model):
         else:
             return '<no reference>'
 
+    @property
     def address_lines(self):
         return [
             self.name,
