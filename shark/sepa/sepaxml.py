@@ -27,7 +27,7 @@ class DirectDebit(object):
         self.sequence_type = kwargs.get('sequence_type', 'FRST')
         assert self.sequence_type in ('FRST', 'RCUR')
         self.transactions = list(kwargs.get('transactions', []))
-        self.batch_booking = kwargs.get('batch_booking', True)
+        self.batch_booking = kwargs.get('batch_booking', False)
 
     def add_transaction(self, transaction):
         self.transactions.append(transaction)

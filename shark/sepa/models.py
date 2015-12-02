@@ -155,7 +155,7 @@ class DirectDebitBatch(models.Model):
         Create SEPA XML document according to ISO20222.
         '''
         dd = sepaxml.DirectDebit(
-            id=self.uuid,
+            id=self.uuid.hex,
             creditor_id=self.creditor_id,
             creditor_name=self.creditor_name,
             creditor_country=self.creditor_country,

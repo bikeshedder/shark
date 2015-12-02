@@ -4,7 +4,7 @@
 <CstmrDrctDbtInitn>
 
 <GrpHdr>
-	<MsgId>{{ dd.id }}</MsgId><!-- FIXME -->
+	<MsgId>{{ dd.id }}</MsgId>
 	<CreDtTm>{% now 'c' %}</CreDtTm>
 	<NbOfTxs>{{ dd.transactions|length }}</NbOfTxs>
 	<CtrlSum>{{ dd.control_sum }}</CtrlSum>
@@ -13,7 +13,7 @@
 	</InitgPty>
 </GrpHdr>
 <PmtInf>
-	<PmtInfId>{{ dd.id }}</PmtInfId><!-- FIXME -->
+	<PmtInfId>{{ dd.id }}</PmtInfId>
 	<PmtMtd>DD</PmtMtd>
 	<BtchBookg>{{ dd.batch_booking|yesno:'true,false' }}</BtchBookg>
 	<PmtTpInf>
