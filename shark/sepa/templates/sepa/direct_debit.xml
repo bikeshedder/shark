@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+{% localize off %}<?xml version="1.0" encoding="UTF-8" ?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.003.02">
 
 <CstmrDrctDbtInitn>
@@ -62,7 +62,7 @@
 		<PmtId>
 			<EndToEndId>NOTPROVIDED</EndToEndId>
 		</PmtId>
-		<InstdAmt Ccy="EUR">{{ txn.amount|safe }}</InstdAmt>
+		<InstdAmt Ccy="EUR">{{ txn.amount }}</InstdAmt>
 		<DrctDbtTx>
 			<MndtRltdInf>
 				<MndtId>{{ txn.mandate_id }}</MndtId>
@@ -99,4 +99,4 @@
 
 </CstmrDrctDbtInitn>
 
-</Document>
+</Document>{% endlocalize %}
