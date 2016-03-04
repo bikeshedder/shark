@@ -62,7 +62,7 @@
 		<PmtId>
 			<EndToEndId>NOTPROVIDED</EndToEndId>
 		</PmtId>
-		<InstdAmt Ccy="EUR">{{ txn.amount }}</InstdAmt>
+		<InstdAmt Ccy="EUR">{{ txn.amount|safe }}</InstdAmt>
 		<DrctDbtTx>
 			<MndtRltdInf>
 				<MndtId>{{ txn.mandate_id }}</MndtId>
