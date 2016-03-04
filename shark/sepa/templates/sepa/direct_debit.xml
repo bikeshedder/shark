@@ -1,4 +1,4 @@
-{% localize off %}<?xml version="1.0" encoding="UTF-8" ?>
+{% load l10n %}{% localize off %}<?xml version="1.0" encoding="UTF-8" ?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.003.02">
 
 <CstmrDrctDbtInitn>
