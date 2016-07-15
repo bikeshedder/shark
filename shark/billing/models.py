@@ -42,9 +42,14 @@ class Invoice(models.Model):
         (TYPE_INVOICE, _('Invoice')),
         (TYPE_CORRECTION, _('Correction of invoice')),
     )
-    type = models.CharField(max_length=20, choices=TYPE_CHOICES, default=TYPE_INVOICE)
-    number = IdField(generator=NUMBER_GENERATOR)
-    language = LanguageField(blank=True,
+    type = models.CharField(_('type'),
+            max_length=20,
+            choices=TYPE_CHOICES,
+            default=TYPE_INVOICE)
+    number = IdField(verbose_name=_('number'),
+            generator=NUMBER_GENERATOR)
+    language = LanguageField(_('language'),
+            blank=True,
             help_text=_('This field will be automatically filled with the language of the customer. If no language for the customer is specified the default language (%s) will be used.' % settings.LANGUAGE_CODE))
 
     PAYMENT_TYPE_INVOICE = 'invoice'
@@ -188,6 +193,14 @@ class InvoiceItem(models.Model):
             verbose_name=_('invoice'))
     customer = models.ForeignKey(CUSTOMER_MODEL,
             verbose_name=_('customer'))
+    TYPE_ITEM = 'item'
+    TYPE_TITLE = 'title'
+    TYPE_CHOICES = [
+        (TYPE_ITEM, 'Item'),
+        (TYPE_TITLE, 'Title'),
+    ]
+    type = models.CharField(max_length=10, choices=TYPE_CHOICES,
+            default=TYPE_ITEM)
     position = models.PositiveIntegerField(blank=True, null=True,
             verbose_name=_('position'))
     quantity = models.DecimalField(max_digits=10, decimal_places=2,
