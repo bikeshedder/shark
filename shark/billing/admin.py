@@ -4,7 +4,7 @@ from datetime import date
 from datetime import datetime
 from decimal import Decimal
 
-import autocomplete_light
+from autocomplete_light import shortcuts as autocomplete_light
 from django.conf import settings
 from django.contrib import admin
 from django.core.urlresolvers import reverse
