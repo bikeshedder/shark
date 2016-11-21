@@ -1,6 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-urlpatterns = patterns('',
-    url(r'^directdebitbatch/(?P<pk>[^/]+)/sepa\.xml$', 'shark.sepa.admin_views.sepa_xml',
+from shark.sepa import admin_views
+
+urlpatterns = [
+    url(r'^directdebitbatch/(?P<pk>[^/]+)/sepa\.xml$', admin_views.sepa_xml,
             name='directdebitbatch_sepaxml'),
-)
+]
