@@ -15,6 +15,7 @@ from django.utils.html import escape
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext
+import unicodecsv as csv
 
 from shark import get_model, get_admin_change_url
 from shark import get_admin_changelist_url
@@ -22,6 +23,10 @@ from shark.billing import models
 
 Customer = get_model('customer.Customer')
 Invoice = get_model('billing.Invoice')
+
+
+class excel_semicolon(csv.excel):
+    delimiter = ';'
 
 
 class InvoiceItemInline(admin.TabularInline):
@@ -48,7 +53,7 @@ class InvoiceAdmin(admin.ModelAdmin):
     search_fields = ('number', 'customer__number', 'customer__address', 'recipient')
     list_filter = ('created', 'paid', 'type')
     date_hierarchy = 'created'
-    actions = ('total_value_action',)
+    actions = ('total_value_action', 'export_for_accounting')
     save_on_top = True
 
     def get_customer(self, obj):
@@ -104,6 +109,34 @@ class InvoiceAdmin(admin.ModelAdmin):
             'Total value of %(count)d invoices: %(value)s',
             len(queryset)) % { 'count': len(queryset), 'value': value })
     total_value_action.short_description = _('Calculate total value of selected invoices')
+
+    def export_for_accounting(self, request, queryset):
+        queryset = queryset.select_related('customer')
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=invoices.csv'
+        writer = csv.writer(response, dialect=excel_semicolon)
+        cols = [
+            ('created', None),
+            ('paid', None),
+            ('number', None),
+            ('net', None),
+            ('gross', None),
+            ('vat_rate', lambda iv: iv.vat[0][0] if iv.vat else 0),
+            ('vat', lambda iv: iv.vat[0][1] if iv.vat else 0),
+            ('payment_type', None),
+            ('customer_number', lambda iv: iv.customer.number),
+            ('customer_vatin', lambda iv: iv.customer.vatin),
+            ('address', lambda iv: iv.recipient), # FIXME replace by new customer.billing_address
+        ]
+        writer.writerow([c[0] for c in cols])
+        for invoice in queryset:
+            customer = invoice.customer
+            writer.writerow([
+                accessor(invoice) if accessor else getattr(invoice, name)
+                for name, accessor in cols
+            ])
+        return response
+    export_for_accounting.short_description = "Export selected invoices for accounting"
 
 
 
