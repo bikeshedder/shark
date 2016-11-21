@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('taggit', '0001_initial'),
-        ('customer', '0001_initial'),
+        ('customer', '0002_add_hourly_rate'),
     ]
 
     operations = [
@@ -59,11 +59,6 @@ class Migration(migrations.Migration):
             model_name='customer',
             name='enabled',
             field=models.BooleanField(default=True),
-        ),
-        migrations.AddField(
-            model_name='customer',
-            name='hourly_rate',
-            field=models.DecimalField(null=True, verbose_name='hourly rate', max_digits=7, decimal_places=2, blank=True),
         ),
         migrations.AddField(
             model_name='customer',
