@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
                 ('currency', models.CharField(default=b'EUR', max_length=3)),
                 ('amount', models.DecimalField(max_digits=11, decimal_places=2)),
                 ('debit_credit', models.CharField(max_length=2)),
-                ('account', models.ForeignKey(to='banking.Account')),
+                ('account', models.ForeignKey(to='banking.Account', on_delete=models.CASCADE)),
             ],
             options={
             },

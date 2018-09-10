@@ -52,13 +52,13 @@ class Command(BaseCommand):
                 mandate.clean()
             except ValidationError as e:
                 has_error = True
-                print(u'Errors in row %d:' % (row_index+1))
+                print('Errors in row %d:' % (row_index+1))
                 for error in e:
                     print('  - %s: %s' % error)
-                #print(u'Invalid row[%d]: %s' % (row_index, e))
+                #print('Invalid row[%d]: %s' % (row_index, e))
             mandates.append(mandate_data)
         if has_error:
-            print(u'Error(s) in document found. Aborting.')
+            print('Error(s) in document found. Aborting.')
             return
         for mandate_data in mandates:
             DirectDebitMandate.objects.get_or_create(**mandate_data)

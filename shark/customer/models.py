@@ -27,7 +27,7 @@ class BaseCustomer(models.Model):
     daily_rate = models.DecimalField(_('daily rate'),
             max_digits=7, decimal_places=2, blank=True, null=True)
 
-    tags = TaggableManager()
+    tags = TaggableManager(blank=True)
 
     INVOICE_DISPATCH_TYPE_EMAIL = 'email'
     INVOICE_DISPATCH_TYPE_FAX = 'fax'
@@ -66,7 +66,7 @@ class BaseCustomer(models.Model):
         verbose_name = _('customer')
         verbose_name_plural = _('customers')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.number
 
     @property
@@ -91,7 +91,7 @@ class Customer(BaseCustomer):
 
 
 class CustomerComment(models.Model):
-    customer = models.ForeignKey(get_model_name('customer.Customer'))
+    customer = models.ForeignKey(get_model_name('customer.Customer'), on_delete=models.CASCADE)
     #user = models.ForeignKey(settings.AUTH_USER_MODEL)
     text = models.TextField()
 
@@ -120,7 +120,7 @@ class CustomerContact(models.Model):
     title = models.CharField(max_length=20, blank=True,
             choices = TITLE_CHOICES,
             verbose_name=_('Salutation'),
-            help_text=u'z.B. Herr, Frau, Dr., Prof.,...')
+            help_text='z.B. Herr, Frau, Dr., Prof.,...')
     first_name = models.CharField(max_length=20, blank=True,
             verbose_name=_('First name'))
     last_name = models.CharField(max_length=20, blank=True,
@@ -132,7 +132,7 @@ class CustomerContact(models.Model):
 
 
 class CustomerAddress(models.Model):
-    customer = models.ForeignKey(get_model_name('customer.Customer'))
+    customer = models.ForeignKey(get_model_name('customer.Customer'), on_delete=models.CASCADE)
 
     name = models.CharField(_('name'), max_length=100)
     address_addition = models.CharField(_('name'), max_length=100)

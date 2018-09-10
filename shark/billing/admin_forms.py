@@ -1,9 +1,9 @@
 import unicodecsv as csv
 
 from django import forms
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 from django.utils.html import mark_safe
-from django.utils.translation import string_concat
+from django.utils.text import format_lazy
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy
 
@@ -28,7 +28,7 @@ class ItemForm(forms.ModelForm):
         if not customer:
             self.errors.setdefault('customer_number', ErrorList())
             self.errors['customer_number'].append(
-                    ugettext(u'Customer does not exist.'))
+                    ugettext('Customer does not exist.'))
         self.cleaned_data['customer'] = customer
 
     def save(self, commit=True):
@@ -42,8 +42,8 @@ class ItemForm(forms.ModelForm):
 class ImportItemsForm(forms.Form):
     file = forms.FileField(
             help_text=ugettext_lazy(
-                u'Please specify a CSV file to be imported. '
-                u'The following fields are supported:'))
+                'Please specify a CSV file to be imported. '
+                'The following fields are supported:'))
     delimiter = forms.ChoiceField(
             choices=(
                 (',', ', (LibreOffice)'),
@@ -58,9 +58,9 @@ class ImportItemsForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(ImportItemsForm, self).__init__(*args, **kwargs)
         file_field = self.fields['file']
-        file_field.help_text = string_concat(
-                file_field.help_text, u' ',
-                u', '.join(ItemForm._meta.fields))
+        file_field.help_text = format_lazy('{} {}',
+                file_field.help_text,
+                ', '.join(ItemForm._meta.fields))
 
     def clean(self):
         super(ImportItemsForm, self).clean()
@@ -107,11 +107,11 @@ class ImportItemsForm(forms.Form):
             errors = self.errors.setdefault('file', ErrorList())
             for row, errnous_fields in errnous_rows:
                 row_errors = []
-                for field_name, field_errors in errnous_fields.iteritems():
-                    row_errors.append(u'<li>%s: %s</li>' % (
-                        field_name, u' '.join(field_errors)))
-                errors.append(mark_safe(u'%s %d:<ul>%s</ul>' % (
-                    ugettext('Line'), row, u''.join(row_errors))))
+                for field_name, field_errors in errnous_fields.items():
+                    row_errors.append('<li>%s: %s</li>' % (
+                        field_name, ' '.join(field_errors)))
+                errors.append(mark_safe('%s %d:<ul>%s</ul>' % (
+                    ugettext('Line'), row, ''.join(row_errors))))
         else:
             self.cleaned_data['items'] = [
                     item_form.save(commit=False)

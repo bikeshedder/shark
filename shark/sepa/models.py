@@ -17,6 +17,7 @@ from . import sepaxml
 
 class DirectDebitMandate(models.Model):
     customer = models.ForeignKey(get_model_name('customer.Customer'),
+            on_delete=models.CASCADE,
             verbose_name=_('customer'),
             related_name='direct_debit_mandate_set')
     reference = models.CharField(_('mandate reference'),
@@ -46,6 +47,7 @@ class DirectDebitMandate(models.Model):
     )
     type = models.CharField(max_length=4, choices=TYPE_CHOICES)
     document = models.ForeignKey('documents.Document',
+            on_delete=models.CASCADE,
             verbose_name=_('signed document'),
             blank=True, null=True)
 
@@ -53,7 +55,7 @@ class DirectDebitMandate(models.Model):
         verbose_name = _('SEPA direct debit mandate')
         verbose_name_plural = _('SEPA direct debit mandates')
 
-    def __unicode__(self):
+    def __str__(self):
         if self.reference:
             return self.reference
         else:
@@ -71,15 +73,19 @@ class DirectDebitMandate(models.Model):
 
 class DirectDebitTransaction(models.Model):
     customer = models.ForeignKey(get_model_name('customer.Customer'),
+            on_delete=models.CASCADE,
             verbose_name=_('customer'),
             related_name='direct_debit_transaction_set')
-    mandate = models.ForeignKey('sepa.DirectDebitMandate', verbose_name='SEPA DD mandate')
+    mandate = models.ForeignKey('sepa.DirectDebitMandate', verbose_name=_('SEPA DD mandate'),
+            on_delete=models.CASCADE)
     reference = models.CharField(max_length=140)
     amount = models.DecimalField(_('amount'),
             max_digits=11, decimal_places=2)
     invoice = models.ForeignKey('billing.Invoice', verbose_name=_('invoice'),
+            on_delete=models.CASCADE,
             blank=True, null=True)
-    batch = models.ForeignKey('sepa.DirectDebitBatch', verbose_name=_('SEPA DD batch'))
+    batch = models.ForeignKey('sepa.DirectDebitBatch', verbose_name=_('SEPA DD batch'),
+            on_delete=models.CASCADE)
     created = models.DateTimeField(_('created'), auto_now_add=True)
 
     @classmethod

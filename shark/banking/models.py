@@ -8,7 +8,7 @@ class Account(models.Model):
 
 
 class Transaction(models.Model):
-    account = models.ForeignKey('banking.Account')
+    account = models.ForeignKey('banking.Account', on_delete=models.CASCADE)
     entry_date = models.DateField(_('entry date'))
     value_date = models.DateField(_('value date'))
     text_key = models.CharField(max_length=100) # XXX max_length?

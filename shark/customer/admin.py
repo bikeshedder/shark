@@ -1,6 +1,7 @@
 from xml.sax.saxutils import escape
 
 from django.contrib import admin
+from django.utils.html import format_html_join, mark_safe
 
 from shark.customer import models
 
@@ -12,8 +13,7 @@ class CustomerAdmin(admin.ModelAdmin):
     date_hierarchy = 'created'
 
     def address_html(self, instance):
-        return '<br/>'.join(map(escape, instance.address_lines))
-    address_html.allow_tags = True
+        return format_html_join(mark_safe('<br>'), '{}', ((line,) for line in instance.address_lines))
     address_html.short_description = models.Customer._meta.get_field('address').verbose_name
     address_html.admin_order_field = 'address'
 

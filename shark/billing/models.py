@@ -24,7 +24,7 @@ INVOICE_SENDER = settings.SHARK['INVOICE']['SENDER']
 UNIT_CHOICES = settings.SHARK['INVOICE']['UNIT_CHOICES']
 NUMBER_GENERATOR = settings.SHARK['INVOICE']['NUMBER_GENERATOR']
 
-if isinstance(NUMBER_GENERATOR, basestring):
+if isinstance(NUMBER_GENERATOR, str):
     NUMBER_GENERATOR = import_object(NUMBER_GENERATOR)
 if inspect.isclass(NUMBER_GENERATOR):
     NUMBER_GENERATOR = NUMBER_GENERATOR()
@@ -34,7 +34,7 @@ class Invoice(models.Model):
     #
     # general
     #
-    customer = models.ForeignKey(CUSTOMER_MODEL,
+    customer = models.ForeignKey(CUSTOMER_MODEL, on_delete=models.CASCADE,
             verbose_name=_('Customer'))
     TYPE_INVOICE = 'invoice'
     TYPE_CORRECTION = 'correction'
@@ -97,8 +97,8 @@ class Invoice(models.Model):
         unique_together = (('customer', 'number'),)
         ordering = ('-created',)
 
-    def __unicode__(self):
-        return u'%s %s' % (_('Invoice'), self.number)
+    def __str__(self):
+        return '%s %s' % (_('Invoice'), self.number)
 
     def save(self, *args, **kwargs):
         if not self.recipient:
@@ -170,7 +170,7 @@ class Invoice(models.Model):
         # sum up item per vat rate and create an ordered list of
         # (vat_rate, vat_amount) tuples.
         vat_list = []
-        for vat_rate, items in vat_dict.iteritems():
+        for vat_rate, items in vat_dict.items():
             amount = sum(item.total for item in items)
             vat_amount = round_to_centi(vat_rate * amount)
             vat_list.append((vat_rate, vat_amount))
@@ -188,10 +188,10 @@ class Invoice(models.Model):
 
 
 class InvoiceItem(models.Model):
-    invoice = models.ForeignKey(Invoice, related_name='item_set',
+    invoice = models.ForeignKey(Invoice, related_name='item_set', on_delete=models.CASCADE,
             blank=True, null=True,
             verbose_name=_('invoice'))
-    customer = models.ForeignKey(CUSTOMER_MODEL,
+    customer = models.ForeignKey(CUSTOMER_MODEL, on_delete=models.CASCADE,
             verbose_name=_('customer'))
     TYPE_ITEM = 'item'
     TYPE_TITLE = 'title'
@@ -234,8 +234,8 @@ class InvoiceItem(models.Model):
         unique_together = (('invoice', 'position'),)
         ordering = ('position',)
 
-    def __unicode__(self):
-        return u'#%d %s' % (self.position or 0, self.text)
+    def __str__(self):
+        return '#%d %s' % (self.position or 0, self.text)
 
     def clone(self):
         return InvoiceItem(
@@ -266,7 +266,7 @@ class InvoiceItem(models.Model):
             end = date_format(self.end, 'SHORT_DATE_FORMAT') \
                     if self.end is not None \
                     else _('one-time')
-            return u'%s – %s' % (begin, end)
+            return '%s – %s' % (begin, end)
         else:
             return None
     get_period.short_description = _('Billing period')

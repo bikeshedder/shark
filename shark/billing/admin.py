@@ -4,14 +4,13 @@ from datetime import date
 from datetime import datetime
 from decimal import Decimal
 
-from autocomplete_light import shortcuts as autocomplete_light
 from django.conf import settings
 from django.contrib import admin
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.utils.formats import date_format
-from django.utils.html import escape
+from django.utils.html import format_html, format_html_join, mark_safe
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext
@@ -37,7 +36,6 @@ class InvoiceItemInline(admin.TabularInline):
 
 
 class InvoiceAdmin(admin.ModelAdmin):
-    form = autocomplete_light.modelform_factory(models.Invoice, exclude=[])
     fieldsets = (
         (_('general'), {'fields': ('customer', 'type', 'number', 'language') }),
         (_('address'), {'fields': ('sender', 'recipient') }),
@@ -55,36 +53,34 @@ class InvoiceAdmin(admin.ModelAdmin):
     date_hierarchy = 'created'
     actions = ('total_value_action', 'export_for_accounting')
     save_on_top = True
+    autocomplete_fields = ('customer',)
 
     def get_customer(self, obj):
-        return u'<a href="%s">%s</a>' % (
-                get_admin_change_url(obj.customer), obj.customer)
+        return format_html('<a href="{}">{}</a>',
+                get_admin_change_url(obj.customer),
+                obj.customer)
     get_customer.short_description = _('Customer')
     get_customer.admin_order_field = 'customer'
-    get_customer.allow_tags = True
 
     def get_recipient(self, obj):
-        return u'<br/>'.join(map(escape, obj.recipient_lines))
+        return format_html_join(mark_safe('<br>'), '{}', ((line,) for line in obj.recipient_lines))
     get_recipient.short_description = _('Recipient')
-    get_recipient.allow_tags = True
 
     def invoice_pdf(self, obj):
-        view = u'<a href="%s">View</a>' % (
-            reverse('billing_admin:invoice_pdf', args=(obj.number,)))
-        download = u'<a href="%s?download">Download</a>' % (
-            reverse('billing_admin:invoice_pdf', args=(obj.number,)))
-        return '%s | %s' % (view, download)
+        view_url = reverse('billing_admin:invoice_pdf', args=(obj.number,))
+        download_url = reverse('billing_admin:invoice_pdf', args=(obj.number,))
+        return format_html('<a href="{}">View</a> | <a href="{}?download">Download</a>',
+                view_url,
+                download_url)
     invoice_pdf.short_description = 'Invoice'
-    invoice_pdf.allow_tags = True
 
     def correction_pdf(self, obj):
-        view = u'<a href="%s">View</a>' % (
-            reverse('billing_admin:correction_pdf', args=(obj.number,)))
-        download = u'<a href="%s?download">Download</a>' % (
-            reverse('billing_admin:correction_pdf', args=(obj.number,)))
-        return '%s | %s' % (view, download)
+        view_url = reverse('billing_admin:correction_pdf', args=(obj.number,))
+        download_url = reverse('billing_admin:correction_pdf', args=(obj.number,))
+        return format_html('<a href="{}">View</a> | <a href="{}?download">Download</a>',
+                view_url,
+                download_url)
     correction_pdf.short_description = 'Correction'
-    correction_pdf.allow_tags = True
 
     def response_add(self, request, obj, *args, **kwargs):
         obj.recalculate()
@@ -149,7 +145,7 @@ class InvoiceItemAdmin(admin.ModelAdmin):
     ordering = ('customer__number', 'invoice__number', 'position')
     search_fields = ('invoice__number', 'customer__number', 'sku', 'text')
     actions = ('action_create_invoice',)
-    form = autocomplete_light.modelform_factory(models.InvoiceItem, exclude=[])
+    autocomplete_fields = ('customer', 'invoice')
     raw_id_fields = ('invoice',)
 
     def action_create_invoice(self, request, queryset):

@@ -57,7 +57,7 @@ class DaysSinceEpoch(IdGenerator):
         self.n_length = n_length
         self.n_base = n_base
         self.epoch = epoch
-        self.format_string = u'{prefix}{days:0>%ds}{n:0>%ds}' % (
+        self.format_string = '{prefix}{days:0>%ds}{n:0>%ds}' % (
                 days_length, n_length)
         self.max_length = len(prefix) + days_length + n_length
 
@@ -120,10 +120,10 @@ class YearCustomerN(IdGenerator):
         self.n_base = n_base
         # <prefix><year><separator1><customer_number><separator2><n>
         self.year_customer_format_string = \
-                u'{prefix}{year:04d}{separator1}' \
-                u'{customer_number}{separator2}'
+                '{prefix}{year:04d}{separator1}' \
+                '{customer_number}{separator2}'
         self.format_string = self.year_customer_format_string + \
-                u'{n:0>%ds}' % n_length
+                '{n:0>%ds}' % n_length
         self.max_length = len(prefix) + len(separator1) + 4 + \
                 customer_number_length + len(separator2) + n_length
 
@@ -205,10 +205,10 @@ class CustomerYearN(IdGenerator):
         self.n_base = n_base
         # <prefix><year><separator1><customer_number><separator2><n>
         self.customer_year_format_string = \
-                u'{prefix}{customer_number}{separator1}' \
-                u'{year:0>%ds}{separator2}' % year_length
+                '{prefix}{customer_number}{separator1}' \
+                '{year:0>%ds}{separator2}' % year_length
         self.format_string = self.customer_year_format_string + \
-                u'{n:0>%ds}' % n_length
+                '{n:0>%ds}' % n_length
         self.max_length = len(prefix) + len(separator1) + 4 + \
                 customer_number_length + len(separator2) + n_length
 

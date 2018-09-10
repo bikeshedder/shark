@@ -1,9 +1,9 @@
 from xml.sax.saxutils import escape
 
-from autocomplete_light import shortcuts as autocomplete_light
 from django.conf import settings
 from django.contrib import admin
-from django.core.urlresolvers import reverse
+from django.urls import reverse
+from django.utils.html import format_html, format_html_join, mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext
 from django.utils.translation import override as trans_override
@@ -16,12 +16,11 @@ class DirectDebitMandateAdmin(admin.ModelAdmin):
     list_display = ['customer', 'address_html', 'iban', 'bic']
     list_filter = ['created', 'signed']
     search_fields = ['number', 'address', 'created']
-    form = autocomplete_light.modelform_factory(models.DirectDebitMandate, exclude=[])
     raw_id_fields = ['document']
+    autocomplete_fields = ('customer',)
 
     def address_html(self, instance):
-        return u'<br/>'.join(map(escape, instance.address_lines))
-    address_html.allow_tags = True
+        return format_html_join(mark_safe('<br>'), '{}', ((line,) for line in instance.address_lines))
     address_html.short_description = _('address')
 
 
@@ -38,12 +37,10 @@ class DirectDebitBatchAdmin(admin.ModelAdmin):
     actions = ['send_pre_notifications']
 
     def sepaxml_link(self, instance):
-        return u'<a href="%s">%s</a>' % (
-            reverse('sepa_admin:directdebitbatch_sepaxml', args=(instance.pk,)),
-            'Download',
-        )
-    sepaxml_link.allow_tags = True
-    sepaxml_link.short_description = u'SEPA XML'
+        return format_html('<a href="{}">{}</a>',
+                reverse('sepa_admin:directdebitbatch_sepaxml', args=(instance.pk,)),
+                'Download')
+    sepaxml_link.short_description = 'SEPA XML'
 
     def send_pre_notifications(self, request, queryset):
         for batch in queryset:

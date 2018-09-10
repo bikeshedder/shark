@@ -22,7 +22,7 @@ def shark_settings(d, base=None):
         from shark import settings_base
         base = settings_base.SHARK
     settings = base.copy()
-    for key, value in d.iteritems():
+    for key, value in d.items():
         if isinstance(value, dict):
             if not isinstance(base.get(key, {}), dict):
                 raise RuntimeError('Type mismatch of settings and base settings: %r' % key)

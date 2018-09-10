@@ -88,11 +88,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='customercomment',
             name='customer',
-            field=models.ForeignKey(to='customer.Customer'),
+            field=models.ForeignKey(to='customer.Customer', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='customeraddress',
             name='customer',
-            field=models.ForeignKey(to='customer.Customer'),
+            field=models.ForeignKey(to='customer.Customer', on_delete=models.CASCADE),
         ),
     ]

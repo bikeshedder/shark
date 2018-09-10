@@ -13,7 +13,7 @@ def import_testcases(module_name):
     '''
     shark_module = __import__('shark.%s.tests' % module_name)
     tests_module = getattr(shark_module, module_name).tests
-    for name, value in tests_module.__dict__.iteritems():
+    for name, value in tests_module.__dict__.items():
         if inspect.isclass(value) and issubclass(value, unittest.TestCase):
             globals()['%s_%s' % (module_name, name)] = value
 

@@ -1,12 +1,12 @@
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 def get_model(name):
     name = get_model_name(name)
     app_label, model_name = name.split('.', 2)
-    from django.db import models
-    return models.get_model(app_label, model_name)
+    from django.apps import apps
+    return apps.get_model(app_label, model_name)
 
 
 def get_model_name(name):

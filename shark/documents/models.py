@@ -17,6 +17,7 @@ DocumentStorage = HashedFilenameMetaStorage(storage_class=get_storage_class())
 class Document(models.Model):
     title = models.CharField(_('title'),
             max_length=100)
+    # XXX sender
     date = models.DateField(_('date'), default=today,
             help_text='Date as written on the document.')
     file = models.FileField(_('file'),
@@ -39,6 +40,7 @@ class Document(models.Model):
         (ORIGINAL_RECEIPT, _('receipt')),
     ]
     original = models.CharField(_('original'),
+            blank=True,
             max_length=10,
             choices=ORIGINAL_CHOICES,
             help_text=u'Where does this document come from?')
@@ -50,10 +52,10 @@ class Document(models.Model):
     received = models.DateField(_('received'), default=today,
             help_text='Date when the document was received.')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
 @receiver(signals.pre_save, sender=Document)
 def document_pre_save(instance, **kwargs):
     instance.size = instance.file.size
-    instance.mime_type = magic.from_file(instance.file.file, mime=True)
+    instance.mime_type = magic.from_buffer(instance.file.read(1024), mime=True)

@@ -1,6 +1,7 @@
 from django.conf import settings
-from django.conf.urls import patterns, include, url
+from django.urls import include, path
 
-urlpatterns = patterns('',
-    url(r'^billing/', include('shark.billing.api_urls', namespace='billing')),
-)
+app_name = 'api'
+urlpatterns = [
+    path('billing/', include('shark.billing.api_urls', namespace='billing')),
+]

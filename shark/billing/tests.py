@@ -2,10 +2,11 @@
 
 from decimal import Decimal
 
-from django.core.urlresolvers import reverse
-from shark import get_model
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
+
+from shark import get_model
 
 
 class AccountTests(APITestCase):

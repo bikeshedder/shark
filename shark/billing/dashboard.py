@@ -3,13 +3,11 @@
 from datetime import date
 from datetime import timedelta
 
-from django.db.models import Sum
-from django.conf import settings
-from django.utils.translation import ugettext as _
-from django.conf import settings
-from django.core.urlresolvers import reverse
-
 from admin_tools.dashboard.modules import DashboardModule
+from django.conf import settings
+from django.db.models import Sum
+from django.urls import reverse
+from django.utils.translation import ugettext as _
 
 from shark.billing.models import Invoice, InvoiceItem
 
@@ -33,7 +31,7 @@ class UnpaidInvoicesDashboardModule(DashboardModule):
         admin_url = reverse('admin:%s_changelist' % settings.SHARK['MODELS']['billing.Invoice'].lower().replace('.', '_'))
         def get_admin_url(**kwargs):
             kwargs.setdefault('paid__isnull', True)
-            return '%s?%s' % (admin_url, '&'.join('%s=%s' % item for item in kwargs.iteritems()))
+            return '%s?%s' % (admin_url, '&'.join('%s=%s' % item for item in kwargs.items()))
 
         unpaid = Invoice.objects.filter(paid__isnull=True)
         unpaid_lt14d = unpaid.filter(created__gt=two_weeks_ago)

@@ -1,13 +1,17 @@
-from django.conf.urls import patterns, url
+from django.urls import path
 
-urlpatterns = patterns('',
+from . import admin_views as views
+
+
+app_name = 'billing'
+urlpatterns = [
 # disabled for now
-#    url(r'^invoiceitem/invoice/', 'shark.billing.admin_views.invoice',
+#    path('invoiceitem/invoice/', 'shark.billing.admin_views.invoice',
 #            name='invoiceitem_invoice'),
-    url(r'^invoiceitem/import/', 'shark.billing.admin_views.import_items',
+    path('invoiceitem/import/', views.import_items,
             name='import_items'),
-    url(r'^invoice/(.*)\.pdf$', 'shark.billing.admin_views.invoice_pdf',
+    path('invoice/<number>.pdf', views.invoice_pdf,
             name='invoice_pdf'),
-    url(r'^correction/(.*)\.pdf$', 'shark.billing.admin_views.correction_pdf',
+    path('correction/<number>.pdf', views.correction_pdf,
             name='correction_pdf'),
-)
+]
