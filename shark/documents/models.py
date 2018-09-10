@@ -1,3 +1,6 @@
+from os.path import basename, splitext
+from tempfile import TemporaryFile
+
 from django.core.files.storage import get_storage_class
 from django.db import models
 from django.db.models import signals
@@ -7,6 +10,8 @@ from django.utils.translation import ugettext_lazy as _
 from django_hashedfilenamestorage.storage import HashedFilenameMetaStorage
 import magic
 from taggit.managers import TaggableManager
+from wand.image import Image
+from wand.exceptions import MissingDelegateError
 
 from shark.utils.date import today
 
@@ -52,10 +57,51 @@ class Document(models.Model):
     received = models.DateField(_('received'), default=today,
             help_text='Date when the document was received.')
 
+    THUMBNAIL_FIELDS = (
+        ('thumbnail_small', 'sm', '128x128'),
+        ('thumbnail_medium', 'md', '256x256'),
+        ('thumbnail_large', 'lg', '512x512'),
+    )
+    thumbnail_small = models.ImageField(upload_to='documents',
+            editable=False)
+    thumbnail_medium = models.ImageField(upload_to='documents',
+            editable=False)
+    thumbnail_large = models.ImageField(upload_to='documents',
+            editable=False)
+
     def __str__(self):
         return self.title
+
+def create_thumbnails(doc):
+    # create thumbnails
+    if doc.pk and Document.objects.get(pk=doc.pk).file == doc.file:
+        return
+    fn, ext = splitext(basename(doc.file.name))
+    fh = doc.file.open()
+    try:
+        with Image(file=fh) as orig:
+            if len(orig.sequence) == 0:
+                clear_thumbnails(doc)
+                return
+            with Image(orig.sequence[0]) as thumb:
+                thumb.format = 'png'
+                for field_name, suffix, size in Document.THUMBNAIL_FIELDS:
+                    thumb_clone = thumb.clone()
+                    thumb_clone.transform('', size)
+                    with TemporaryFile() as tmp:
+                        thumb_clone.save(file=tmp)
+                        tmp.seek(0)
+                        field = getattr(doc, field_name)
+                        field.save(f'{fn}_{suffix}.png', tmp, save=False)
+    except MissingDelegateError:
+        clear_thumbnails(doc)
+
+def clear_thumbnails(doc):
+    for field_name, suffix, size in Document.THUMBNAIL_FIELDS:
+        getattr(doc, field_name).delete()
 
 @receiver(signals.pre_save, sender=Document)
 def document_pre_save(instance, **kwargs):
     instance.size = instance.file.size
     instance.mime_type = magic.from_buffer(instance.file.read(1024), mime=True)
+    create_thumbnails(instance)
