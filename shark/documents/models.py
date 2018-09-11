@@ -74,15 +74,12 @@ class Document(models.Model):
 
 def create_thumbnails(doc):
     # create thumbnails
-    if doc.pk and Document.objects.get(pk=doc.pk).file == doc.file:
-        return
     fn, ext = splitext(basename(doc.file.name))
     fh = doc.file.open()
     try:
         with Image(file=fh) as orig:
             if len(orig.sequence) == 0:
                 clear_thumbnails(doc)
-                return
             with Image(orig.sequence[0]) as thumb:
                 thumb.format = 'png'
                 for field_name, suffix, size in Document.THUMBNAIL_FIELDS:
@@ -97,11 +94,30 @@ def create_thumbnails(doc):
         clear_thumbnails(doc)
 
 def clear_thumbnails(doc):
+    changed = False
     for field_name, suffix, size in Document.THUMBNAIL_FIELDS:
-        getattr(doc, field_name).delete()
+        field = getattr(doc, field_name)
+        if field:
+            getattr(doc, field_name).delete()
+        changed = True
+    return changed
 
 @receiver(signals.pre_save, sender=Document)
-def document_pre_save(instance, **kwargs):
+def document_pre_save(instance, raw, **kwargs):
+    if raw:
+        return
     instance.size = instance.file.size
     instance.mime_type = magic.from_buffer(instance.file.read(1024), mime=True)
-    create_thumbnails(instance)
+    instance._file_changed = not instance.pk or \
+            Document.objects.get(pk=instance.pk).file != instance.file
+
+@receiver(signals.post_save, sender=Document)
+def document_post_save(instance, raw, **kwargs):
+    if raw:
+        return
+    if instance._file_changed:
+        create_thumbnails(instance)
+        Document.objects.filter(pk=instance.pk).update(**{
+            field_name: getattr(instance, field_name)
+            for field_name, _unused, _unused in Document.THUMBNAIL_FIELDS
+        })
