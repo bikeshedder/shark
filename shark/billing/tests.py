@@ -6,7 +6,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from shark import get_model
+from .models import Invoice
 
 
 class AccountTests(APITestCase):
@@ -15,9 +15,6 @@ class AccountTests(APITestCase):
         """
         Ensure we can create a new account object.
         """
-        Customer = get_model('customer.Customer')
-        Invoice = get_model('billing.Invoice')
-
         url = reverse('api:billing:invoice_create')
         response = self.client.post(url, {
             'customer': {

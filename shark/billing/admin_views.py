@@ -12,11 +12,9 @@ from django.utils.translation import ungettext
 from django.utils.translation import override as trans_override
 from PyPDF2 import PdfFileWriter, PdfFileReader
 
-from shark import get_model
 from shark.billing.admin_forms import ImportItemsForm
-
-InvoiceItem = get_model('billing.InvoiceItem')
-Invoice = get_model('billing.Invoice')
+from shark.billing.models import InvoiceItem
+from shark.billing.models import Invoice
 
 INVOICE_TERMS = settings.SHARK['INVOICE']['TERMS']
 

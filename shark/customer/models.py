@@ -7,7 +7,6 @@ from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
 from taggit.managers import TaggableManager
 
-from shark import get_model_name, is_model_overridden
 from shark.utils.fields import AddressField, LanguageField
 from shark.utils.id_generators import IdField
 from shark.utils.settings import get_settings_instance, get_settings_value
@@ -32,7 +31,7 @@ class CustomerTypeField(models.CharField):
         return name, path, args, kwargs
 
 
-class BaseCustomer(models.Model):
+class Customer(models.Model):
     number = IdField(generator=NUMBER_GENERATOR)
     # XXX add_unique constraint
     name = models.CharField(max_length=50, blank=True)
@@ -90,7 +89,6 @@ class BaseCustomer(models.Model):
     updated = models.DateTimeField(_('updated'), auto_now=True)
 
     class Meta:
-        abstract = True
         verbose_name = _('customer')
         verbose_name_plural = _('customers')
 
@@ -112,14 +110,8 @@ class BaseCustomer(models.Model):
                 (self.country.eu and not self.vatin)
 
 
-class Customer(BaseCustomer):
-
-    class Meta(BaseCustomer.Meta):
-        abstract = is_model_overridden('customer.Customer')
-
-
 class CustomerComment(models.Model):
-    customer = models.ForeignKey(get_model_name('customer.Customer'),
+    customer = models.ForeignKey('customer.Customer',
             on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
             blank=True, null=True, on_delete=models.SET_NULL)
@@ -164,7 +156,7 @@ class CustomerContact(models.Model):
 
 
 class CustomerAddress(models.Model):
-    customer = models.ForeignKey(get_model_name('customer.Customer'), on_delete=models.CASCADE)
+    customer = models.ForeignKey('customer.Customer', on_delete=models.CASCADE)
 
     name = models.CharField(_('name'), max_length=100)
     address_addition = models.CharField(_('name'), max_length=100)

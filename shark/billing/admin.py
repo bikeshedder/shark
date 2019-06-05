@@ -16,12 +16,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext
 import unicodecsv as csv
 
-from shark import get_model, get_admin_change_url
+from shark import get_admin_change_url
 from shark import get_admin_changelist_url
 from shark.billing import models
-
-Customer = get_model('customer.Customer')
-Invoice = get_model('billing.Invoice')
+from shark.customer.models import Customer
 
 
 class excel_semicolon(csv.excel):
@@ -164,7 +162,7 @@ class InvoiceItemAdmin(admin.ModelAdmin):
             items.append(item)
         # create invoices
         for customer, items in customer_items_list:
-            invoice = Invoice()
+            invoice = models.Invoice()
             invoice.customer = customer
             invoice.save()
             for position, item in enumerate(items, 1):
@@ -173,7 +171,7 @@ class InvoiceItemAdmin(admin.ModelAdmin):
                 item.save()
             invoice.recalculate()
             invoice.save()
-        return HttpResponseRedirect(get_admin_changelist_url(Invoice))
+        return HttpResponseRedirect(get_admin_changelist_url(models.Invoice))
     action_create_invoice.short_description = _('Create invoice(s) for selected item(s)')
 
 

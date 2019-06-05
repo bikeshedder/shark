@@ -1,14 +1,15 @@
 from django.urls import reverse
 from rest_framework import serializers
 
-from shark import get_model
 from shark.customer.api_serializers import CustomerSerializer
+from shark.customer.models import Customer
 
+from . import models
 
 class InvoiceItemSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = get_model('billing.InvoiceItem')
+        model = models.InvoiceItem
         fields = ('id', 'position', 'quantity', 'sku', 'text',
                 'begin', 'end', 'price', 'unit', 'discount',
                 'vat_rate')
@@ -19,7 +20,7 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
     items = InvoiceItemSerializer(source='item_set', many=True)
 
     class Meta:
-        model = get_model('billing.Invoice')
+        model = models.Invoice
         fields = ('id', 'customer', 'type', 'number', 'language',
                 'sender', 'recipient', 'net', 'gross', 'created',
                 'reminded', 'paid', 'items')
@@ -32,7 +33,6 @@ class CustomerField(serializers.Field):
         return obj.number
 
     def to_internal_value(self, data):
-        Customer = get_model('customer.Customer')
         try:
             return Customer.objects.get(number=data)
         except Customer.DoesNotExist:
@@ -44,7 +44,7 @@ class InvoiceListSerializer(serializers.ModelSerializer):
     customer = CustomerField()
 
     class Meta:
-        model = get_model('billing.Invoice')
+        model = models.Invoice
         fields = ('id', 'url', 'customer', 'type', 'number',
                 'net', 'gross', 'created', 'reminded', 'paid')
 
@@ -59,15 +59,13 @@ class InvoiceCreateSerializer(serializers.ModelSerializer):
     items = InvoiceItemSerializer(many=True)
 
     class Meta:
-        model = get_model('billing.Invoice')
+        model = models.Invoice
         fields = ('id', 'customer', 'type', 'number', 'language',
                 'sender', 'recipient', 'net', 'gross', 'created',
                 'reminded', 'paid', 'items')
         #depth = 1
 
     def create(self, validated_data):
-        Invoice = get_model('billing.Invoice')
-        InvoiceItem = get_model('billing.InvoiceItem')
         # update or create customer
         customer_data = validated_data.pop('customer')
         customer.objects.update_or_create(
@@ -75,11 +73,11 @@ class InvoiceCreateSerializer(serializers.ModelSerializer):
             defaults=customer_data
         )
         # create invoice
-        invoice = Invoice.objects.create(**validated_data)
+        invoice = models.Invoice.objects.create(**validated_data)
         # create invoice items
         items_data = validated_data.pop('items')
         for item_data in items_data:
-            item = InvoiceItem(**item_data)
+            item = models.InvoiceItem(**item_data)
             invoice.item_set.add(item)
         # recalculate invoice totals
         invoice.recalculate()

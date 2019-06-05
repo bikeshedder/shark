@@ -9,7 +9,6 @@ from django_countries.fields import CountryField
 from localflavor.generic.models import BICField
 from localflavor.generic.models import IBANField
 
-from shark import get_model_name, is_model_overridden
 from shark.utils.settings import get_settings_value
 
 from . import sepaxml
@@ -17,7 +16,7 @@ from .utils import anonymize_iban
 
 
 class DirectDebitMandate(models.Model):
-    customer = models.ForeignKey(get_model_name('customer.Customer'),
+    customer = models.ForeignKey('customer.Customer',
             on_delete=models.CASCADE,
             verbose_name=_('customer'),
             related_name='direct_debit_mandate_set')
@@ -77,7 +76,7 @@ class DirectDebitMandate(models.Model):
 
 
 class DirectDebitTransaction(models.Model):
-    customer = models.ForeignKey(get_model_name('customer.Customer'),
+    customer = models.ForeignKey('customer.Customer',
             on_delete=models.CASCADE,
             verbose_name=_('customer'),
             related_name='direct_debit_transaction_set')

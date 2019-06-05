@@ -6,7 +6,6 @@ import uuid
 from django.db import models, migrations
 import django_countries.fields
 import localflavor.generic.models
-from shark import get_model_name
 
 
 class Migration(migrations.Migration):
@@ -56,7 +55,7 @@ class Migration(migrations.Migration):
                 ('revoked', models.DateField(null=True, verbose_name='revoked', blank=True)),
                 ('last_used', models.DateField(null=True, verbose_name='last_used', blank=True)),
                 ('type', models.CharField(max_length=4, choices=[(b'CORE', b'CORE'), (b'COR1', b'COR1'), (b'B2B', b'B2B')])),
-                ('customer', models.ForeignKey(related_name='direct_debit_mandate_set', verbose_name='customer', to=get_model_name('customer.Customer'), on_delete=models.CASCADE)),
+                ('customer', models.ForeignKey(related_name='direct_debit_mandate_set', verbose_name='customer', to='customer.Customer', on_delete=models.CASCADE)),
                 ('document', models.ForeignKey(verbose_name='signed document', blank=True, to='documents.Document', null=True, on_delete=models.CASCADE)),
             ],
             options={
@@ -73,7 +72,7 @@ class Migration(migrations.Migration):
                 ('amount', models.DecimalField(verbose_name='amount', max_digits=11, decimal_places=2)),
                 ('created', models.DateTimeField(auto_now_add=True, verbose_name='created')),
                 ('batch', models.ForeignKey(verbose_name='SEPA DD batch', to='sepa.DirectDebitBatch', on_delete=models.CASCADE)),
-                ('customer', models.ForeignKey(related_name='direct_debit_transaction_set', verbose_name='customer', to=get_model_name('customer.Customer'), on_delete=models.CASCADE)),
+                ('customer', models.ForeignKey(related_name='direct_debit_transaction_set', verbose_name='customer', to='customer.Customer', on_delete=models.CASCADE)),
                 ('invoice', models.ForeignKey(verbose_name='invoice', blank=True, to='billing.Invoice', null=True, on_delete=models.CASCADE)),
                 ('mandate', models.ForeignKey(verbose_name=b'SEPA DD mandate', to='sepa.DirectDebitMandate', on_delete=models.CASCADE)),
             ],

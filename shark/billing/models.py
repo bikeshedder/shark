@@ -9,7 +9,6 @@ from django.db.models import signals
 from django.utils.formats import date_format
 from django.utils.translation import ugettext_lazy as _
 
-from shark import get_model_name
 from shark.utils.settings import get_settings_value, get_settings_instance
 from shark.utils.id_generators import IdField
 from shark.utils.fields import AddressField, LanguageField
@@ -17,7 +16,6 @@ from shark.utils.rounding import round_to_centi
 
 INVOICE_PAYMENT_TIMEFRAME = get_settings_value('INVOICE.PAYMENT_TIMEFRAME', timedelta(days=14)),
 VAT_RATE_CHOICES = get_settings_value('VAT_RATE_CHOICES', ((Decimal(0), '0%'),))
-CUSTOMER_MODEL = get_model_name('customer.Customer')
 INVOICE_SENDER = get_settings_value('INVOICE.SENDER')
 UNIT_CHOICES = get_settings_value('INVOICE.UNIT_CHOICES')
 NUMBER_GENERATOR = get_settings_instance('INVOICE.NUMBER_GENERATOR')
@@ -27,7 +25,7 @@ class Invoice(models.Model):
     #
     # general
     #
-    customer = models.ForeignKey(CUSTOMER_MODEL, on_delete=models.CASCADE,
+    customer = models.ForeignKey('customer.Customer', on_delete=models.CASCADE,
             verbose_name=_('Customer'))
     TYPE_INVOICE = 'invoice'
     TYPE_CORRECTION = 'correction'
@@ -42,8 +40,7 @@ class Invoice(models.Model):
     number = IdField(verbose_name=_('number'),
             generator=NUMBER_GENERATOR)
     language = LanguageField(_('language'),
-            blank=True,
-            help_text=_('This field will be automatically filled with the language of the customer. If no language for the customer is specified the default language (%s) will be used.' % settings.LANGUAGE_CODE))
+            blank=True)
 
     PAYMENT_TYPE_INVOICE = 'invoice'
     PAYMENT_TYPE_DIRECT_DEBIT = 'direct_debit'
@@ -214,7 +211,7 @@ class InvoiceItem(models.Model):
     invoice = models.ForeignKey(Invoice, related_name='item_set', on_delete=models.CASCADE,
             blank=True, null=True,
             verbose_name=_('invoice'))
-    customer = models.ForeignKey(CUSTOMER_MODEL, on_delete=models.CASCADE,
+    customer = models.ForeignKey('customer.Customer', on_delete=models.CASCADE,
             verbose_name=_('customer'))
     TYPE_ITEM = 'item'
     TYPE_TITLE = 'title'

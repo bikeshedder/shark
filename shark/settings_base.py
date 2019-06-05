@@ -224,9 +224,4 @@ SHARK = {
         'PRE_NOTIFICATION_EMAIL_FROM': '',
         'PRE_NOTIFICATION_EMAIL_BCC': [],
     },
-    'MODELS': {
-        'customer.Customer': 'customer.Customer',
-        'billing.Invoice': 'billing.Invoice',
-        'billing.InvoiceItem': 'billing.InvoiceItem',
-    }
 }

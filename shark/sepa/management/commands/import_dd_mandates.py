@@ -7,6 +7,9 @@ from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
 import unicodecsv as csv
 
+from shark.customer.models import Customer
+from shark.sepa.models import DirectDebitMandate
+
 
 class Command(BaseCommand):
     args = '<csv_file>'
@@ -17,8 +20,6 @@ class Command(BaseCommand):
         parser.add_argument('filename', type=argparse.FileType('r'))
 
     def handle(self, *args, **options):
-        Customer = apps.get_model('customer.Customer')
-        DirectDebitMandate = apps.get_model('sepa.DirectDebitMandate')
         mandates = []
         fh = options['filename']
         reader = csv.DictReader(fh)

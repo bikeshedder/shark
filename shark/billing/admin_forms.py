@@ -7,10 +7,8 @@ from django.utils.text import format_lazy
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy
 
-from shark import get_model
-
-InvoiceItem = get_model('billing.InvoiceItem')
-Customer = get_model('customer.Customer')
+from shark.billing.models import InvoiceItem
+from shark.customer.models import Customer
 
 
 class ItemForm(forms.ModelForm):

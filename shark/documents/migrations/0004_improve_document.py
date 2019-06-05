@@ -8,7 +8,7 @@ import shark.utils.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('vendor', '__first__'),
+        ('vendor', '0001_initial'),
         ('customer', '0004_add_various_fields'),
         ('documents', '0003_thumbnails'),
     ]
