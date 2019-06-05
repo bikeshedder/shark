@@ -14,7 +14,7 @@ from shark.utils.id_generators import IdField
 from shark.utils.fields import OldAddressField, AddressField, LanguageField
 from shark.utils.rounding import round_to_centi
 
-INVOICE_PAYMENT_TIMEFRAME = get_settings_value('INVOICE.PAYMENT_TIMEFRAME', timedelta(days=14)),
+INVOICE_PAYMENT_TIMEFRAME = get_settings_value('INVOICE.PAYMENT_TIMEFRAME', timedelta(days=14))
 VAT_RATE_CHOICES = get_settings_value('VAT_RATE_CHOICES', ((Decimal(0), '0%'),))
 INVOICE_SENDER = get_settings_value('INVOICE.SENDER')
 UNIT_CHOICES = get_settings_value('INVOICE.UNIT_CHOICES')
