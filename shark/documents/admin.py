@@ -13,7 +13,7 @@ from shark.documents import models
 class DocumentAdmin(admin.ModelAdmin):
     list_display = ('get_thumbnail', 'title', 'get_extension', 'date', 'get_size', 'mime_type')
     list_display_links = ('get_thumbnail', 'title')
-    list_filter = ('date', 'original', 'mime_type', 'tags')
+    list_filter = ('date', 'source', 'mime_type', 'tags')
     search_fields = ('title',)
 
     def get_thumbnail(self, instance):

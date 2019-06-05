@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'shark.issue',
     'shark.project',
     'shark.sepa',
+    'shark.vendor',
     # Admin tools
     'admin_tools',
     'admin_tools.theming',
@@ -184,7 +185,11 @@ SHARK = {
         (Decimal('0.07'), '7%'),
         (Decimal('0.00'), format_lazy('0% ({})', _('tax free'))),
     ),
-    'INVOICE_PAYMENT_TIMEFRAME': timedelta(days=14),
+    'CUSTOMER': {
+        'NUMBER_GENERATOR': 'shark.utils.id_generators.InitialAsNumber',
+        'TYPE_CHOICES': [('default', _('Default'))],
+        'TYPE_DEFAULT': 'default',
+    },
     'INVOICE': {
         'BACKGROUND': {
             # 'FIRST_PAGE': ...
@@ -206,6 +211,7 @@ SHARK = {
             ('m', _('month [m]')),
             ('a', _('year [a]')),
         ],
+        'PAYMENT_TIMEFRAME': timedelta(days=14),
     },
     'SEPA': {
         'CREDITOR_ID': '',

@@ -13,6 +13,7 @@ from shark import get_model_name, is_model_overridden
 from shark.utils.settings import get_settings_value
 
 from . import sepaxml
+from .utils import anonymize_iban
 
 
 class DirectDebitMandate(models.Model):
@@ -69,6 +70,10 @@ class DirectDebitMandate(models.Model):
             self.postal_code + ' ' + self.city,
             self.get_country_display()
         ]
+
+    @property
+    def anonymized_iban(self):
+        return anonymize_iban(self.iban)
 
 
 class DirectDebitTransaction(models.Model):

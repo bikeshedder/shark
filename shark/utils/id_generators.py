@@ -38,6 +38,78 @@ class IdGenerator(object):
         return getattr(obj, self.field_name)
 
 
+class InitialAsNumber(IdGenerator):
+    '''
+    Generate numbers of the format <prefix><initial><n>
+
+    This is typically used in German accounting for customer numbers.
+    e.g. "Epic Greatness Corp" might get the customer number "10503".
+    "1" being the prefix. "05" for the fifth letter in the alphabet and "03"
+    as this company being the third customer with that first lettter in the
+    name.
+
+    prefix: defaults to ''
+    initial: the first letter of the given initial field as number between
+        01 and 26. 00 is used for non-letter initials.
+    n: simple counter with n_length characters and to base n_base
+    '''
+    def __init__(self, model_class=None, field_name=None, prefix='',
+            initial_field_name='name',
+            n_length=2, n_base=10):
+        super(InitialAsNumber, self).__init__(model_class, field_name)
+        self.initial_length = 2
+        self.initial_field_name = initial_field_name
+        self.n_length = n_length
+        self.n_base = n_base
+        self.format_string = '{prefix}{initial:0>2s}{n:0>%ds}' % (n_length)
+        self.max_length = len(prefix) + 2 + n_length
+
+    def format(self, initial, n):
+        return self.format_string.format(
+            prefix=self.prefix,
+            initial=self.format_initial(initial),
+            n=self.format_n(n))
+
+    def format_initial(self, s):
+        initial = ord(s[0].lower() - ord('a') + 1)
+        return f'{initial:0>2s}' if 1 <= initial <= 26 else '00'
+
+    def parse_initial(self, s):
+        return chr(ord('a') + int(s) - 1)
+
+    def format_n(self, n):
+        return int2base(n, self.n_base)
+
+    def parse(self, s):
+        lp = len(self.prefix)
+        prefix = s[:lp]
+        initial = self.parse_initial(s[lp:lp+2])
+        n = s[lp+2:]
+        return (prefix, initial, n)
+
+    def get_start(self, initial):
+        return self.format(initial, 1)
+
+    def get_last(self, initial):
+        start = self.prefix + self.format_initial(initial)
+        obj = self.get_queryset() \
+                .filter(**{f'{self.field_name}__istartswith': start}) \
+                [:1].get()
+        return getattr(obj, self.field_name)
+
+    def next(self, instance=None):
+        initial = getattr(instance, self.initial_field_name)[0]
+        start = self.get_start(initial)
+        try:
+            last = self.get_last(initial)
+            if start > last:
+                return start
+            (prefix, last_initial, last_n) = self.parse(last)
+            return self.format(days, last_n+1)
+        except self.model_class.DoesNotExist:
+            return start
+
+
 class DaysSinceEpoch(IdGenerator):
     '''
     Generate numbers of the format <prefix><days><n>

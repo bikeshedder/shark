@@ -2,7 +2,6 @@
 
 from decimal import Decimal
 from datetime import datetime, date, timedelta
-import inspect
 
 from django.conf import settings
 from django.db import models
@@ -11,23 +10,17 @@ from django.utils.formats import date_format
 from django.utils.translation import ugettext_lazy as _
 
 from shark import get_model_name
-from shark.customer.fields import AddressField
+from shark.utils.settings import get_settings_value, get_settings_instance
 from shark.utils.id_generators import IdField
-from shark.utils.fields import LanguageField
+from shark.utils.fields import AddressField, LanguageField
 from shark.utils.rounding import round_to_centi
-from shark.utils.importlib import import_object
 
-INVOICE_PAYMENT_TIMEFRAME = settings.SHARK.get('INVOICE_PAYMENT_TIMEFRAME', 14)
-VAT_RATE_CHOICES = settings.SHARK.get('VAT_RATE_CHOICES', (Decimal(0), '0%'))
+INVOICE_PAYMENT_TIMEFRAME = get_settings_value('INVOICE.PAYMENT_TIMEFRAME', timedelta(days=14)),
+VAT_RATE_CHOICES = get_settings_value('VAT_RATE_CHOICES', ((Decimal(0), '0%'),))
 CUSTOMER_MODEL = get_model_name('customer.Customer')
-INVOICE_SENDER = settings.SHARK['INVOICE']['SENDER']
-UNIT_CHOICES = settings.SHARK['INVOICE']['UNIT_CHOICES']
-NUMBER_GENERATOR = settings.SHARK['INVOICE']['NUMBER_GENERATOR']
-
-if isinstance(NUMBER_GENERATOR, str):
-    NUMBER_GENERATOR = import_object(NUMBER_GENERATOR)
-if inspect.isclass(NUMBER_GENERATOR):
-    NUMBER_GENERATOR = NUMBER_GENERATOR()
+INVOICE_SENDER = get_settings_value('INVOICE.SENDER')
+UNIT_CHOICES = get_settings_value('INVOICE.UNIT_CHOICES')
+NUMBER_GENERATOR = get_settings_instance('INVOICE.NUMBER_GENERATOR')
 
 
 class Invoice(models.Model):
@@ -187,6 +180,36 @@ class Invoice(models.Model):
         return [VatItem(*t) for t in self.vat]
 
 
+class UnitField(models.CharField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('max_length', 10)
+        kwargs.setdefault('choices', UNIT_CHOICES)
+        super().__init__(*args, **kwargs)
+
+    def deconstruct(self):
+        name, path, args, kwargs = super().deconstruct()
+        del kwargs["choices"]
+        if 'default' in kwargs:
+            del kwargs["default"]
+        return name, path, args, kwargs
+
+
+class VatRateField(models.DecimalField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('max_digits', 3)
+        kwargs.setdefault('decimal_places', 2)
+        kwargs.setdefault('choices', VAT_RATE_CHOICES)
+        super().__init__(*args, **kwargs)
+
+    def deconstruct(self):
+        name, path, args, kwargs = super().deconstruct()
+        del kwargs["choices"]
+        if 'default' in kwargs:
+            del kwargs["default"]
+        return name, path, args, kwargs
+
+
+
 class InvoiceItem(models.Model):
     invoice = models.ForeignKey(Invoice, related_name='item_set', on_delete=models.CASCADE,
             blank=True, null=True,
@@ -217,14 +240,11 @@ class InvoiceItem(models.Model):
             verbose_name=_('end'))
     price = models.DecimalField(max_digits=10, decimal_places=2,
             verbose_name=_('price'))
-    unit = models.CharField(max_length=10, blank=True,
-            choices=UNIT_CHOICES,
-            verbose_name=_('unit'))
+    unit = UnitField(blank=True, verbose_name=_('unit'))
     discount = models.DecimalField(max_digits=3, decimal_places=2,
             default=Decimal('0.00'),
             verbose_name=('discount'))
-    vat_rate = models.DecimalField(max_digits=3, decimal_places=2,
-            choices=VAT_RATE_CHOICES,
+    vat_rate = VatRateField(
             verbose_name=('VAT rate'))
 
     class Meta:

@@ -1,19 +1,47 @@
 # -*- coding: utf-8 -*-
 
 from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
-from shark.customer.fields import AddressField
-from shark.utils.fields import LanguageField
-from shark.utils.id_generators import IdField, DaysSinceEpoch
-from shark import get_model_name, is_model_overridden
 from taggit.managers import TaggableManager
+
+from shark import get_model_name, is_model_overridden
+from shark.utils.fields import AddressField, LanguageField
+from shark.utils.id_generators import IdField
+from shark.utils.settings import get_settings_instance, get_settings_value
+
+NUMBER_GENERATOR = get_settings_instance('CUSTOMER.NUMBER_GENERATOR')
+CUSTOMER_TYPE_CHOICES = get_settings_value('CUSTOMER.TYPE_CHOICES')
+CUSTOMER_TYPE_DEFAULT = get_settings_value('CUSTOMER.TYPE_DEFAULT')
+
+
+class CustomerTypeField(models.CharField):
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('max_length', 20)
+        kwargs.setdefault('choices', CUSTOMER_TYPE_CHOICES)
+        kwargs.setdefault('default', CUSTOMER_TYPE_DEFAULT)
+        super().__init__(*args, **kwargs)
+
+    def deconstruct(self):
+        name, path, args, kwargs = super().deconstruct()
+        del kwargs["choices"]
+        del kwargs["default"]
+        return name, path, args, kwargs
 
 
 class BaseCustomer(models.Model):
-    # FIXME look up customer number generator from settings
-    number = IdField(generator=DaysSinceEpoch())
+    number = IdField(generator=NUMBER_GENERATOR)
+    # XXX add_unique constraint
+    name = models.CharField(max_length=50, blank=True)
+    # FIXME add choices
+    type = CustomerTypeField(db_index=True)
+    primary_admin = models.ForeignKey(settings.AUTH_USER_MODEL,
+            on_delete=models.CASCADE,
+            blank=True, null=True)
+
     address = AddressField(_('address')) # XXX deprecated
 
     # Language to be used when communicating with the customer. This
@@ -91,8 +119,10 @@ class Customer(BaseCustomer):
 
 
 class CustomerComment(models.Model):
-    customer = models.ForeignKey(get_model_name('customer.Customer'), on_delete=models.CASCADE)
-    #user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    customer = models.ForeignKey(get_model_name('customer.Customer'),
+            on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+            blank=True, null=True, on_delete=models.SET_NULL)
     text = models.TextField()
 
     created = models.DateTimeField(auto_now_add=True)
@@ -100,6 +130,7 @@ class CustomerComment(models.Model):
 
 
 class CustomerContact(models.Model):
+    # TODO add type (person, general,... ?)
     GENDER_MALE = 'M'
     GENDER_FEMALE = 'F'
     GENDER_CHOICES = (
@@ -126,6 +157,7 @@ class CustomerContact(models.Model):
     last_name = models.CharField(max_length=20, blank=True,
             verbose_name=_('Last name'))
 
+    email = models.EmailField(blank=True)
     phone_number = models.CharField(max_length=50, blank=True)
     mobile_number = models.CharField(max_length=50, blank=True)
     fax_number = models.CharField(max_length=50, blank=True)
@@ -140,5 +172,7 @@ class CustomerAddress(models.Model):
     city = models.CharField(_('city'), max_length=100)
     postal_code = models.CharField(_('postal code'), max_length=10)
     country = CountryField(_('country'))
+
+    sender_line = models.CharField(max_length=100, blank=True, default='')
 
     invoice_address = models.BooleanField(default=False)

@@ -1,5 +1,8 @@
+import inspect
+
 from django.conf import settings
 
+from shark.utils.importlib import import_object
 
 RAISE_ERROR = object()
 
@@ -30,3 +33,12 @@ def shark_settings(d, base=None):
         else:
             settings[key] = value
     return settings
+
+
+def get_settings_instance(name):
+    v = get_settings_value(name)
+    if isinstance(v, str):
+        v = import_object(v)
+    if inspect.isclass(v):
+        v = v()
+    return v

@@ -14,6 +14,7 @@ from wand.image import Image
 from wand.exceptions import MissingDelegateError
 
 from shark.utils.date import today
+from shark.utils.fields import AddressField
 
 
 DocumentStorage = HashedFilenameMetaStorage(storage_class=get_storage_class())
@@ -22,32 +23,68 @@ DocumentStorage = HashedFilenameMetaStorage(storage_class=get_storage_class())
 class Document(models.Model):
     title = models.CharField(_('title'),
             max_length=100)
-    # XXX sender
+    sender = AddressField(blank=True)
+    recipient = AddressField(blank=True)
+    vendor = models.ForeignKey('vendor.Vendor',
+            verbose_name=_('vendor'),
+            on_delete=models.SET_NULL,
+            blank=True, null=True)
+    customer = models.ForeignKey('customer.Customer',
+            verbose_name=_('customer'),
+            on_delete=models.SET_NULL,
+            blank=True, null=True)
+    TYPE_INVOICE = 'invoice'
+    TYPE_PAYMENT_REMINDER = 'payment_reminder'
+    TYPE_BANK_STATEMENT = 'bank_statement'
+    TYPE_QUOTE = 'quote'
+    TYPE_MISC = 'misc'
+    TYPE_SEPA_DD_MANDATE = 'sepa_dd_mandate'
+    TYPE_CHOICES = [
+        (TYPE_INVOICE, _('invoice')),
+        (TYPE_PAYMENT_REMINDER, _('payment reminder')),
+        (TYPE_BANK_STATEMENT, _('bank statement')),
+        (TYPE_QUOTE, _('quote')),
+        (TYPE_MISC, _('miscellaneous')),
+        (TYPE_SEPA_DD_MANDATE, _('SEPA direct debit mandate')),
+    ]
+    type = models.CharField(_('direction'), max_length=20, choices=TYPE_CHOICES)
+    DIRECTION_INTERNAL = 'internal'
+    DIRECTION_INBOUND = 'inbound'
+    DIRECTION_OUTBOUND = 'outbound'
+    DIRECTION_CHOICES = [
+        (DIRECTION_INTERNAL, _('internal')),
+        (DIRECTION_INBOUND, _('inbound')),
+        (DIRECTION_OUTBOUND, _('outbound')),
+    ]
+    direction = models.CharField(_('direction'), max_length=10, choices=DIRECTION_CHOICES)
     date = models.DateField(_('date'), default=today,
             help_text='Date as written on the document.')
     file = models.FileField(_('file'),
             upload_to='documents', storage=DocumentStorage())
+    original_filename = models.TextField(editable=False, blank=True, null=True)
     size = models.BigIntegerField(_('file size'),
             default=0, editable=False)
     mime_type = models.CharField(_('MIME type'),
             blank=True, max_length=100,
             help_text=_('Auto detected from uploaded file'))
-    ORIGINAL_EMAIL = 'email'
-    ORIGINAL_DOWNLOAD = 'download'
-    ORIGINAL_MAIL = 'mail'
-    ORIGINAL_FAX = 'fax'
-    ORIGINAL_RECEIPT = 'receipt'
-    ORIGINAL_CHOICES = [
-        (ORIGINAL_EMAIL, _('email')),
-        (ORIGINAL_DOWNLOAD, _('download')),
-        (ORIGINAL_MAIL, _('mail')),
-        (ORIGINAL_FAX, _('fax')),
-        (ORIGINAL_RECEIPT, _('receipt')),
+    SOURCE_EMAIL = 'email'
+    SOURCE_DOWNLOAD = 'download'
+    SOURCE_MAIL = 'mail'
+    SOURCE_FAX = 'fax'
+    SOURCE_RECEIPT = 'receipt'
+    SOURCE_SELF = 'self'
+    SOURCE_CHOICES = [
+        (SOURCE_EMAIL, _('email')),
+        (SOURCE_DOWNLOAD, _('download')),
+        (SOURCE_MAIL, _('mail')),
+        (SOURCE_FAX, _('fax')),
+        (SOURCE_RECEIPT, _('receipt')),
+        (SOURCE_SELF, _('self')),
     ]
-    original = models.CharField(_('original'),
+    source = models.CharField(_('original'),
             blank=True,
             max_length=10,
-            choices=ORIGINAL_CHOICES,
+            choices=SOURCE_CHOICES,
             help_text=u'Where does this document come from?')
     comment = models.TextField(_('comment'),
             blank=True)
@@ -107,6 +144,7 @@ def document_pre_save(instance, raw, **kwargs):
     if raw:
         return
     instance.size = instance.file.size
+    instance.original_filename = instance.file.name
     instance.mime_type = magic.from_buffer(instance.file.read(1024), mime=True)
     instance._file_changed = not instance.pk or \
             Document.objects.get(pk=instance.pk).file != instance.file
