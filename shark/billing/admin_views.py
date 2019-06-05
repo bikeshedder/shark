@@ -83,10 +83,10 @@ def invoice_pdf(request, number, correction=False):
                 content = PdfFileReader(tmp)
                 info_dict = writer._info.getObject()
                 info_dict.update(content.getDocumentInfo())
-                first_bg = PdfFileReader(file(
-                        settings.SHARK['INVOICE']['BACKGROUND']['FIRST_PAGE']))
-                later_bg = PdfFileReader(file(
-                        settings.SHARK['INVOICE']['BACKGROUND']['LATER_PAGE']))
+                first_bg = PdfFileReader(open(
+                        settings.SHARK['INVOICE']['BACKGROUND']['FIRST_PAGE'], 'rb'))
+                later_bg = PdfFileReader(open(
+                        settings.SHARK['INVOICE']['BACKGROUND']['LATER_PAGE'], 'rb'))
                 bg = [first_bg.getPage(0), later_bg.getPage(0)]
                 for i, page in enumerate(content.pages):
                     page.mergePage(bg[min(i, 1)])
