@@ -15,9 +15,11 @@ django-countries = "*"
 djangorestframework = "*"
 python-magic = "*"
 wand = "*"
-django-hashedfilenamestorage = {editable = true, ref = "ac931591d0f0976d0ec3a96be095fea4d70f82fb", git = "https://github.com/bikeshedder/django-hashedfilenamestorage.git"}
+django-hashedfilenamestorage = {editable = true,ref = "ac931591d0f0976d0ec3a96be095fea4d70f82fb",git = "https://github.com/bikeshedder/django-hashedfilenamestorage.git"}
+django-composite-field = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.6"
+python_version = "3"
