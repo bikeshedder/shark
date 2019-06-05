@@ -11,7 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from shark.utils.settings import get_settings_value, get_settings_instance
 from shark.utils.id_generators import IdField
-from shark.utils.fields import AddressField, LanguageField
+from shark.utils.fields import OldAddressField, AddressField, LanguageField
 from shark.utils.rounding import round_to_centi
 
 INVOICE_PAYMENT_TIMEFRAME = get_settings_value('INVOICE.PAYMENT_TIMEFRAME', timedelta(days=14)),
@@ -57,10 +57,14 @@ class Invoice(models.Model):
     #
     # address
     #
-    sender = AddressField(blank=True,
-            default='\n'.join(INVOICE_SENDER))
-    recipient = AddressField(blank=True,
+    old_sender = OldAddressField(blank=True,
+            db_column='sender')
+    old_recipient = OldAddressField(blank=True,
+            db_column='recipient',
             help_text=_('This field will be automatically filled with the address of the customer.'))
+
+    sender = AddressField(default=INVOICE_SENDER)
+    recipient = AddressField(blank=True)
 
     net = models.DecimalField(max_digits=10, decimal_places=2,
             default=Decimal('0.00'),
@@ -98,6 +102,31 @@ class Invoice(models.Model):
                     if self.customer.language \
                     else settings.LANGUAGE_CODE
         super(Invoice, self).save(*args, **kwargs)
+
+    @property
+    def recipient_lines(self):
+        return [
+            line for line in [
+                self.recipient.name,
+                self.recipient.address_addition_1,
+                self.recipient.address_addition_2,
+                self.recipient.street,
+                f'{self.recipient.postal_code} {self.recipient.city}',
+                self.recipient.state,
+                self.recipient.country.name if self.recipient.country != 'DE' else '',
+            ] if line
+        ]
+
+    @property
+    def sender_lines(self):
+        return [
+            line for line in [
+                self.sender.name,
+                self.sender.street,
+                f'{self.sender.postal_code} {self.sender.city}',
+                self.sender.country if self.sender.country != 'DE' else '',
+            ] if line
+        ]
 
     def is_okay(self):
         if self.paid:

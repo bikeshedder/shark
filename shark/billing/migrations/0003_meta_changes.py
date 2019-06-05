@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='invoice',
             name='sender',
-            field=shark.utils.fields.AddressField(blank=True, default='Awesome Corp\nGreatstreet 123\n12345 Nicertown'),
+            field=shark.utils.fields.OldAddressField(blank=True, default='Awesome Corp\nGreatstreet 123\n12345 Nicertown'),
         ),
         migrations.AlterField(
             model_name='invoice',

@@ -37,12 +37,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='document',
             name='recipient',
-            field=shark.utils.fields.AddressField(blank=True),
+            field=shark.utils.fields.OldAddressField(blank=True),
         ),
         migrations.AddField(
             model_name='document',
             name='sender',
-            field=shark.utils.fields.AddressField(blank=True),
+            field=shark.utils.fields.OldAddressField(blank=True),
         ),
         migrations.AddField(
             model_name='document',

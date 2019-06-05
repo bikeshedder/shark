@@ -195,9 +195,12 @@ SHARK = {
             # 'FIRST_PAGE': ...
             # 'LATER_PAGE': ...
         },
-        'SENDER': [
-            "settings.SHARK['INVOICE']['SENDER']",
-        ],
+        'SENDER': {
+            "name": "settings.SHARK['INVOICE']['SENDER']['name']",
+            "street": "settings.SHARK['INVOICE']['SENDER']['street']",
+            "postal_code": "settings.SHARK['INVOICE']['SENDER']['postal_code']",
+            "city": "settings.SHARK['INVOICE']['SENDER']['city']",
+        },
         'TERMS': [
             "settings.SHARK['INVOICE']['TERMS']",
         ],

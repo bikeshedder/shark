@@ -36,7 +36,24 @@ class InvoiceItemInline(admin.TabularInline):
 class InvoiceAdmin(admin.ModelAdmin):
     fieldsets = (
         (_('general'), {'fields': ('customer', 'type', 'number', 'language') }),
-        (_('address'), {'fields': ('sender', 'recipient') }),
+        (_('sender'), {'fields': [
+            'sender_name',
+            'sender_address_addition_1',
+            'sender_address_addition_2',
+            'sender_street',
+            ('sender_postal_code', 'sender_city'),
+            'sender_state',
+            'sender_country',
+        ]}),
+        (_('recipient'), {'fields': [
+            'recipient_name',
+            'recipient_address_addition_1',
+            'recipient_address_addition_2',
+            'recipient_street',
+            ('recipient_postal_code', 'recipient_city'),
+            'recipient_state',
+            'recipient_country',
+        ]}),
         (_('dates'), {'fields': ('created', 'reminded', 'paid') }),
     )
     inlines = [InvoiceItemInline]
@@ -46,7 +63,7 @@ class InvoiceAdmin(admin.ModelAdmin):
     list_display_links = ('number',)
     list_select_related = True
     ordering = ('-created',)
-    search_fields = ('number', 'customer__number', 'customer__address', 'recipient')
+    search_fields = ('number', 'customer__number', 'customer__name')
     list_filter = ('created', 'paid', 'type')
     date_hierarchy = 'created'
     actions = ('total_value_action', 'export_for_accounting')

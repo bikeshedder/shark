@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
 from taggit.managers import TaggableManager
 
-from shark.utils.fields import AddressField, LanguageField
+from shark.utils.fields import OldAddressField, AddressField, LanguageField
 from shark.utils.id_generators import IdField
 from shark.utils.settings import get_settings_instance, get_settings_value
 
@@ -41,7 +41,7 @@ class Customer(models.Model):
             on_delete=models.CASCADE,
             blank=True, null=True)
 
-    address = AddressField(_('address')) # XXX deprecated
+    address = OldAddressField(_('address'), blank=True) # XXX deprecated
 
     # Language to be used when communicating with the customer. This
     # field is mainly used to determine which language to use when
@@ -122,6 +122,9 @@ class CustomerComment(models.Model):
 
 
 class CustomerContact(models.Model):
+    customer = models.ForeignKey('customer.Customer',
+            on_delete=models.CASCADE)
+
     # TODO add type (person, general,... ?)
     GENDER_MALE = 'M'
     GENDER_FEMALE = 'F'
@@ -157,14 +160,6 @@ class CustomerContact(models.Model):
 
 class CustomerAddress(models.Model):
     customer = models.ForeignKey('customer.Customer', on_delete=models.CASCADE)
-
-    name = models.CharField(_('name'), max_length=100)
-    address_addition = models.CharField(_('name'), max_length=100)
-    street = models.CharField(_('street'), max_length=100)
-    city = models.CharField(_('city'), max_length=100)
-    postal_code = models.CharField(_('postal code'), max_length=10)
-    country = CountryField(_('country'))
-
+    address = AddressField(prefix='')
     sender_line = models.CharField(max_length=100, blank=True, default='')
-
     invoice_address = models.BooleanField(default=False)
