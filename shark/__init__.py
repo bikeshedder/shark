@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.urls import reverse
 
+__version__ = '0.0.0'
+
 
 def get_admin_change_url(obj):
     meta = obj._meta
