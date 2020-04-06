@@ -48,13 +48,13 @@ class DjangoTestCommand(Command):
 setup(
     name='shark',
     version=get_version(),
-    description='CompositeField implementation for Django',
+    description='Django based billing application',
     long_description=read('README.rst'),
     author='Michael P. Jung',
     author_email='michael.jung@terreon.de',
     license='BSD',
     keywords='shark',
-    url='http://bitbucket.org/terreon/shark',
+    url='http://github.com/bikeshedder/shark',
     packages=find_packages(),
     tests_require=['Django'],
     install_requires=['Django', 'dinbrief', 'pypdf2', 'django-taggit', 'django-localflavor', 'django-countries', 'python-magic', 'wand', 'django-composite-field'],
@@ -67,6 +67,7 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
 )
