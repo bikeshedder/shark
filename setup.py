@@ -58,6 +58,7 @@ setup(
     packages=find_packages(),
     tests_require=['Django'],
     install_requires=['Django', 'dinbrief', 'pypdf2', 'django-taggit', 'django-localflavor', 'django-countries', 'python-magic', 'wand', 'django-composite-field'],
+    setup_requires=['wheel'],
     cmdclass={
         'test': DjangoTestCommand,
     },
