@@ -14,7 +14,7 @@
 /.pydevproject
 /.settings
 
-/build
+/dist
 /node_modules
 /db.sqlite
 /htdocs/media
