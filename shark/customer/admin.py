@@ -1,7 +1,8 @@
 from xml.sax.saxutils import escape
 
 from django.contrib import admin
-from django.utils.html import format_html_join, mark_safe
+from django.utils.html import format_html_join
+from django.utils.translation import ugettext_lazy as _
 
 from shark.customer import models
 
@@ -22,15 +23,25 @@ class CustomerCommentInline(admin.StackedInline):
 
 
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ['number', 'address_html', 'created']
+    list_display = ['number', 'name', 'address_html', 'created']
     list_filter = ['created']
-    search_fields = ['number', 'address']
+    search_fields = ['number', 'name']
     date_hierarchy = 'created'
     inlines = [CustomerAddressInline, CustomerContactInline, CustomerCommentInline]
+    ordering = ['name']
 
     def address_html(self, instance):
-        return format_html_join(mark_safe('<br>'), '{}', ((line,) for line in instance.address_lines))
-    address_html.short_description = models.Customer._meta.get_field('address').verbose_name
+        return format_html_join(
+            '\n',
+            '<p>{}</p>',
+            (
+                (
+                    address.lines_html,
+                )
+                for address in instance.address_set.all()
+            )
+        )
+    address_html.short_description = _('Addresses')
     address_html.admin_order_field = 'address'
 
 

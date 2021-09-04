@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
-from datetime import date
-from datetime import datetime
+import csv
+from datetime import date, datetime
 from decimal import Decimal
 
 from django.conf import settings
@@ -14,7 +14,6 @@ from django.utils.html import format_html, format_html_join, mark_safe
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext
-import unicodecsv as csv
 
 from shark import get_admin_change_url
 from shark import get_admin_changelist_url

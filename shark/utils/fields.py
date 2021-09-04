@@ -1,26 +1,11 @@
+from functools import partial
+
 from composite_field import CompositeField
 from django.conf import settings
 from django.db import models
-from django.utils.functional import curry
+from django.utils.html import format_html_join, mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
-
-
-class OldAddressField(models.TextField):
-
-    def contribute_to_class(self, cls, name):
-        super().contribute_to_class(cls, name)
-        getter = curry(self._get_FIELD_lines)
-        setter = curry(self._set_FIELD_lines)
-        cls.add_to_class('get_%s_lines' % name, getter)
-        cls.add_to_class('set_%s_lines' % name, setter)
-        cls.add_to_class('%s_lines' % name, property(getter, setter))
-
-    def _get_FIELD_lines(self, obj):
-        return self.value_from_object(obj).split('\n')
-
-    def _set_FIELD_lines(self, obj, value):
-        setattr(obj, self.attname, '\n'.join(value))
 
 
 class AddressField(CompositeField):
@@ -28,6 +13,7 @@ class AddressField(CompositeField):
     address_addition_1 = models.CharField(_('address addition (1st row)'), max_length=100, blank=True)
     address_addition_2 = models.CharField(_('address addition (2nd row)'), max_length=100, blank=True)
     street = models.CharField(_('street'), max_length=100)
+    street_number = models.CharField(_('street number'), max_length=20)
     city = models.CharField(_('city'), max_length=100)
     postal_code = models.CharField(_('postal code'), max_length=10)
     state = models.CharField(max_length=100, blank=True)
@@ -43,11 +29,41 @@ class AddressField(CompositeField):
             self['postal_code'].blank = blank
             self['country'].blank = blank
 
+    class Proxy(CompositeField.Proxy):
+
+        @property
+        def lines(self):
+            return [
+                line
+                for line in [
+                    self.name,
+                    self.address_addition_1,
+                    self.address_addition_2,
+                    f'{self.street} {self.street_number}'.strip(),
+                    f'{self.postal_code} {self.city}'.strip(),
+                    self.state,
+                    self.country.name,
+                ]
+                if line
+            ]
+
+        @property
+        def lines_html(self):
+            return format_html_join(
+                mark_safe('<br>'),
+                '{}',
+                (
+                    (line,)
+                    for line
+                    in self.lines
+                )
+            )
+
 
 class LanguageField(models.CharField):
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('max_length', 5)
+        kwargs.setdefault('max_length', 7)
         kwargs.setdefault('choices', settings.LANGUAGES)
         kwargs.setdefault('help_text', _('This field will be automatically filled with the language of the customer. If no language for the customer is specified the default language (%s) will be used.' % settings.LANGUAGE_CODE))
         super().__init__(*args, **kwargs)

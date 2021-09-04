@@ -7,7 +7,7 @@ from django.db.models import signals
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from django_hashedfilenamestorage.storage import HashedFilenameMetaStorage
+from django_minio_backend import MinioBackend, iso_date_prefix
 import magic
 from taggit.managers import TaggableManager
 from wand.image import Image
@@ -17,7 +17,7 @@ from shark.utils.date import today
 from shark.utils.fields import AddressField
 
 
-DocumentStorage = HashedFilenameMetaStorage(storage_class=get_storage_class())
+document_storage = MinioBackend(bucket_name='documents')
 
 
 class Document(models.Model):
@@ -60,7 +60,7 @@ class Document(models.Model):
     date = models.DateField(_('date'), default=today,
             help_text='Date as written on the document.')
     file = models.FileField(_('file'),
-            upload_to='documents', storage=DocumentStorage())
+            upload_to='documents', storage=document_storage)
     original_filename = models.TextField(editable=False, blank=True, null=True)
     size = models.BigIntegerField(_('file size'),
             default=0, editable=False)

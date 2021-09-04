@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
 from taggit.managers import TaggableManager
 
-from shark.utils.fields import OldAddressField, AddressField, LanguageField
+from shark.utils.fields import AddressField, LanguageField
 from shark.utils.id_generators import IdField
 from shark.utils.settings import get_settings_instance, get_settings_value
 
@@ -33,15 +33,13 @@ class CustomerTypeField(models.CharField):
 
 class Customer(models.Model):
     number = IdField(generator=NUMBER_GENERATOR)
-    # XXX add_unique constraint
+    # XXX add_unique constraintz
     name = models.CharField(max_length=50, blank=True)
     # FIXME add choices
     type = CustomerTypeField(db_index=True)
     primary_admin = models.ForeignKey(settings.AUTH_USER_MODEL,
             on_delete=models.CASCADE,
             blank=True, null=True)
-
-    address = OldAddressField(_('address'), blank=True) # XXX deprecated
 
     # Language to be used when communicating with the customer. This
     # field is mainly used to determine which language to use when
@@ -159,7 +157,18 @@ class CustomerContact(models.Model):
 
 
 class CustomerAddress(models.Model):
-    customer = models.ForeignKey('customer.Customer', on_delete=models.CASCADE)
+    customer = models.ForeignKey(
+            'customer.Customer',
+            on_delete=models.CASCADE,
+            related_name='address_set')
     address = AddressField(prefix='')
     sender_line = models.CharField(max_length=100, blank=True, default='')
     invoice_address = models.BooleanField(default=False)
+
+    @property
+    def lines(self):
+        return self.address.lines
+
+    @property
+    def lines_html(self):
+        return self.address.lines_html

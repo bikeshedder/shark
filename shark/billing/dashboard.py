@@ -28,7 +28,7 @@ class UnpaidInvoicesDashboardModule(DashboardModule):
         two_weeks_ago = today - timedelta(days=14)
         thirty_days_ago = today - timedelta(days=30)
 
-        admin_url = reverse('admin:%s_changelist' % settings.SHARK['MODELS']['billing.Invoice'].lower().replace('.', '_'))
+        admin_url = reverse('admin:billing_invoice_changelist')
         def get_admin_url(**kwargs):
             kwargs.setdefault('paid__isnull', True)
             return '%s?%s' % (admin_url, '&'.join('%s=%s' % item for item in kwargs.items()))
@@ -72,7 +72,7 @@ class LooseItemsDashboardModule(DashboardModule):
 
         self.items = InvoiceItem.objects.filter(invoice__isnull=True)
         self.item_count = self.items.count()
-        self.list_url = reverse('admin:%s_changelist' % settings.SHARK['MODELS']['billing.InvoiceItem'].lower().replace('.', '_')) \
+        self.list_url = reverse('admin:billing_invoiceitem_changelist') \
                 + '?invoice__isnull=True'
         # XXX disabled for now
         #self.invoice_url = reverse('billing_admin:invoiceitem_invoice')

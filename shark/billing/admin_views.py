@@ -10,7 +10,7 @@ from django.utils.formats import date_format
 from django.utils.translation import ugettext
 from django.utils.translation import ungettext
 from django.utils.translation import override as trans_override
-from PyPDF2 import PdfFileWriter, PdfFileReader
+from PyPDF3 import PdfFileWriter, PdfFileReader
 
 from shark.billing.admin_forms import ImportItemsForm
 from shark.billing.models import InvoiceItem

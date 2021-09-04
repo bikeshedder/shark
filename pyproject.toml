@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "shark"
+version = "0.1.0"
+authors = ["Michael P. Jung <michael.jung@terreon.de>"]
+license = "BSD"
+readme = "README.md"
+description = "Django based billing application"
+repository = "https://github.com/bikeshedder/django-composite-field"
+homepage = "https://github.com/bikeshedder/django-composite-field"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3.8",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+Django = "^3.2.7"
+django-admin-tools = "^0.9.1"
+dinbrief = "^0.4.0"
+django-taggit = "^1.5.1"
+django-localflavor = "^3.1"
+djangorestframework = "^3.12.4"
+django-composite-field = "^1.1.0"
+django-countries = "^7.2.1"
+psycopg2 = "^2.9.1"
+django-environ = "^0.6.0"
+django-minio-backend = "^3.0.0"
+python-magic = "^0.4.24"
+Wand = "^0.6.7"
+PyPDF3 = "^1.0.5"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

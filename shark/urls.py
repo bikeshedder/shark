@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
@@ -26,9 +27,4 @@ urlpatterns = [
     path('accounting/', include('shark.accounting.urls', namespace='accounting')),
     path('api/', include('shark.api_urls', namespace='api')),
     path('issue/', include('shark.issue.urls', namespace='issue')),
-]
-
-if settings.DEBUG:
-    # Serve media files when DEBUG is enabled
-    from django.conf.urls.static import static
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -11,7 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from shark.utils.settings import get_settings_value, get_settings_instance
 from shark.utils.id_generators import IdField
-from shark.utils.fields import OldAddressField, AddressField, LanguageField
+from shark.utils.fields import AddressField, LanguageField
 from shark.utils.rounding import round_to_centi
 
 INVOICE_PAYMENT_TIMEFRAME = get_settings_value('INVOICE.PAYMENT_TIMEFRAME', timedelta(days=14))
@@ -57,15 +57,12 @@ class Invoice(models.Model):
     #
     # address
     #
-    old_sender = OldAddressField(blank=True,
-            db_column='sender')
-    old_recipient = OldAddressField(blank=True,
-            db_column='recipient',
-            help_text=_('This field will be automatically filled with the address of the customer.'))
-
     sender = AddressField(default=INVOICE_SENDER)
     recipient = AddressField(blank=True)
 
+    #
+    # totals
+    #
     net = models.DecimalField(max_digits=10, decimal_places=2,
             default=Decimal('0.00'),
             verbose_name=_('net'))
@@ -101,7 +98,12 @@ class Invoice(models.Model):
             self.language = self.customer.language \
                     if self.customer.language \
                     else settings.LANGUAGE_CODE
-        super(Invoice, self).save(*args, **kwargs)
+        try:
+            super(Invoice, self).save(*args, **kwargs)
+        except Exception:
+            from django.db import connection
+            print(connection.queries[-1]['sql'])
+            raise
 
     @property
     def recipient_lines(self):
@@ -298,13 +300,13 @@ class InvoiceItem(models.Model):
                 discount=self.discount,
                 vat_rate=self.vat_rate)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         if not self.customer_id:
             if self.invoice_id:
                 self.customer_id = self.invoice.customer_id
             else:
                 raise RuntimeError('The customer must be set if no invoice is given')
-        super(InvoiceItem, self).save()
+        super(InvoiceItem, self).save(*args, **kwargs)
 
     def get_period(self):
         if self.begin and self.end:

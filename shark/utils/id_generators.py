@@ -5,10 +5,10 @@ customer numbers that are not plain integer fields.
 
 from copy import copy
 from datetime import date
+from functools import partial
 
 from django.db import models
 from django.db.models import signals
-from django.utils.functional import curry
 
 from shark.utils.int2base import int2base
 
@@ -365,7 +365,7 @@ class IdField(models.CharField):
                 generator.model_class = cls
             if not generator.field_name_given:
                 generator.field_name = name
-            signals.pre_save.connect(curry(self._pre_save, generator=generator),
+            signals.pre_save.connect(partial(self._pre_save, generator=generator),
                     sender=cls, weak=False)
 
     # Do not name this method 'pre_save' as it will otherwise be called without
