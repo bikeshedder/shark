@@ -16,26 +16,18 @@ from pathlib import Path
 from typing import List, Tuple
 
 from django.utils.translation import ugettext_lazy as _
-import environ
-
-env = environ.Env(
-    DEBUG=(bool, False)
-)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Take environment variables from .env file
-environ.Env.read_env(BASE_DIR / '.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-zk_vo5r)8fr1t6lm=z8s!%!5$-ml*8$x_5_cux8_+39wv9mhtl'
+SECRET_KEY = ''
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -112,14 +104,9 @@ WSGI_APPLICATION = 'shark.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': env.db(),
-}
+DATABASES = {}
 
-CACHES = {
-    'default': env.cache(),
-}
-
+CACHES = {}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
