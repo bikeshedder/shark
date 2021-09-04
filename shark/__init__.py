@@ -1,7 +1,15 @@
 from django.conf import settings
 from django.urls import reverse
 
-__version__ = '0.0.1'
+
+try:
+    import importlib.metadata as importlib_metadata
+except ModuleNotFoundError:
+    import importlib_metadata
+try:
+    __version__ = importlib_metadata.version(__name__)
+except:
+    __version__ = 'unknown'
 
 
 def get_admin_change_url(obj):
