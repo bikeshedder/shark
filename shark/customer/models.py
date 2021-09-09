@@ -107,6 +107,10 @@ class Customer(models.Model):
         return self.country.id == 'DE' or \
                 (self.country.eu and not self.vatin)
 
+    @property
+    def billing_address(self):
+        return self.address_set.get(invoice_address=True).address
+
 
 class CustomerComment(models.Model):
     customer = models.ForeignKey('customer.Customer',

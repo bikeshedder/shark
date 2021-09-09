@@ -93,7 +93,7 @@ class Invoice(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.recipient.name:
-            self.recipient = self.customer.address
+            self.recipient = self.customer.billing_address
         if not self.language:
             self.language = self.customer.language \
                     if self.customer.language \
