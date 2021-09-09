@@ -92,7 +92,7 @@ class Invoice(models.Model):
         return '%s %s' % (_('Invoice'), self.number)
 
     def save(self, *args, **kwargs):
-        if not self.recipient:
+        if not self.recipient.name:
             self.recipient = self.customer.address
         if not self.language:
             self.language = self.customer.language \
