@@ -13,7 +13,7 @@ class AddressField(CompositeField):
     address_addition_1 = models.CharField(_('address addition (1st row)'), max_length=100, blank=True)
     address_addition_2 = models.CharField(_('address addition (2nd row)'), max_length=100, blank=True)
     street = models.CharField(_('street'), max_length=100)
-    street_number = models.CharField(_('street number'), max_length=20)
+    street_number = models.CharField(_('street number'), max_length=20, blank=True)
     city = models.CharField(_('city'), max_length=100)
     postal_code = models.CharField(_('postal code'), max_length=10)
     state = models.CharField(max_length=100, blank=True)
