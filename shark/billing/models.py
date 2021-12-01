@@ -112,7 +112,7 @@ class Invoice(models.Model):
                 self.recipient.name,
                 self.recipient.address_addition_1,
                 self.recipient.address_addition_2,
-                self.recipient.street,
+                f'{self.recipient.street} {self.recipient.street_number}',
                 f'{self.recipient.postal_code} {self.recipient.city}',
                 self.recipient.state,
                 self.recipient.country.name if self.recipient.country != 'DE' else '',
