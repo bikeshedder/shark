@@ -7,8 +7,8 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.utils.formats import date_format
-from django.utils.translation import ugettext
-from django.utils.translation import ungettext
+from django.utils.translation import gettext
+from django.utils.translation import ngettext
 from django.utils.translation import override as trans_override
 from PyPDF3 import PdfFileWriter, PdfFileReader
 
@@ -66,7 +66,7 @@ def invoice_pdf(request, number, correction=False):
             recipient=invoice.recipient_lines,
             date=date_format(invoice.created, 'SHORT_DATE_FORMAT'),
             content=[
-                Paragraph('%s %s' % (invoice.get_type_display() if not correction else ugettext(u'Correction of invoice'), invoice.number),
+                Paragraph('%s %s' % (invoice.get_type_display() if not correction else gettext(u'Correction of invoice'), invoice.number),
                         styles['Subject']),
                 Spacer(template.CONTENT_WIDTH, 2*mm),
                 ItemTable(template, invoice),
@@ -114,7 +114,7 @@ def import_items(request):
             items = form.cleaned_data['items']
             for item in items:
                 item.save()
-            messages.success(request, ungettext(
+            messages.success(request, ngettext(
                 '%(count)d invoice item imported.',
                 '%(count)d invoice items imported.',
                 len(items)

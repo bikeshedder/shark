@@ -30,6 +30,7 @@ django-minio-backend = "^3.0.0"
 python-magic = "^0.4.24"
 Wand = "^0.6.7"
 PyPDF3 = "^1.0.5"
+django-environ = "^0.8.1"
 
 [tool.poetry.dev-dependencies]
 

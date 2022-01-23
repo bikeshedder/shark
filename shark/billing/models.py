@@ -7,7 +7,7 @@ from django.conf import settings
 from django.db import models
 from django.db.models import signals
 from django.utils.formats import date_format
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from shark.utils.settings import get_settings_value, get_settings_instance
 from shark.utils.id_generators import IdField

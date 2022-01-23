@@ -4,8 +4,8 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join, mark_safe
-from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import ungettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 from django.utils.translation import override as trans_override
 
 from shark.sepa import models
@@ -62,7 +62,7 @@ class DirectDebitBatchAdmin(admin.ModelAdmin):
                         to=[address.email for address in transaction.customer.email_set.all()],
                         bcc=settings.SHARK['SEPA']['PRE_NOTIFICATION_EMAIL_BCC'],
                     )
-            self.message_user(request, ungettext(
+            self.message_user(request, ngettext(
                 'Send %(count)d pre-notification for batch %(batch_uuid)s',
                 'Send %(count)d pre-notifications for batch %(batch_uuid)s',
                 len(transaction_list)

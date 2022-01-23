@@ -11,9 +11,9 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.utils.formats import date_format
 from django.utils.html import format_html, format_html_join, mark_safe
-from django.utils.translation import ugettext
-from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import ungettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from shark import get_admin_change_url
 from shark import get_admin_changelist_url
@@ -116,9 +116,9 @@ class InvoiceAdmin(admin.ModelAdmin):
         for invoice in queryset:
             net += invoice.net
             gross += invoice.gross
-        value = ugettext('%(net)s net, %(gross)s gross') % {
+        value = gettext('%(net)s net, %(gross)s gross') % {
                 'net': net, 'gross': gross }
-        self.message_user(request, ungettext(
+        self.message_user(request, ngettext(
             'Total value of %(count)d invoice: %(value)s',
             'Total value of %(count)d invoices: %(value)s',
             len(queryset)) % { 'count': len(queryset), 'value': value })

@@ -6,7 +6,7 @@ from django.db import models
 from django.db.models import signals
 from django.dispatch import receiver
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_minio_backend import MinioBackend, iso_date_prefix
 import magic
 from taggit.managers import TaggableManager

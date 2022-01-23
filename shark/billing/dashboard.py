@@ -7,7 +7,7 @@ from admin_tools.dashboard.modules import DashboardModule
 from django.conf import settings
 from django.db.models import Sum
 from django.urls import reverse
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from shark.billing.models import Invoice, InvoiceItem
 

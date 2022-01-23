@@ -4,8 +4,8 @@ from django import forms
 from django.forms.utils import ErrorList
 from django.utils.html import mark_safe
 from django.utils.text import format_lazy
-from django.utils.translation import ugettext
-from django.utils.translation import ugettext_lazy
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy
 
 from shark.billing.models import InvoiceItem
 from shark.customer.models import Customer
@@ -26,7 +26,7 @@ class ItemForm(forms.ModelForm):
         if not customer:
             self.errors.setdefault('customer_number', ErrorList())
             self.errors['customer_number'].append(
-                    ugettext('Customer does not exist.'))
+                    gettext('Customer does not exist.'))
         self.cleaned_data['customer'] = customer
 
     def save(self, commit=True):
@@ -39,7 +39,7 @@ class ItemForm(forms.ModelForm):
 
 class ImportItemsForm(forms.Form):
     file = forms.FileField(
-            help_text=ugettext_lazy(
+            help_text=gettext_lazy(
                 'Please specify a CSV file to be imported. '
                 'The following fields are supported:'))
     delimiter = forms.ChoiceField(
@@ -109,7 +109,7 @@ class ImportItemsForm(forms.Form):
                     row_errors.append('<li>%s: %s</li>' % (
                         field_name, ' '.join(field_errors)))
                 errors.append(mark_safe('%s %d:<ul>%s</ul>' % (
-                    ugettext('Line'), row, ''.join(row_errors))))
+                    gettext('Line'), row, ''.join(row_errors))))
         else:
             self.cleaned_data['items'] = [
                     item_form.save(commit=False)
