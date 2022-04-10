@@ -46,10 +46,10 @@ class DirectDebitMandate(models.Model):
         (TYPE_B2B, 'B2B'),
     )
     type = models.CharField(max_length=4, choices=TYPE_CHOICES)
-    document = models.ForeignKey('documents.Document',
-            on_delete=models.CASCADE,
-            verbose_name=_('signed document'),
-            blank=True, null=True)
+    #document = models.ForeignKey('documents.Document',
+    #        on_delete=models.CASCADE,
+    #        verbose_name=_('signed document'),
+    #        blank=True, null=True)
 
     class Meta:
         verbose_name = _('SEPA direct debit mandate')

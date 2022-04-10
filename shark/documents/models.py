@@ -25,14 +25,14 @@ class Document(models.Model):
             max_length=100)
     sender = AddressField(blank=True)
     recipient = AddressField(blank=True)
-    vendor = models.ForeignKey('vendor.Vendor',
-            verbose_name=_('vendor'),
-            on_delete=models.SET_NULL,
-            blank=True, null=True)
-    customer = models.ForeignKey('customer.Customer',
-            verbose_name=_('customer'),
-            on_delete=models.SET_NULL,
-            blank=True, null=True)
+    #vendor = models.ForeignKey('vendor.Vendor',
+    #        verbose_name=_('vendor'),
+    #        on_delete=models.SET_NULL,
+    #        blank=True, null=True)
+    #customer = models.ForeignKey('customer.Customer',
+    #        verbose_name=_('customer'),
+    #        on_delete=models.SET_NULL,
+    #        blank=True, null=True)
     TYPE_INVOICE = 'invoice'
     TYPE_PAYMENT_REMINDER = 'payment_reminder'
     TYPE_BANK_STATEMENT = 'bank_statement'

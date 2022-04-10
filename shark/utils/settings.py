@@ -22,7 +22,7 @@ def get_settings_value(name, default=RAISE_ERROR):
 
 def shark_settings(d, base=None):
     if not base:
-        from shark import settings
+        from shark.settings import SHARK as base
         base = settings.SHARK
     settings = base.copy()
     for key, value in d.items():

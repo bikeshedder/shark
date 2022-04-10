@@ -211,7 +211,6 @@ REST_FRAMEWORK = {
     )
 }
 
-
 SHARK = {
     'VAT_RATE_CHOICES': (
         (Decimal('0.19'), '19%'),
