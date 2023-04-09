@@ -124,7 +124,7 @@ class Invoice(models.Model):
         return [
             line for line in [
                 self.sender.name,
-                self.sender.street,
+                f'{self.sender.street} {self.sender.street_number}',
                 f'{self.sender.postal_code} {self.sender.city}',
                 self.sender.country if self.sender.country != 'DE' else '',
             ] if line
