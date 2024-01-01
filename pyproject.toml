@@ -2,7 +2,7 @@
 name = "shark"
 version = "0.1.0"
 authors = ["Michael P. Jung <michael.jung@terreon.de>"]
-license = "BSD"
+license = "MIT OR Apache-2.0"
 readme = "README.md"
 description = "Django based billing application"
 repository = "https://github.com/bikeshedder/django-composite-field"
