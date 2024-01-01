@@ -16,12 +16,12 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-Django = "^4.0.1"
+python = "^3.11"
+Django = "^5"
 django-admin-tools = "^0.9.1"
 dinbrief = "^0.4.0"
-django-taggit = "^2.0.0"
-django-localflavor = "^3.1"
+django-taggit = "^5"
+django-localflavor = "^4"
 djangorestframework = "^3.12.4"
 django-composite-field = "^1.1.0"
 django-countries = "^7.2.1"
@@ -30,7 +30,7 @@ django-minio-backend = "^3.0.0"
 python-magic = "^0.4.24"
 Wand = "^0.6.7"
 PyPDF3 = "^1.0.5"
-django-environ = "^0.8.1"
+django-environ = "^0.11"
 
 [tool.poetry.dev-dependencies]
 
