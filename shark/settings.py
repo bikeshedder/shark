@@ -27,87 +27,87 @@ env = environ.Env(
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
+DEBUG = env("DEBUG")
 
-ALLOWED_HOSTS = [env('ALLOWED_HOSTS')]
+ALLOWED_HOSTS = [env("ALLOWED_HOSTS")]
 
 
 # Application definition
 
 INSTALLED_APPS = [
     # Shark applications
-    'shark',
-    'shark.base',
-    'shark.banking',
-    'shark.billing',
-    'shark.customer',
-    'shark.documents',
-    'shark.issue',
-    'shark.project',
-    'shark.sepa',
-    'shark.vendor',
+    "shark",
+    "shark.base",
+    "shark.banking",
+    "shark.billing",
+    "shark.customer",
+    "shark.documents",
+    "shark.issue",
+    "shark.project",
+    "shark.sepa",
+    "shark.vendor",
     # Admin tools
-    'admin_tools',
-    'admin_tools.theming',
-    'admin_tools.menu',
-    'admin_tools.dashboard',
+    "admin_tools",
+    "admin_tools.theming",
+    "admin_tools.menu",
+    "admin_tools.dashboard",
     # Django contrib
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
     # Misc
-    'dinbrief',
-    'taggit',
-    'localflavor',
-    'rest_framework',
-    'django_minio_backend',  # https://github.com/theriverman/django-minio-backend
+    "dinbrief",
+    "taggit",
+    "localflavor",
+    "rest_framework",
+    "django_minio_backend",  # https://github.com/theriverman/django-minio-backend
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'shark.urls'
+ROOT_URLCONF = "shark.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
         "APP_DIRS": True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
-            'loaders': [
-                'django.template.loaders.app_directories.Loader',
-                'admin_tools.template_loaders.Loader',
-            ]
+            "loaders": [
+                "django.template.loaders.app_directories.Loader",
+                "admin_tools.template_loaders.Loader",
+            ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'shark.wsgi.application'
+WSGI_APPLICATION = "shark.wsgi.application"
 
 
 # Database
@@ -116,13 +116,13 @@ WSGI_APPLICATION = 'shark.wsgi.application'
 DATABASES = {
     # read os.environ['DATABASE_URL'] and raises
     # ImproperlyConfigured exception if not found
-    'default': env.db(),
+    "default": env.db(),
 }
 
 CACHES = {
     # Read os.environ['CACHE_URL'] and raises
     # ImproperlyConfigured exception if not found.
-    'default': env.cache(),
+    "default": env.cache(),
 }
 
 # Password validation
@@ -130,16 +130,16 @@ CACHES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -147,9 +147,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -159,103 +159,104 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'htdocs' / 'static'
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "htdocs" / "static"
 
 # Media files
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'htdocs' / 'media'
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "htdocs" / "media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-FORMAT_MODULE_PATH = 'shark.base.formats'
+FORMAT_MODULE_PATH = "shark.base.formats"
 
 
-MINIO_ENDPOINT = 'minio.your-company.co.uk'
-MINIO_EXTERNAL_ENDPOINT = "external-minio.your-company.co.uk"  # Default is same as MINIO_ENDPOINT
+MINIO_ENDPOINT = "minio.your-company.co.uk"
+MINIO_EXTERNAL_ENDPOINT = (
+    "external-minio.your-company.co.uk"  # Default is same as MINIO_ENDPOINT
+)
 MINIO_EXTERNAL_ENDPOINT_USE_HTTPS = True  # Default is same as MINIO_USE_HTTPS
-MINIO_ACCESS_KEY = 'yourMinioAccessKey'
-MINIO_SECRET_KEY = 'yourVeryS3cr3tP4ssw0rd'
+MINIO_ACCESS_KEY = "yourMinioAccessKey"
+MINIO_SECRET_KEY = "yourVeryS3cr3tP4ssw0rd"
 MINIO_USE_HTTPS = True
 MINIO_URL_EXPIRY_HOURS = timedelta(days=1)  # Default is 7 days (longest) if not defined
 MINIO_CONSISTENCY_CHECK_ON_START = False
 MINIO_PRIVATE_BUCKETS = [
-    'django-backend-dev-private',
+    "django-backend-dev-private",
 ]
 MINIO_PUBLIC_BUCKETS = [
-    'documents',
+    "documents",
 ]
 MINIO_POLICY_HOOKS: List[Tuple[str, dict]] = []
 # MINIO_MEDIA_FILES_BUCKET = 'my-media-files-bucket'  # replacement for MEDIA_ROOT
 # MINIO_STATIC_FILES_BUCKET = 'my-static-files-bucket'  # replacement for STATIC_ROOT
-MINIO_BUCKET_CHECK_ON_SAVE = True  # Default: True // Creates bucket if missing, then save
+MINIO_BUCKET_CHECK_ON_SAVE = (
+    True  # Default: True // Creates bucket if missing, then save
+)
 
 
-
-ADMIN_TOOLS_INDEX_DASHBOARD = 'shark.dashboard.CustomIndexDashboard'
-ADMIN_TOOLS_APP_INDEX_DASHBOARD = 'shark.dashboard.CustomAppIndexDashboard'
+ADMIN_TOOLS_INDEX_DASHBOARD = "shark.dashboard.CustomIndexDashboard"
+ADMIN_TOOLS_APP_INDEX_DASHBOARD = "shark.dashboard.CustomAppIndexDashboard"
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
     ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAdminUser',
-    )
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAdminUser",),
 }
 
 SHARK = {
-    'VAT_RATE_CHOICES': (
-        (Decimal('0.19'), '19%'),
-        (Decimal('0.07'), '7%'),
-        (Decimal('0.00'), '0%'),
+    "VAT_RATE_CHOICES": (
+        (Decimal("0.19"), "19%"),
+        (Decimal("0.07"), "7%"),
+        (Decimal("0.00"), "0%"),
     ),
-    'CUSTOMER': {
-        'NUMBER_GENERATOR': 'shark.utils.id_generators.InitialAsNumber',
-        'TYPE_CHOICES': [('default', _('Default'))],
-        'TYPE_DEFAULT': 'default',
+    "CUSTOMER": {
+        "NUMBER_GENERATOR": "shark.utils.id_generators.InitialAsNumber",
+        "TYPE_CHOICES": [("default", _("Default"))],
+        "TYPE_DEFAULT": "default",
     },
-    'INVOICE': {
-        'BACKGROUND': {
+    "INVOICE": {
+        "BACKGROUND": {
             # 'FIRST_PAGE': ...
             # 'LATER_PAGE': ...
         },
-        'SENDER': {
+        "SENDER": {
             "name": "settings.SHARK['INVOICE']['SENDER']['name']",
             "street": "settings.SHARK['INVOICE']['SENDER']['street']",
             "postal_code": "settings.SHARK['INVOICE']['SENDER']['postal_code']",
             "city": "settings.SHARK['INVOICE']['SENDER']['city']",
         },
-        'TERMS': [
+        "TERMS": [
             "settings.SHARK['INVOICE']['TERMS']",
         ],
-        'NUMBER_GENERATOR': 'shark.utils.id_generators.YearCustomerN',
-        'UNIT_CHOICES': [
-            ('s', _('second [s]')),
-            ('min', _('minute [min]')),
-            ('h', _('hour [h]')),
-            ('d', _('day [d]')),
-            ('w', _('week [w]')),
-            ('m', _('month [m]')),
-            ('a', _('year [a]')),
+        "NUMBER_GENERATOR": "shark.utils.id_generators.YearCustomerN",
+        "UNIT_CHOICES": [
+            ("s", _("second [s]")),
+            ("min", _("minute [min]")),
+            ("h", _("hour [h]")),
+            ("d", _("day [d]")),
+            ("w", _("week [w]")),
+            ("m", _("month [m]")),
+            ("a", _("year [a]")),
         ],
-        'PAYMENT_TIMEFRAME': timedelta(days=14),
+        "PAYMENT_TIMEFRAME": timedelta(days=14),
     },
-    'SEPA': {
-        'CREDITOR_ID': '',
-        'CREDITOR_NAME': '',
-        'CREDITOR_COUNTRY': 'DE',
-        'CREDITOR_IBAN': '',
-        'CREDITOR_BIC': '',
-        'DEFAULT_MANDATE_TYPE': 'CORE',
-        'TRANSACTION_REFERENCE_PREFIX': '',
-        'PRE_NOTIFICATION_EMAIL_FROM': '',
-        'PRE_NOTIFICATION_EMAIL_BCC': [],
+    "SEPA": {
+        "CREDITOR_ID": "",
+        "CREDITOR_NAME": "",
+        "CREDITOR_COUNTRY": "DE",
+        "CREDITOR_IBAN": "",
+        "CREDITOR_BIC": "",
+        "DEFAULT_MANDATE_TYPE": "CORE",
+        "TRANSACTION_REFERENCE_PREFIX": "",
+        "PRE_NOTIFICATION_EMAIL_FROM": "",
+        "PRE_NOTIFICATION_EMAIL_BCC": [],
     },
 }

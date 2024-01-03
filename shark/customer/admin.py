@@ -23,26 +23,22 @@ class CustomerCommentInline(admin.StackedInline):
 
 
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ['number', 'name', 'address_html', 'created']
-    list_filter = ['created']
-    search_fields = ['number', 'name']
-    date_hierarchy = 'created'
+    list_display = ["number", "name", "address_html", "created"]
+    list_filter = ["created"]
+    search_fields = ["number", "name"]
+    date_hierarchy = "created"
     inlines = [CustomerAddressInline, CustomerContactInline, CustomerCommentInline]
-    ordering = ['name']
+    ordering = ["name"]
 
     def address_html(self, instance):
         return format_html_join(
-            '\n',
-            '<p>{}</p>',
-            (
-                (
-                    address.lines_html,
-                )
-                for address in instance.address_set.all()
-            )
+            "\n",
+            "<p>{}</p>",
+            ((address.lines_html,) for address in instance.address_set.all()),
         )
-    address_html.short_description = _('Addresses')
-    address_html.admin_order_field = 'address'
+
+    address_html.short_description = _("Addresses")
+    address_html.admin_order_field = "address"
 
 
 if not models.Customer._meta.abstract:

@@ -13,67 +13,258 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('customer', '0001_initial'),
-        ('documents', '0001_initial'),
-        ('billing', '0002_initial'),
+        ("customer", "0001_initial"),
+        ("documents", "0001_initial"),
+        ("billing", "0002_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='DirectDebitBatch',
+            name="DirectDebitBatch",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('uuid', models.UUIDField(default=uuid.uuid4, verbose_name='UUID')),
-                ('creditor_id', models.CharField(default=shark.sepa.models.get_default_creditor_id, max_length=20, verbose_name='creditor id')),
-                ('creditor_name', models.CharField(default=shark.sepa.models.get_default_creditor_name, max_length=70, verbose_name='creditor name')),
-                ('creditor_country', models.CharField(default=shark.sepa.models.get_default_creditor_country, max_length=2, verbose_name='creditor country')),
-                ('creditor_iban', localflavor.generic.models.IBANField(default=shark.sepa.models.get_default_creditor_iban, include_countries=None, max_length=34, use_nordea_extensions=False, verbose_name='creditor IBAN')),
-                ('creditor_bic', localflavor.generic.models.BICField(default=shark.sepa.models.get_default_creditor_bic, max_length=11, verbose_name='creditor BIC')),
-                ('due_date', models.DateField(help_text='Must be min. 5 TARGET dates in the future for the first transaction and 2 target days in the future for recurring transactions.', verbose_name='due date')),
-                ('mandate_type', models.CharField(choices=[('CORE', 'CORE'), ('COR1', 'COR1'), ('B2B', 'B2B')], max_length=4, verbose_name='mandate type')),
-                ('sequence_type', models.CharField(choices=[('FRST', 'FRST'), ('RCUR', 'RCUR')], max_length=4, verbose_name='sequence type')),
-                ('created', models.DateTimeField(auto_now_add=True, verbose_name='created')),
-                ('executed', models.DateTimeField(blank=True, null=True, verbose_name='executed')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("uuid", models.UUIDField(default=uuid.uuid4, verbose_name="UUID")),
+                (
+                    "creditor_id",
+                    models.CharField(
+                        default=shark.sepa.models.get_default_creditor_id,
+                        max_length=20,
+                        verbose_name="creditor id",
+                    ),
+                ),
+                (
+                    "creditor_name",
+                    models.CharField(
+                        default=shark.sepa.models.get_default_creditor_name,
+                        max_length=70,
+                        verbose_name="creditor name",
+                    ),
+                ),
+                (
+                    "creditor_country",
+                    models.CharField(
+                        default=shark.sepa.models.get_default_creditor_country,
+                        max_length=2,
+                        verbose_name="creditor country",
+                    ),
+                ),
+                (
+                    "creditor_iban",
+                    localflavor.generic.models.IBANField(
+                        default=shark.sepa.models.get_default_creditor_iban,
+                        include_countries=None,
+                        max_length=34,
+                        use_nordea_extensions=False,
+                        verbose_name="creditor IBAN",
+                    ),
+                ),
+                (
+                    "creditor_bic",
+                    localflavor.generic.models.BICField(
+                        default=shark.sepa.models.get_default_creditor_bic,
+                        max_length=11,
+                        verbose_name="creditor BIC",
+                    ),
+                ),
+                (
+                    "due_date",
+                    models.DateField(
+                        help_text="Must be min. 5 TARGET dates in the future for the first transaction and 2 target days in the future for recurring transactions.",
+                        verbose_name="due date",
+                    ),
+                ),
+                (
+                    "mandate_type",
+                    models.CharField(
+                        choices=[("CORE", "CORE"), ("COR1", "COR1"), ("B2B", "B2B")],
+                        max_length=4,
+                        verbose_name="mandate type",
+                    ),
+                ),
+                (
+                    "sequence_type",
+                    models.CharField(
+                        choices=[("FRST", "FRST"), ("RCUR", "RCUR")],
+                        max_length=4,
+                        verbose_name="sequence type",
+                    ),
+                ),
+                (
+                    "created",
+                    models.DateTimeField(auto_now_add=True, verbose_name="created"),
+                ),
+                (
+                    "executed",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="executed"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='DirectDebitMandate',
+            name="DirectDebitMandate",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('reference', models.CharField(blank=True, max_length=35, null=True, unique=True, verbose_name='mandate reference')),
-                ('name', models.CharField(max_length=100)),
-                ('street', models.CharField(max_length=100)),
-                ('postal_code', models.CharField(max_length=20)),
-                ('city', models.CharField(max_length=100)),
-                ('country', django_countries.fields.CountryField(default='DE', max_length=2)),
-                ('iban', localflavor.generic.models.IBANField(help_text='International Bank Account Number', include_countries=None, max_length=34, use_nordea_extensions=False, verbose_name='IBAN')),
-                ('bic', localflavor.generic.models.BICField(help_text='Bank Identifier Code', max_length=11, verbose_name='BIC')),
-                ('bank_name', models.CharField(blank=True, max_length=50)),
-                ('created', models.DateTimeField(auto_now_add=True, verbose_name='created')),
-                ('updated', models.DateTimeField(auto_now=True, verbose_name='updated')),
-                ('signed', models.DateField(blank=True, null=True)),
-                ('revoked', models.DateField(blank=True, null=True, verbose_name='revoked')),
-                ('last_used', models.DateField(blank=True, null=True, verbose_name='last_used')),
-                ('type', models.CharField(choices=[('CORE', 'CORE'), ('COR1', 'COR1'), ('B2B', 'B2B')], max_length=4)),
-                ('customer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='direct_debit_mandate_set', to='customer.customer', verbose_name='customer')),
-                ('document', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='documents.document', verbose_name='signed document')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "reference",
+                    models.CharField(
+                        blank=True,
+                        max_length=35,
+                        null=True,
+                        unique=True,
+                        verbose_name="mandate reference",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("street", models.CharField(max_length=100)),
+                ("postal_code", models.CharField(max_length=20)),
+                ("city", models.CharField(max_length=100)),
+                (
+                    "country",
+                    django_countries.fields.CountryField(default="DE", max_length=2),
+                ),
+                (
+                    "iban",
+                    localflavor.generic.models.IBANField(
+                        help_text="International Bank Account Number",
+                        include_countries=None,
+                        max_length=34,
+                        use_nordea_extensions=False,
+                        verbose_name="IBAN",
+                    ),
+                ),
+                (
+                    "bic",
+                    localflavor.generic.models.BICField(
+                        help_text="Bank Identifier Code",
+                        max_length=11,
+                        verbose_name="BIC",
+                    ),
+                ),
+                ("bank_name", models.CharField(blank=True, max_length=50)),
+                (
+                    "created",
+                    models.DateTimeField(auto_now_add=True, verbose_name="created"),
+                ),
+                (
+                    "updated",
+                    models.DateTimeField(auto_now=True, verbose_name="updated"),
+                ),
+                ("signed", models.DateField(blank=True, null=True)),
+                (
+                    "revoked",
+                    models.DateField(blank=True, null=True, verbose_name="revoked"),
+                ),
+                (
+                    "last_used",
+                    models.DateField(blank=True, null=True, verbose_name="last_used"),
+                ),
+                (
+                    "type",
+                    models.CharField(
+                        choices=[("CORE", "CORE"), ("COR1", "COR1"), ("B2B", "B2B")],
+                        max_length=4,
+                    ),
+                ),
+                (
+                    "customer",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="direct_debit_mandate_set",
+                        to="customer.customer",
+                        verbose_name="customer",
+                    ),
+                ),
+                (
+                    "document",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="documents.document",
+                        verbose_name="signed document",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'SEPA direct debit mandate',
-                'verbose_name_plural': 'SEPA direct debit mandates',
+                "verbose_name": "SEPA direct debit mandate",
+                "verbose_name_plural": "SEPA direct debit mandates",
             },
         ),
         migrations.CreateModel(
-            name='DirectDebitTransaction',
+            name="DirectDebitTransaction",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('reference', models.CharField(max_length=140)),
-                ('amount', models.DecimalField(decimal_places=2, max_digits=11, verbose_name='amount')),
-                ('created', models.DateTimeField(auto_now_add=True, verbose_name='created')),
-                ('batch', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='sepa.directdebitbatch', verbose_name='SEPA DD batch')),
-                ('customer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='direct_debit_transaction_set', to='customer.customer', verbose_name='customer')),
-                ('invoice', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='billing.invoice', verbose_name='invoice')),
-                ('mandate', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='sepa.directdebitmandate', verbose_name='SEPA DD mandate')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("reference", models.CharField(max_length=140)),
+                (
+                    "amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=11, verbose_name="amount"
+                    ),
+                ),
+                (
+                    "created",
+                    models.DateTimeField(auto_now_add=True, verbose_name="created"),
+                ),
+                (
+                    "batch",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="sepa.directdebitbatch",
+                        verbose_name="SEPA DD batch",
+                    ),
+                ),
+                (
+                    "customer",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="direct_debit_transaction_set",
+                        to="customer.customer",
+                        verbose_name="customer",
+                    ),
+                ),
+                (
+                    "invoice",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="billing.invoice",
+                        verbose_name="invoice",
+                    ),
+                ),
+                (
+                    "mandate",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="sepa.directdebitmandate",
+                        verbose_name="SEPA DD mandate",
+                    ),
+                ),
             ],
         ),
     ]

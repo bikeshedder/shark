@@ -4,7 +4,7 @@ from shark.customer import models
 
 
 class CustomerAutocomplete(autocomplete_light.AutocompleteModelBase):
-    search_fields = ['number', 'address']
+    search_fields = ["number", "address"]
     model = models.Customer
 
     def choices_for_request(self):
@@ -13,7 +13,7 @@ class CustomerAutocomplete(autocomplete_light.AutocompleteModelBase):
         return super(CustomerAutocomplete, self).choices_for_request()
 
     def choice_label(self, instance):
-        return u'%s - %s' % (instance.number, ', '.join(instance.address.split('\n')))
+        return "%s - %s" % (instance.number, ", ".join(instance.address.split("\n")))
 
 
 autocomplete_light.register(CustomerAutocomplete)

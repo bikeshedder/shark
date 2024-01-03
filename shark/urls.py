@@ -20,12 +20,14 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/billing/', include('shark.billing.admin_urls', namespace='billing_admin')),
-    path('admin/sepa/', include('shark.sepa.admin_urls', namespace='sepa_admin')),
-    path('admin/doc/', include('django.contrib.admindocs.urls')),
-    path('admin/', admin.site.urls),
-    path('admin_tools/', include('admin_tools.urls')),
-    path('accounting/', include('shark.accounting.urls', namespace='accounting')),
-    path('api/', include('shark.api_urls', namespace='api')),
-    path('issue/', include('shark.issue.urls', namespace='issue')),
+    path(
+        "admin/billing/", include("shark.billing.admin_urls", namespace="billing_admin")
+    ),
+    path("admin/sepa/", include("shark.sepa.admin_urls", namespace="sepa_admin")),
+    path("admin/doc/", include("django.contrib.admindocs.urls")),
+    path("admin/", admin.site.urls),
+    path("admin_tools/", include("admin_tools.urls")),
+    path("accounting/", include("shark.accounting.urls", namespace="accounting")),
+    path("api/", include("shark.api_urls", namespace="api")),
+    path("issue/", include("shark.issue.urls", namespace="issue")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

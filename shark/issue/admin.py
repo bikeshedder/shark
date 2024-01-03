@@ -5,13 +5,13 @@ from . import models
 
 class RelationAInline(admin.TabularInline):
     model = models.Relation
-    fk_name = 'a'
+    fk_name = "a"
     extra = 0
 
 
 class RelationBInline(admin.TabularInline):
     model = models.Relation
-    fk_name = 'b'
+    fk_name = "b"
     extra = 0
 
 
@@ -27,16 +27,16 @@ class NoteInline(admin.StackedInline):
 
 @admin.register(models.Issue)
 class IssueAdmin(admin.ModelAdmin):
-    list_display = ('project', 'summary', 'created', 'updated')
-    list_display_links = ('summary',)
-    search_fields = ('project__name', 'summary')
+    list_display = ("project", "summary", "created", "updated")
+    list_display_links = ("summary",)
+    search_fields = ("project__name", "summary")
     inlines = (
         RelationAInline,
         RelationBInline,
         ParticipantInline,
         NoteInline,
     )
-    ordering = ('-updated',)
+    ordering = ("-updated",)
 
 
 class AttachmentInline(admin.StackedInline):
@@ -45,7 +45,7 @@ class AttachmentInline(admin.StackedInline):
 
 
 class NoteAdmin(admin.ModelAdmin):
-    list_display = ('author', 'type', 'text', 'created')
-    list_display_links = ('text',)
-    search_fields = ('text',)
-    ordering = ('-created',)
+    list_display = ("author", "type", "text", "created")
+    list_display_links = ("text",)
+    search_fields = ("text",)
+    ordering = ("-created",)

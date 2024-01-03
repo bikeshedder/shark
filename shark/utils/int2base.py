@@ -2,7 +2,9 @@
 # http://stackoverflow.com/questions/2267362/convert-integer-to-a-string-in-a-given-numeric-base-in-python
 
 import string
+
 digs = string.digits + string.ascii_lowercase
+
 
 def int2base(x, base):
     if x < 0:
@@ -20,8 +22,8 @@ def int2base(x, base):
         x = int(x / base)
 
     if sign < 0:
-        digits.append('-')
+        digits.append("-")
 
     digits.reverse()
 
-    return ''.join(digits)
+    return "".join(digits)

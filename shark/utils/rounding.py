@@ -1,6 +1,6 @@
 import decimal
 
-CENTI = decimal.Decimal('0.01')
+CENTI = decimal.Decimal("0.01")
 DECIMAL_CONTEXT = decimal.DefaultContext.copy()
 DECIMAL_CONTEXT.rounding = decimal.ROUND_HALF_UP
 

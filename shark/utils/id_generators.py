@@ -1,7 +1,7 @@
-'''
+"""
 This module contains classes for generating special sequences like
 customer numbers that are not plain integer fields.
-'''
+"""
 
 from copy import copy
 from datetime import date
@@ -19,9 +19,9 @@ class IdGenerator(object):
     # of accounting software assumes this limit. 32 chars also allows the
     # use of UUIDs for an ID field which I assume is a sane maximum length.
     max_length = 32
-    '''
+    """
     This is just an interface class and does not contain any implementation.
-    '''
+    """
 
     def __init__(self, model_class=None, field_name=None):
         self.model_class = model_class
@@ -30,8 +30,7 @@ class IdGenerator(object):
         self.field_name_given = field_name is not None
 
     def get_queryset(self):
-        return self.model_class.objects.all() \
-                .order_by('-%s' % self.field_name)
+        return self.model_class.objects.all().order_by("-%s" % self.field_name)
 
     def get_last(self):
         obj = self.get_queryset()[:1].get()
@@ -39,7 +38,7 @@ class IdGenerator(object):
 
 
 class InitialAsNumber(IdGenerator):
-    '''
+    """
     Generate numbers of the format <prefix><initial><n>
 
     This is typically used in German accounting for customer numbers.
@@ -52,30 +51,36 @@ class InitialAsNumber(IdGenerator):
     initial: the first letter of the given initial field as number between
         01 and 26. 00 is used for non-letter initials.
     n: simple counter with n_length characters and to base n_base
-    '''
-    def __init__(self, model_class=None, field_name=None, prefix='',
-            initial_field_name='name',
-            n_length=2, n_base=10):
+    """
+
+    def __init__(
+        self,
+        model_class=None,
+        field_name=None,
+        prefix="",
+        initial_field_name="name",
+        n_length=2,
+        n_base=10,
+    ):
         super(InitialAsNumber, self).__init__(model_class, field_name)
         self.initial_length = 2
         self.initial_field_name = initial_field_name
         self.n_length = n_length
         self.n_base = n_base
-        self.format_string = '{prefix}{initial:0>2s}{n:0>%ds}' % (n_length)
+        self.format_string = "{prefix}{initial:0>2s}{n:0>%ds}" % (n_length)
         self.max_length = len(prefix) + 2 + n_length
 
     def format(self, initial, n):
         return self.format_string.format(
-            prefix=self.prefix,
-            initial=self.format_initial(initial),
-            n=self.format_n(n))
+            prefix=self.prefix, initial=self.format_initial(initial), n=self.format_n(n)
+        )
 
     def format_initial(self, s):
-        initial = ord(s[0].lower() - ord('a') + 1)
-        return f'{initial:0>2s}' if 1 <= initial <= 26 else '00'
+        initial = ord(s[0].lower() - ord("a") + 1)
+        return f"{initial:0>2s}" if 1 <= initial <= 26 else "00"
 
     def parse_initial(self, s):
-        return chr(ord('a') + int(s) - 1)
+        return chr(ord("a") + int(s) - 1)
 
     def format_n(self, n):
         return int2base(n, self.n_base)
@@ -83,8 +88,8 @@ class InitialAsNumber(IdGenerator):
     def parse(self, s):
         lp = len(self.prefix)
         prefix = s[:lp]
-        initial = self.parse_initial(s[lp:lp+2])
-        n = s[lp+2:]
+        initial = self.parse_initial(s[lp : lp + 2])
+        n = s[lp + 2 :]
         return (prefix, initial, n)
 
     def get_start(self, initial):
@@ -92,9 +97,11 @@ class InitialAsNumber(IdGenerator):
 
     def get_last(self, initial):
         start = self.prefix + self.format_initial(initial)
-        obj = self.get_queryset() \
-                .filter(**{f'{self.field_name}__istartswith': start}) \
-                [:1].get()
+        obj = (
+            self.get_queryset()
+            .filter(**{f"{self.field_name}__istartswith": start})[:1]
+            .get()
+        )
         return getattr(obj, self.field_name)
 
     def next(self, instance=None):
@@ -105,23 +112,31 @@ class InitialAsNumber(IdGenerator):
             if start > last:
                 return start
             (prefix, last_initial, last_n) = self.parse(last)
-            return self.format(days, last_n+1)
+            return self.format(days, last_n + 1)
         except self.model_class.DoesNotExist:
             return start
 
 
 class DaysSinceEpoch(IdGenerator):
-    '''
+    """
     Generate numbers of the format <prefix><days><n>
 
     prefix: defaults to ''
     days: days since epoch (1970-01-01)
     n: simple counter with n_length characters and to base n_base
-    '''
+    """
 
-    def __init__(self, model_class=None, field_name=None, prefix='',
-            epoch=date(1970, 1, 1), days_length=5, days_base=10,
-            n_length=3, n_base=10):
+    def __init__(
+        self,
+        model_class=None,
+        field_name=None,
+        prefix="",
+        epoch=date(1970, 1, 1),
+        days_length=5,
+        days_base=10,
+        n_length=3,
+        n_base=10,
+    ):
         super(DaysSinceEpoch, self).__init__(model_class, field_name)
         self.days_length = days_length
         self.days_base = days_base
@@ -129,15 +144,13 @@ class DaysSinceEpoch(IdGenerator):
         self.n_length = n_length
         self.n_base = n_base
         self.epoch = epoch
-        self.format_string = '{prefix}{days:0>%ds}{n:0>%ds}' % (
-                days_length, n_length)
+        self.format_string = "{prefix}{days:0>%ds}{n:0>%ds}" % (days_length, n_length)
         self.max_length = len(prefix) + days_length + n_length
 
     def format(self, days, n):
         return self.format_string.format(
-            prefix=self.prefix,
-            days=self.format_days(days),
-            n=self.format_n(n))
+            prefix=self.prefix, days=self.format_days(days), n=self.format_n(n)
+        )
 
     def format_days(self, days):
         return int2base(days, self.days_base)
@@ -148,8 +161,11 @@ class DaysSinceEpoch(IdGenerator):
     def parse(self, s):
         lp = len(self.prefix)
         ld = self.days_length
-        return (s[:lp], int(s[lp:lp+ld], self.days_base),
-                int(s[lp+ld:], self.n_base))
+        return (
+            s[:lp],
+            int(s[lp : lp + ld], self.days_base),
+            int(s[lp + ld :], self.n_base),
+        )
 
     def get_start(self, today=None):
         today = today or date.today()
@@ -163,13 +179,13 @@ class DaysSinceEpoch(IdGenerator):
             if start > last:
                 return start
             (prefix, days, last_n) = self.parse(last)
-            return self.format(days, last_n+1)
+            return self.format(days, last_n + 1)
         except self.model_class.DoesNotExist:
             return start
 
 
 class YearCustomerN(IdGenerator):
-    '''
+    """
     Generate numbers of the format
     <prefix><year><separator1><customer_number><separator2><n>
     e.g. 2012-EXAMPLE-01
@@ -178,10 +194,19 @@ class YearCustomerN(IdGenerator):
     separator1: defaults to '-'
     separator2: defaults to '-'
     n: simple counter with n_length characters to the base n_base
-    '''
+    """
 
-    def __init__(self, model_class=None, field_name=None, prefix='',
-            separator1='-', separator2='-', customer_number_length=20, n_length=2, n_base=10):
+    def __init__(
+        self,
+        model_class=None,
+        field_name=None,
+        prefix="",
+        separator1="-",
+        separator2="-",
+        customer_number_length=20,
+        n_length=2,
+        n_base=10,
+    ):
         # FIXME Is there a way to figure out the customer number length
         #       automatically?
         super(YearCustomerN, self).__init__(model_class, field_name)
@@ -191,13 +216,18 @@ class YearCustomerN(IdGenerator):
         self.n_length = n_length
         self.n_base = n_base
         # <prefix><year><separator1><customer_number><separator2><n>
-        self.year_customer_format_string = \
-                '{prefix}{year:04d}{separator1}' \
-                '{customer_number}{separator2}'
-        self.format_string = self.year_customer_format_string + \
-                '{n:0>%ds}' % n_length
-        self.max_length = len(prefix) + len(separator1) + 4 + \
-                customer_number_length + len(separator2) + n_length
+        self.year_customer_format_string = (
+            "{prefix}{year:04d}{separator1}" "{customer_number}{separator2}"
+        )
+        self.format_string = self.year_customer_format_string + "{n:0>%ds}" % n_length
+        self.max_length = (
+            len(prefix)
+            + len(separator1)
+            + 4
+            + customer_number_length
+            + len(separator2)
+            + n_length
+        )
 
     def format(self, year, customer_number, n):
         return self.format_string.format(
@@ -206,7 +236,8 @@ class YearCustomerN(IdGenerator):
             separator1=self.separator1,
             separator2=self.separator2,
             customer_number=customer_number,
-            n=self.format_n(n))
+            n=self.format_n(n),
+        )
 
     def format_n(self, n):
         return int2base(n, self.n_base)
@@ -233,7 +264,7 @@ class YearCustomerN(IdGenerator):
             if start > last:
                 return start
             (year, customer_number, last_n) = self.parse(last)
-            return self.format(year, customer_number, last_n+1)
+            return self.format(year, customer_number, last_n + 1)
         except self.model_class.DoesNotExist:
             return start
 
@@ -243,10 +274,13 @@ class YearCustomerN(IdGenerator):
             year=today.year,
             separator1=self.separator1,
             separator2=self.separator2,
-            customer_number=customer.number)
-        return self.model_class.objects.all() \
-                .filter(**{ ('%s__startswith' % self.field_name): prefix }) \
-                .order_by('-%s' % self.field_name)
+            customer_number=customer.number,
+        )
+        return (
+            self.model_class.objects.all()
+            .filter(**{("%s__startswith" % self.field_name): prefix})
+            .order_by("-%s" % self.field_name)
+        )
 
     def get_last(self, customer, today):
         obj = self.get_queryset(customer, today)[:1].get()
@@ -254,7 +288,7 @@ class YearCustomerN(IdGenerator):
 
 
 class CustomerYearN(IdGenerator):
-    '''
+    """
     Generate numbers of the format
     <prefix><customer_number><separator1><year><separator2><n>
     e.g. EXAMPLE-2012-01
@@ -263,11 +297,20 @@ class CustomerYearN(IdGenerator):
     separator1: defaults to '-'
     separator2: defaults to '-', optional
     n: simple counter with n_length characters to the base n_base
-    '''
+    """
 
-    def __init__(self, model_class=None, field_name=None, prefix='',
-            customer_number_length=20, separator1='-', year_length=4,
-            separator2='-', n_length=2, n_base=10):
+    def __init__(
+        self,
+        model_class=None,
+        field_name=None,
+        prefix="",
+        customer_number_length=20,
+        separator1="-",
+        year_length=4,
+        separator2="-",
+        n_length=2,
+        n_base=10,
+    ):
         super(CustomerYearN, self).__init__(model_class, field_name)
         self.prefix = prefix
         self.separator1 = separator1
@@ -276,13 +319,19 @@ class CustomerYearN(IdGenerator):
         self.n_length = n_length
         self.n_base = n_base
         # <prefix><year><separator1><customer_number><separator2><n>
-        self.customer_year_format_string = \
-                '{prefix}{customer_number}{separator1}' \
-                '{year:0>%ds}{separator2}' % year_length
-        self.format_string = self.customer_year_format_string + \
-                '{n:0>%ds}' % n_length
-        self.max_length = len(prefix) + len(separator1) + 4 + \
-                customer_number_length + len(separator2) + n_length
+        self.customer_year_format_string = (
+            "{prefix}{customer_number}{separator1}"
+            "{year:0>%ds}{separator2}" % year_length
+        )
+        self.format_string = self.customer_year_format_string + "{n:0>%ds}" % n_length
+        self.max_length = (
+            len(prefix)
+            + len(separator1)
+            + 4
+            + customer_number_length
+            + len(separator2)
+            + n_length
+        )
 
     def format(self, customer_number, year, n):
         return self.format_string.format(
@@ -291,10 +340,11 @@ class CustomerYearN(IdGenerator):
             separator1=self.separator1,
             separator2=self.separator2,
             customer_number=customer_number,
-            n=self.format_n(n))
+            n=self.format_n(n),
+        )
 
     def format_year(self, year):
-        return (('%%0%dd' % self.year_length) % year)[-self.year_length:]
+        return (("%%0%dd" % self.year_length) % year)[-self.year_length :]
 
     def format_n(self, n):
         return int2base(n, self.n_base)
@@ -325,7 +375,7 @@ class CustomerYearN(IdGenerator):
             if start > last:
                 return start
             (customer_number, year, last_n) = self.parse(last)
-            return self.format(customer_number, year, last_n+1)
+            return self.format(customer_number, year, last_n + 1)
         except self.model_class.DoesNotExist:
             return start
 
@@ -335,10 +385,13 @@ class CustomerYearN(IdGenerator):
             customer_number=customer.number,
             separator1=self.separator1,
             year=self.format_year(today.year),
-            separator2=self.separator2)
-        return self.model_class.objects.all() \
-                .filter(**{ ('%s__startswith' % self.field_name): prefix }) \
-                .order_by('-%s' % self.field_name)
+            separator2=self.separator2,
+        )
+        return (
+            self.model_class.objects.all()
+            .filter(**{("%s__startswith" % self.field_name): prefix})
+            .order_by("-%s" % self.field_name)
+        )
 
     def get_last(self, customer, today):
         obj = self.get_queryset(customer, today)[:1].get()
@@ -346,15 +399,16 @@ class CustomerYearN(IdGenerator):
 
 
 class IdField(models.CharField):
-
     def __init__(self, **kwargs):
-        self.generator = kwargs.pop('generator', None)
-        kwargs.setdefault('max_length', 32)
+        self.generator = kwargs.pop("generator", None)
+        kwargs.setdefault("max_length", 32)
         if self.generator:
-            if self.generator.max_length > kwargs['max_length']:
-                raise RuntimeError('The generator is capable of generating IDs exceeding the max_length of this field. Consider using a different generator class or setting a higher max_length value to this field.')
-        kwargs.setdefault('blank', True)
-        kwargs.setdefault('unique', True)
+            if self.generator.max_length > kwargs["max_length"]:
+                raise RuntimeError(
+                    "The generator is capable of generating IDs exceeding the max_length of this field. Consider using a different generator class or setting a higher max_length value to this field."
+                )
+        kwargs.setdefault("blank", True)
+        kwargs.setdefault("unique", True)
         super(IdField, self).__init__(**kwargs)
 
     def contribute_to_class(self, cls, name):
@@ -365,13 +419,14 @@ class IdField(models.CharField):
                 generator.model_class = cls
             if not generator.field_name_given:
                 generator.field_name = name
-            signals.pre_save.connect(partial(self._pre_save, generator=generator),
-                    sender=cls, weak=False)
+            signals.pre_save.connect(
+                partial(self._pre_save, generator=generator), sender=cls, weak=False
+            )
 
     # Do not name this method 'pre_save' as it will otherwise be called without
     # the generator argument.
     def _pre_save(self, generator, sender, instance, *args, **kwargs):
-        if getattr(instance, self.name, ''):
+        if getattr(instance, self.name, ""):
             # Do not create an ID for objects that already have a value set.
             return
         value = generator.next(instance=instance)

@@ -10,78 +10,214 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('auth', '0012_alter_user_first_name_max_length'),
-        ('project', '0001_initial'),
+        ("auth", "0012_alter_user_first_name_max_length"),
+        ("project", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Issue',
+            name="Issue",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('summary', models.CharField(help_text='A concise description of the problem limited to 200 characters.', max_length=200, verbose_name='summary')),
-                ('created', models.DateTimeField(auto_now_add=True, verbose_name='created')),
-                ('updated', models.DateTimeField(auto_now=True, verbose_name='updated')),
-                ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='project.project', verbose_name='project')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "summary",
+                    models.CharField(
+                        help_text="A concise description of the problem limited to 200 characters.",
+                        max_length=200,
+                        verbose_name="summary",
+                    ),
+                ),
+                (
+                    "created",
+                    models.DateTimeField(auto_now_add=True, verbose_name="created"),
+                ),
+                (
+                    "updated",
+                    models.DateTimeField(auto_now=True, verbose_name="updated"),
+                ),
+                (
+                    "project",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="project.project",
+                        verbose_name="project",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'issue',
-                'verbose_name_plural': 'issues',
+                "verbose_name": "issue",
+                "verbose_name_plural": "issues",
             },
         ),
         migrations.CreateModel(
-            name='Note',
+            name="Note",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('type', models.CharField(max_length=10, verbose_name='type')),
-                ('text', models.TextField()),
-                ('created', models.DateTimeField(auto_now_add=True, verbose_name='created')),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='author')),
-                ('issue', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='issue.issue', verbose_name='note')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("type", models.CharField(max_length=10, verbose_name="type")),
+                ("text", models.TextField()),
+                (
+                    "created",
+                    models.DateTimeField(auto_now_add=True, verbose_name="created"),
+                ),
+                (
+                    "author",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="author",
+                    ),
+                ),
+                (
+                    "issue",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="issue.issue",
+                        verbose_name="note",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Attachment',
+            name="Attachment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('file', models.FileField(upload_to='issue/attachment', verbose_name='file')),
-                ('description', models.TextField(blank=True, verbose_name='description')),
-                ('note', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='issue.note', verbose_name='note')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "file",
+                    models.FileField(upload_to="issue/attachment", verbose_name="file"),
+                ),
+                (
+                    "description",
+                    models.TextField(blank=True, verbose_name="description"),
+                ),
+                (
+                    "note",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="issue.note",
+                        verbose_name="note",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Relation',
+            name="Relation",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('b_is_parent', models.BooleanField()),
-                ('b_is_related', models.BooleanField()),
-                ('b_is_duplicate', models.BooleanField()),
-                ('type', models.CharField(choices=[('parent', 'parent'), ('related', 'related'), ('duplicate', 'duplicate')], max_length=10, verbose_name='type')),
-                ('a', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='related_b_set', to='issue.issue')),
-                ('b', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='related_a_set', to='issue.issue')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("b_is_parent", models.BooleanField()),
+                ("b_is_related", models.BooleanField()),
+                ("b_is_duplicate", models.BooleanField()),
+                (
+                    "type",
+                    models.CharField(
+                        choices=[
+                            ("parent", "parent"),
+                            ("related", "related"),
+                            ("duplicate", "duplicate"),
+                        ],
+                        max_length=10,
+                        verbose_name="type",
+                    ),
+                ),
+                (
+                    "a",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="related_b_set",
+                        to="issue.issue",
+                    ),
+                ),
+                (
+                    "b",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="related_a_set",
+                        to="issue.issue",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'relation',
-                'verbose_name_plural': 'relations',
-                'unique_together': {('a', 'b')},
+                "verbose_name": "relation",
+                "verbose_name_plural": "relations",
+                "unique_together": {("a", "b")},
             },
         ),
         migrations.CreateModel(
-            name='Participant',
+            name="Participant",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('watcher', models.BooleanField(default=False)),
-                ('reporter', models.BooleanField(default=False)),
-                ('waiting', models.BooleanField(default=False)),
-                ('group', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='auth.group', verbose_name='group')),
-                ('issue', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='issue.issue', verbose_name='issue')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='user')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("watcher", models.BooleanField(default=False)),
+                ("reporter", models.BooleanField(default=False)),
+                ("waiting", models.BooleanField(default=False)),
+                (
+                    "group",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="auth.group",
+                        verbose_name="group",
+                    ),
+                ),
+                (
+                    "issue",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="issue.issue",
+                        verbose_name="issue",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="user",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'participant',
-                'verbose_name_plural': 'participants',
-                'unique_together': {('issue', 'group'), ('issue', 'user')},
+                "verbose_name": "participant",
+                "verbose_name_plural": "participants",
+                "unique_together": {("issue", "group"), ("issue", "user")},
             },
         ),
     ]

@@ -7,7 +7,8 @@ import shark.settings
 
 import django
 from django.conf import settings
-settings.configure(SECRET_KEY='DOES_NOT_MATTER')
+
+settings.configure(SECRET_KEY="DOES_NOT_MATTER")
 django.setup()
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -15,25 +16,29 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 django.setup()
 
 # Paths to search for translatable apps
-SEARCH_PATHS = ['shark']
+SEARCH_PATHS = ["shark"]
 
 # Map i18n commands to Django management commands
 COMMANDS = {
-    'update': (
-        'makemessages', {
-            'all': True,
-            'extensions': ['py', 'html', 'txt', 'subject', 'body'],
+    "update": (
+        "makemessages",
+        {
+            "all": True,
+            "extensions": ["py", "html", "txt", "subject", "body"],
         },
     ),
-    'compile': (
-        'compilemessages', {
-            'locale': None,
+    "compile": (
+        "compilemessages",
+        {
+            "locale": None,
         },
     ),
 }
 
+
 def log(s):
-    sys.stderr.write('%s\n' % s)
+    sys.stderr.write("%s\n" % s)
+
 
 def call(app, func):
     cwd = os.getcwd()
@@ -43,6 +48,7 @@ def call(app, func):
     finally:
         os.chdir(cwd)
 
+
 def find_i18n_apps(paths=SEARCH_PATHS):
     apps = []
     for path in paths:
@@ -50,7 +56,7 @@ def find_i18n_apps(paths=SEARCH_PATHS):
             continue
         path = os.path.normpath(path)
         for root, dirnames, filenames in os.walk(path):
-            if 'locale' in dirnames:
+            if "locale" in dirnames:
                 apps.append(root)
     return apps
 
@@ -78,5 +84,5 @@ if __name__ == "__main__":
     management_command = lambda: call_command(cmd, **options)
 
     for app in find_i18n_apps(args or SEARCH_PATHS):
-        log('>>> %s' % app)
+        log(">>> %s" % app)
         call(app, management_command)
