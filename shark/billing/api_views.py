@@ -1,7 +1,7 @@
 from rest_framework import generics
 
-from . import models
 from . import api_serializers as serializers
+from . import models
 
 
 class InvoiceList(generics.ListAPIView):

@@ -1,18 +1,15 @@
-# -*- coding: UTF-8 -*-
-
+from datetime import date, timedelta
 from decimal import Decimal
-from datetime import datetime, date, timedelta
 
 from django.conf import settings
 from django.db import models
-from django.db.models import signals
 from django.utils.formats import date_format
 from django.utils.translation import gettext_lazy as _
 
-from shark.utils.settings import get_settings_value, get_settings_instance
-from shark.utils.id_generators import IdField
 from shark.utils.fields import AddressField, LanguageField
+from shark.utils.id_generators import IdField
 from shark.utils.rounding import round_to_centi
+from shark.utils.settings import get_settings_instance, get_settings_value
 
 INVOICE_PAYMENT_TIMEFRAME = get_settings_value(
     "INVOICE.PAYMENT_TIMEFRAME", timedelta(days=14)

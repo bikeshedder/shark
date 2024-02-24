@@ -1,11 +1,8 @@
 import argparse
 import csv
-from decimal import Decimal
-from functools import partial
 
-from django.apps import apps
 from django.core.exceptions import ValidationError
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from shark.customer.models import Customer
 from shark.sepa.models import DirectDebitMandate

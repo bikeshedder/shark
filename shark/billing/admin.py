@@ -1,24 +1,15 @@
-# -*- coding: UTF-8 -*-
-
 import csv
-from datetime import date, datetime
 from decimal import Decimal
 
-from django.conf import settings
 from django.contrib import admin
+from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
-from django.http import HttpResponse
-from django.http import HttpResponseRedirect
-from django.utils.formats import date_format
 from django.utils.html import format_html, format_html_join, mark_safe
-from django.utils.translation import gettext
+from django.utils.translation import gettext, ngettext
 from django.utils.translation import gettext_lazy as _
-from django.utils.translation import ngettext
 
-from shark import get_admin_change_url
-from shark import get_admin_changelist_url
+from shark import get_admin_change_url, get_admin_changelist_url
 from shark.billing import models
-from shark.customer.models import Customer
 
 
 class excel_semicolon(csv.excel):
@@ -184,7 +175,6 @@ class InvoiceAdmin(admin.ModelAdmin):
         ]
         writer.writerow([c[0] for c in cols])
         for invoice in queryset:
-            customer = invoice.customer
             writer.writerow(
                 [
                     accessor(invoice) if accessor else getattr(invoice, name)

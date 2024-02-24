@@ -10,13 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import os
 from datetime import timedelta
 from decimal import Decimal
-import os
 from pathlib import Path
 
-from django.utils.translation import gettext_lazy as _
 import environ
+from django.utils.translation import gettext_lazy as _
 
 env = environ.Env(
     # set casting, default value

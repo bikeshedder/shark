@@ -3,8 +3,6 @@
 import os
 import sys
 
-import shark.settings
-
 import django
 from django.conf import settings
 
@@ -62,7 +60,6 @@ def find_i18n_apps(paths=SEARCH_PATHS):
 
 
 if __name__ == "__main__":
-
     from django.core.management import call_command
 
     usage = """Usage: i18n CMD [APPS]...
@@ -77,12 +74,10 @@ if __name__ == "__main__":
         args = sys.argv[1:]
         cmd = args.pop(0)
         cmd, options = COMMANDS[cmd]
-    except:
+    except Exception:
         log(usage)
         sys.exit(1)
 
-    management_command = lambda: call_command(cmd, **options)
-
     for app in find_i18n_apps(args or SEARCH_PATHS):
         log(">>> %s" % app)
-        call(app, management_command)
+        call(app, lambda: call_command(cmd, **options))

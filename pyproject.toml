@@ -34,7 +34,15 @@ django-environ = "^0.11"
 gunicorn = "^21"
 boto3 = "^1.34"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.2.2"
+
+[tool.ruff.lint]
+# https://docs.astral.sh/ruff/rules/
+select = ["E4", "E7", "E9", "F", "I"]
+
+[tool.ruff.format]
+line-ending = "lf"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

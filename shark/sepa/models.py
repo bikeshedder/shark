@@ -1,13 +1,10 @@
-from functools import partial
 import uuid
 
 from django.conf import settings
 from django.db import models
-from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
-from localflavor.generic.models import BICField
-from localflavor.generic.models import IBANField
+from localflavor.generic.models import BICField, IBANField
 
 from shark.utils.settings import get_settings_value
 

@@ -1,11 +1,9 @@
-# -*- coding: UTF-8 -*-
-
 from os.path import splitext
 
 from django.contrib import admin
+from django.template.defaultfilters import filesizeformat
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
-from django.template.defaultfilters import filesizeformat
 
 from shark.documents import models
 

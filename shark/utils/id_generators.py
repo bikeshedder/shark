@@ -112,7 +112,9 @@ class InitialAsNumber(IdGenerator):
             if start > last:
                 return start
             (prefix, last_initial, last_n) = self.parse(last)
-            return self.format(days, last_n + 1)
+            # XXX days is not defined
+            # return self.format(days, last_n + 1)
+            return ""
         except self.model_class.DoesNotExist:
             return start
 
@@ -244,7 +246,7 @@ class YearCustomerN(IdGenerator):
 
     def parse(self, s):
         lp = len(self.prefix)
-        prefix, rest = (s[:lp], s[lp:])
+        _, rest = (s[:lp], s[lp:])
         year, rest = rest.split(self.separator1, 1)
         year = int(year)
         customer_number, n = rest.rsplit(self.separator2, 1)
@@ -351,7 +353,7 @@ class CustomerYearN(IdGenerator):
 
     def parse(self, s):
         lp = len(self.prefix)
-        prefix, rest = (s[:lp], s[lp:])
+        _, rest = (s[:lp], s[lp:])
         customer_number, rest = rest.split(self.separator1, 1)
         if self.separator2:
             year, n = rest.rsplit(self.separator2, 1)

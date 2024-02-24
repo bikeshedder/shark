@@ -23,24 +23,6 @@ def get_settings_value(name, default=RAISE_ERROR):
     return d
 
 
-def shark_settings(d, base=None):
-    if not base:
-        from shark.settings import SHARK as base
-
-        base = settings.SHARK
-    settings = base.copy()
-    for key, value in d.items():
-        if isinstance(value, dict):
-            if not isinstance(base.get(key, {}), dict):
-                raise RuntimeError(
-                    "Type mismatch of settings and base settings: %r" % key
-                )
-            settings[key] = shark_settings(value, base.get(key, {}))
-        else:
-            settings[key] = value
-    return settings
-
-
 def get_settings_instance(name):
     v = get_settings_value(name)
     if isinstance(v, str):
