@@ -1,22 +1,10 @@
 *.py[co]
 *.swp
-.DS_Store
-.swp
-.sass-cache
-.sqlite
-.mo
-.svn
-.git
-.orig
-.env
+.*
 
-/.project
-/.pydevproject
-/.settings
+!.devcontainer/
+!.github/
 
-/dist
-/node_modules
-/db.sqlite
-/htdocs/media
-/htdocs/static
-/settings.py
+!.env.*example
+
+!.dockerignore

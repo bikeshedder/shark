@@ -1,0 +1,8 @@
+*
+
+# Only include necessary files
+!shark
+!i18n.py
+!manage.py
+!poetry.lock
+!pyproject.toml
