@@ -1,5 +1,3 @@
-from xml.sax.saxutils import escape
-
 from django.conf import settings
 from django.contrib import admin
 from django.urls import reverse
@@ -16,7 +14,7 @@ class DirectDebitMandateAdmin(admin.ModelAdmin):
     list_display = ["customer", "address_html", "iban", "bic"]
     list_filter = ["created", "signed"]
     search_fields = ["number", "address", "created"]
-    raw_id_fields = ["document"]
+    # raw_id_fields = ["document"]
     autocomplete_fields = ("customer",)
 
     def address_html(self, instance):
