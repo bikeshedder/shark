@@ -3,13 +3,11 @@
 from django.db import migrations, models
 import django.db.models.deletion
 import django_countries.fields
-import django_minio_backend.models
 import shark.utils.date
 import taggit.managers
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -160,9 +158,6 @@ class Migration(migrations.Migration):
                 (
                     "file",
                     models.FileField(
-                        storage=django_minio_backend.models.MinioBackend(
-                            bucket_name="documents"
-                        ),
                         upload_to="documents",
                         verbose_name="file",
                     ),

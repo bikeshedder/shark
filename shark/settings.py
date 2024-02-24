@@ -14,7 +14,6 @@ from datetime import timedelta
 from decimal import Decimal
 import os
 from pathlib import Path
-from typing import List, Tuple
 
 from django.utils.translation import gettext_lazy as _
 import environ
@@ -72,7 +71,7 @@ INSTALLED_APPS = [
     "taggit",
     "localflavor",
     "rest_framework",
-    "django_minio_backend",  # https://github.com/theriverman/django-minio-backend
+    "storages",
 ]
 
 MIDDLEWARE = [
@@ -91,7 +90,6 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [],
-        "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
@@ -160,12 +158,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "htdocs" / "static"
 
 # Media files
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "htdocs" / "media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -176,29 +172,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 FORMAT_MODULE_PATH = "shark.base.formats"
 
 
-MINIO_ENDPOINT = "minio.your-company.co.uk"
-MINIO_EXTERNAL_ENDPOINT = (
-    "external-minio.your-company.co.uk"  # Default is same as MINIO_ENDPOINT
-)
-MINIO_EXTERNAL_ENDPOINT_USE_HTTPS = True  # Default is same as MINIO_USE_HTTPS
-MINIO_ACCESS_KEY = "yourMinioAccessKey"
-MINIO_SECRET_KEY = "yourVeryS3cr3tP4ssw0rd"
-MINIO_USE_HTTPS = True
-MINIO_URL_EXPIRY_HOURS = timedelta(days=1)  # Default is 7 days (longest) if not defined
-MINIO_CONSISTENCY_CHECK_ON_START = False
-MINIO_PRIVATE_BUCKETS = [
-    "django-backend-dev-private",
-]
-MINIO_PUBLIC_BUCKETS = [
-    "documents",
-]
-MINIO_POLICY_HOOKS: List[Tuple[str, dict]] = []
-# MINIO_MEDIA_FILES_BUCKET = 'my-media-files-bucket'  # replacement for MEDIA_ROOT
-# MINIO_STATIC_FILES_BUCKET = 'my-static-files-bucket'  # replacement for STATIC_ROOT
-MINIO_BUCKET_CHECK_ON_SAVE = (
-    True  # Default: True // Creates bucket if missing, then save
-)
-
+# Used for document storage
+AWS_S3_ENDPOINT_URL = "http://minio:9000"
+AWS_S3_ACCESS_KEY_ID = env.str("MINIO_ACCESS_KEY_ID")
+AWS_S3_SECRET_ACCESS_KEY = env.str("MINIO_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = "shark"
+AWS_QUERYSTRING_AUTH = False
 
 ADMIN_TOOLS_INDEX_DASHBOARD = "shark.dashboard.CustomIndexDashboard"
 ADMIN_TOOLS_APP_INDEX_DASHBOARD = "shark.dashboard.CustomAppIndexDashboard"

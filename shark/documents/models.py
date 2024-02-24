@@ -1,13 +1,10 @@
 from os.path import basename, splitext
 from tempfile import TemporaryFile
 
-from django.core.files.storage import get_storage_class
 from django.db import models
 from django.db.models import signals
 from django.dispatch import receiver
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django_minio_backend import MinioBackend, iso_date_prefix
 import magic
 from taggit.managers import TaggableManager
 from wand.image import Image
@@ -16,8 +13,7 @@ from wand.exceptions import MissingDelegateError
 from shark.utils.date import today
 from shark.utils.fields import AddressField
 
-
-document_storage = MinioBackend(bucket_name="documents")
+from .storage import DocumentStorage
 
 
 class Document(models.Model):
@@ -61,7 +57,7 @@ class Document(models.Model):
     date = models.DateField(
         _("date"), default=today, help_text="Date as written on the document."
     )
-    file = models.FileField(_("file"), upload_to="documents", storage=document_storage)
+    file = models.FileField(_("file"), storage=DocumentStorage)
     original_filename = models.TextField(editable=False, blank=True, null=True)
     size = models.BigIntegerField(_("file size"), default=0, editable=False)
     mime_type = models.CharField(
