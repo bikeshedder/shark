@@ -1,5 +1,3 @@
-from xml.sax.saxutils import escape
-
 from django.contrib import admin
 from django.utils.html import format_html_join
 from django.utils.translation import gettext_lazy as _

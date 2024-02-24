@@ -2,15 +2,16 @@
 
 import datetime
 from decimal import Decimal
-from django.db import migrations, models
+
 import django_countries.fields
+from django.db import migrations, models
+
 import shark.billing.models
 import shark.utils.fields
 import shark.utils.id_generators
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = []

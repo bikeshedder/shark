@@ -3,7 +3,6 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 from . import api_views as views
 
-
 app_name = "billing"
 urlpatterns = [
     path(r"invoice/", views.InvoiceList.as_view(), name="invoice_list"),

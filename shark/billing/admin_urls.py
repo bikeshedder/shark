@@ -2,7 +2,6 @@ from django.urls import path
 
 from . import admin_views as views
 
-
 app_name = "billing"
 urlpatterns = [
     # disabled for now

@@ -7,14 +7,12 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.utils.formats import date_format
-from django.utils.translation import gettext
-from django.utils.translation import ngettext
+from django.utils.translation import gettext, ngettext
 from django.utils.translation import override as trans_override
-from PyPDF3 import PdfFileWriter, PdfFileReader
+from PyPDF3 import PdfFileReader, PdfFileWriter
 
 from shark.billing.admin_forms import ImportItemsForm
-from shark.billing.models import InvoiceItem
-from shark.billing.models import Invoice
+from shark.billing.models import Invoice, InvoiceItem
 
 INVOICE_TERMS = settings.SHARK["INVOICE"]["TERMS"]
 
@@ -32,18 +30,15 @@ def invoice_pdf(request, number, correction=False):
     invoice = get_object_or_404(Invoice, number=number)
     if correction:
         invoice = invoice.correction
-    from reportlab.lib.units import mm
-    from reportlab.platypus import Paragraph
-    from reportlab.platypus.flowables import Spacer
-    from reportlab.platypus.flowables import KeepTogether
-
     from dinbrief.document import Document
     from dinbrief.invoice import ItemTable, TotalTable
     from dinbrief.styles import styles
     from dinbrief.template import BriefTemplate
+    from reportlab.lib.units import mm
+    from reportlab.platypus import Paragraph
+    from reportlab.platypus.flowables import KeepTogether, Spacer
 
     with trans_override(invoice.language):
-
         response = HttpResponse(content_type="application/pdf")
         if "download" in request.GET:
             filename = "%s.pdf" % invoice.number

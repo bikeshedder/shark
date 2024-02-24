@@ -4,8 +4,7 @@ from django import forms
 from django.forms.utils import ErrorList
 from django.utils.html import mark_safe
 from django.utils.text import format_lazy
-from django.utils.translation import gettext
-from django.utils.translation import gettext_lazy
+from django.utils.translation import gettext, gettext_lazy
 
 from shark.billing.models import InvoiceItem
 from shark.customer.models import Customer

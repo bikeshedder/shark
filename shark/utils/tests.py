@@ -2,11 +2,9 @@ from datetime import date
 
 from django.test import TestCase
 
-from shark.customer.models import Customer
 from shark.billing.models import Invoice
-from shark.utils.id_generators import DaysSinceEpoch
-from shark.utils.id_generators import YearCustomerN
-from shark.utils.id_generators import CustomerYearN
+from shark.customer.models import Customer
+from shark.utils.id_generators import CustomerYearN, DaysSinceEpoch, YearCustomerN
 
 
 class DaysSinceEpochTestCase(TestCase):

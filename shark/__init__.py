@@ -1,14 +1,10 @@
-from django.conf import settings
+import importlib.metadata as importlib_metadata
+
 from django.urls import reverse
 
-
-try:
-    import importlib.metadata as importlib_metadata
-except ModuleNotFoundError:
-    import importlib_metadata
 try:
     __version__ = importlib_metadata.version(__name__)
-except:
+except Exception:
     __version__ = "unknown"
 
 

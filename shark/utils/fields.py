@@ -1,5 +1,3 @@
-from functools import partial
-
 from composite_field import CompositeField
 from django.conf import settings
 from django.db import models

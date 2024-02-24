@@ -111,7 +111,7 @@ class InvoiceCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         # update or create customer
         customer_data = validated_data.pop("customer")
-        customer.objects.update_or_create(
+        Customer.objects.update_or_create(
             number=customer_data.pop("number"), defaults=customer_data
         )
         # create invoice
