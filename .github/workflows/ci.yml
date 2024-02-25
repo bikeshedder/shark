@@ -54,5 +54,8 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction --without dev
 
+      - name: Check for linter errors
+        run: ruff check
+
       - name: Run tests
         run: python manage.py test
