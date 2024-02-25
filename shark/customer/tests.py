@@ -1,4 +1,4 @@
-from django.utils import unittest
+import unittest
 
 from shark.customer.models import Customer
 

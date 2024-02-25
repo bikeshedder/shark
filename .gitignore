@@ -6,5 +6,6 @@
 !.github/
 
 !.env.*example
+!.env.ci
 
 !.dockerignore

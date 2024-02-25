@@ -1,6 +1,5 @@
 import inspect
-
-from django.utils import unittest
+import unittest
 
 
 def import_testcases(module_name):
