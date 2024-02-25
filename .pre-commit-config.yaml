@@ -1,0 +1,10 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.2.2
+    hooks:
+      - id: ruff
+      - id: ruff-format
+        # Commit will fail no matter what (if formatting needs to be applied)
+        # Without `--check` flag, files would be changed but unstaged which likely results in a mess
+        # By providing `--check` it is up to the developer to make the necessary corrections (aka `ruff format`) before trying to commit again
+        args: ["--check"]
