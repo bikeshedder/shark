@@ -246,7 +246,7 @@ class YearCustomerN(IdGenerator):
 
     def parse(self, s):
         lp = len(self.prefix)
-        _, rest = (s[:lp], s[lp:])
+        _prefix, rest = (s[:lp], s[lp:])
         year, rest = rest.split(self.separator1, 1)
         year = int(year)
         customer_number, n = rest.rsplit(self.separator2, 1)
@@ -353,7 +353,7 @@ class CustomerYearN(IdGenerator):
 
     def parse(self, s):
         lp = len(self.prefix)
-        _, rest = (s[:lp], s[lp:])
+        _prefix, rest = (s[:lp], s[lp:])
         customer_number, rest = rest.split(self.separator1, 1)
         if self.separator2:
             year, n = rest.rsplit(self.separator2, 1)
