@@ -24,7 +24,8 @@
 			"extensions": [
 				"charliermarsh.ruff",
 				"tamasfe.even-better-toml",
-				"eamodio.gitlens"
+				"eamodio.gitlens",
+				"redhat.vscode-yaml"
 			],
 			"settings": {
 				"editor.formatOnSave": true,
@@ -38,9 +39,6 @@
 				},
 				"files.exclude": {
 					"**/__pycache__": true
-				},
-				"[toml]": {
-					"editor.defaultFormatter": "tamasfe.even-better-toml"
 				}
 			}
 		}

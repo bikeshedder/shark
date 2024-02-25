@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-
 DATE_FORMAT = "j. F Y"
 TIME_FORMAT = "H:i:s"
 DATETIME_FORMAT = "j. F Y, H:i:s"

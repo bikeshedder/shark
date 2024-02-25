@@ -121,14 +121,17 @@ files = [
 
 [[package]]
 name = "django-composite-field"
-version = "1.1.0"
+version = "2.0.0"
 description = "CompositeField implementation for Django"
 optional = false
-python-versions = "*"
+python-versions = ">=3.8,<4.0"
 files = [
-    {file = "django-composite-field-1.1.0.tar.gz", hash = "sha256:9b6407742f179e2462ba36cbd3b124e0b1dca948c89a5a00f17747c33140eadd"},
-    {file = "django_composite_field-1.1.0-py2.py3-none-any.whl", hash = "sha256:afc75c6724a3a55e68d75edc8ab3fc3f3646986fc702a29d94f495571f381448"},
+    {file = "django_composite_field-2.0.0-py3-none-any.whl", hash = "sha256:7d742452824bc153c9f273e86f121f688920cc91905ff5d150c121433872e617"},
+    {file = "django_composite_field-2.0.0.tar.gz", hash = "sha256:4bdf9b4952ccdeac04908f6895e0d7ac345188934edf75b3dec0d50696397a21"},
 ]
+
+[package.dependencies]
+Django = "*"
 
 [[package]]
 name = "django-countries"
@@ -615,4 +618,4 @@ test = ["pytest (>=7.2.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "62849664df8de3599149018d54464d2baee51d2c4146406887c11089cf8f8f54"
+content-hash = "a5eed856e4edc79cdf5c7a1f0ed1aaeafe65859cbc29d64a644980096abb73ed"
