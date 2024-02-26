@@ -10,13 +10,8 @@ class CustomerAddressInline(admin.StackedInline):
     extra = 0
 
 
-class CustomerContactInline(admin.StackedInline):
-    model = models.CustomerContact
-    extra = 0
-
-
-class CustomerCommentInline(admin.StackedInline):
-    model = models.CustomerComment
+class CustomerNoteInline(admin.StackedInline):
+    model = models.CustomerNote
     extra = 0
 
 
@@ -25,7 +20,7 @@ class CustomerAdmin(admin.ModelAdmin):
     list_filter = ["created"]
     search_fields = ["number", "name"]
     date_hierarchy = "created"
-    inlines = [CustomerAddressInline, CustomerContactInline, CustomerCommentInline]
+    inlines = [CustomerAddressInline, CustomerNoteInline]
     ordering = ["name"]
 
     def address_html(self, instance):
