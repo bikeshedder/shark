@@ -55,7 +55,6 @@ INSTALLED_APPS = [
     "shark.issue",
     "shark.project",
     "shark.sepa",
-    "shark.vendor",
     # Admin tools
     "admin_tools",
     "admin_tools.theming",
