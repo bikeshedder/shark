@@ -17,7 +17,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.11"
-Django = "^5"
+Django = "^4"
 django-admin-tools = "^0.9.1"
 dinbrief = "^0.4.0"
 django-taggit = "^5"
