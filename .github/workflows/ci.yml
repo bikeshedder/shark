@@ -52,7 +52,7 @@ jobs:
           echo "$HOME/.poetry/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
-        run: poetry install --no-interaction --without dev
+        run: poetry install --no-interaction
 
       - name: Check for linter errors
         run: ruff check
