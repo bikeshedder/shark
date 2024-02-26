@@ -28,7 +28,8 @@
 				"charliermarsh.ruff",
 				"tamasfe.even-better-toml",
 				"eamodio.gitlens",
-				"redhat.vscode-yaml"
+				"redhat.vscode-yaml",
+				"EditorConfig.EditorConfig"
 			],
 			"settings": {
 				"editor.formatOnSave": true,
