@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     "shark.banking",
     "shark.billing",
     "shark.customer",
-    "shark.documents",
     "shark.issue",
     "shark.project",
     "shark.sepa",
