@@ -28,5 +28,4 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("admin_tools/", include("admin_tools.urls")),
     path("api/", include("shark.api_urls", namespace="api")),
-    path("issue/", include("shark.issue.urls", namespace="issue")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
