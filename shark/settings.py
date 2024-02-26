@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     # Shark applications
     "shark",
     "shark.base",
-    "shark.banking",
     "shark.billing",
     "shark.customer",
     "shark.project",
