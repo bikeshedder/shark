@@ -131,17 +131,6 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
-name = "django-admin-tools"
-version = "0.9.3"
-description = "A collection of tools for the django administration interface"
-optional = false
-python-versions = "*"
-files = [
-    {file = "django-admin-tools-0.9.3.tar.gz", hash = "sha256:5aee0735907f0807c88b793f6b14eccff586e652d41e77f02c691f624f965672"},
-    {file = "django_admin_tools-0.9.3-py2.py3-none-any.whl", hash = "sha256:f4bef88a5c5f4b97a760c09b822fc6f0e9f12c91a755860b1c011d01345282d3"},
-]
-
-[[package]]
 name = "django-composite-field"
 version = "2.0.0"
 description = "CompositeField implementation for Django"
@@ -191,6 +180,17 @@ files = [
 develop = ["coverage[toml] (>=5.0a4)", "furo (>=2021.8.17b43,<2021.9.dev0)", "pytest (>=4.6.11)", "sphinx (>=3.5.0)", "sphinx-notfound-page"]
 docs = ["furo (>=2021.8.17b43,<2021.9.dev0)", "sphinx (>=3.5.0)", "sphinx-notfound-page"]
 testing = ["coverage[toml] (>=5.0a4)", "pytest (>=4.6.11)"]
+
+[[package]]
+name = "django-grappelli"
+version = "3.0.8"
+description = "A jazzy skin for the Django Admin-Interface."
+optional = false
+python-versions = "*"
+files = [
+    {file = "django-grappelli-3.0.8.tar.gz", hash = "sha256:0c24a0128a8e94b0f251a99d71b96738e4cf546d20fd993d03b26c05c8642fdd"},
+    {file = "django_grappelli-3.0.8-py2.py3-none-any.whl", hash = "sha256:4664f14cd8f296e01130d167cb869a106644818bf84953dfeabff498be937319"},
+]
 
 [[package]]
 name = "django-localflavor"
@@ -814,4 +814,4 @@ test = ["pytest (>=7.2.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "6361a5c174394042b17c5995280c4b0c494ac62771c3f4da0133866a23380c39"
+content-hash = "359c45b9cda281ee555737445088c4239d786febcc99dfd2eb0c31ebc5f651f0"

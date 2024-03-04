@@ -1,4 +1,4 @@
-{% extends "admin_tools/dashboard/module.html" %}
+{% extends "grappelli/dashboard/module.html" %}
 {% load i18n %}
 
 {% block module_content %}
@@ -12,15 +12,15 @@
 </thead>
 <tbody>
 	<tr>
-		<td>{{ module.item_count }}</td>
+		<td style="text-align:center;">{{ module.item_count }}</td>
 		{#<td><a href="{{ module.invoice_url }}">{% trans "Invoice" %}</a></td>#}
-		<td><a href="{{ module.list_url }}">{% trans "Show" %}</a></td>
+		<td style="text-align:center;"><a href="{{ module.list_url }}">{% trans "Show" %}</a></td>
 	</tr>
 </tbody>
 </table>
 
-<ul class="inline">
-	<li><a href="{% url 'billing_admin:import_items' %}">{% trans "Import items" %}</a></li>
+<ul style="margin: 1em 0 0.5em 0;">
+	<li style="text-align:right; margin-right: 1em;"><a href="{% url 'billing_admin:import_items' %}">{% trans "Import items" %}</a></li>
 </ul>
 
 {% endblock %}

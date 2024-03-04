@@ -19,7 +19,7 @@ package-mode = false
 [tool.poetry.dependencies]
 python = "^3.11"
 Django = "^4"
-django-admin-tools = "^0.9.1"
+django-grappelli = "^3.0.8"
 dinbrief = "^0.4.0"
 django-taggit = "^5"
 django-localflavor = "^4"

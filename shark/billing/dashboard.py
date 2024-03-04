@@ -1,22 +1,22 @@
 from datetime import date, timedelta
 
-from admin_tools.dashboard.modules import DashboardModule
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from grappelli.dashboard.modules import DashboardModule
 
 from shark.billing.models import Invoice, InvoiceItem
 
 
 class UnpaidInvoicesDashboardModule(DashboardModule):
-    def __init__(self, **kwargs):
-        super(UnpaidInvoicesDashboardModule, self).__init__(**kwargs)
+    title = _("Unpaid invoices")
+    template = "billing/dashboard/unpaid-invoices.html"
 
-        self.template = kwargs.get("template", "billing/dashboard/unpaid-invoices.html")
-        self.display = kwargs.get("display", "tabs")
-        self.layout = kwargs.get("layout", "stacked")
-        self.title = kwargs.get("title", _("Unpaid invoices"))
+    def is_empty(self):
+        return False
 
-        self.is_empty = False
+    def init_with_context(self, context):
+        if self._initialized:
+            return
 
         today = date.today()
         two_weeks_ago = today - timedelta(days=14)
@@ -59,22 +59,26 @@ class UnpaidInvoicesDashboardModule(DashboardModule):
             },
         }
 
+        self._initialized = True
+
 
 class LooseItemsDashboardModule(DashboardModule):
-    def __init__(self, **kwargs):
-        super(LooseItemsDashboardModule, self).__init__(**kwargs)
+    title = _("Loose invoice items")
+    template = "billing/dashboard/loose-items.html"
 
-        self.template = kwargs.get("template", "billing/dashboard/loose-items.html")
-        self.display = kwargs.get("display", "tabs")
-        self.layout = kwargs.get("layout", "stacked")
-        self.title = kwargs.get("title", _("Loose invoice items"))
+    def is_empty(self):
+        return False
 
-        self.is_empty = False
+    def init_with_context(self, context):
+        if self._initialized:
+            return
 
         self.items = InvoiceItem.objects.filter(invoice__isnull=True)
         self.item_count = self.items.count()
         self.list_url = (
             reverse("admin:billing_invoiceitem_changelist") + "?invoice__isnull=True"
         )
+
+        self._initialized = True
         # XXX disabled for now
         # self.invoice_url = reverse('billing_admin:invoiceitem_invoice')

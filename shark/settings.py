@@ -52,15 +52,14 @@ INSTALLED_APPS = [
     "shark.customer",
     "shark.project",
     "shark.sepa",
-    # Admin tools
-    "admin_tools",
-    "admin_tools.theming",
-    "admin_tools.menu",
-    "admin_tools.dashboard",
-    # Django contrib
-    "django.contrib.admin",
-    "django.contrib.auth",
+    # Django Admin - order is mandatory
+    # https://django-grappelli.readthedocs.io/en/latest/dashboard_setup.html#dashboard-setup
     "django.contrib.contenttypes",
+    "grappelli.dashboard",
+    "grappelli",
+    "django.contrib.admin",
+    # Django contrib
+    "django.contrib.auth",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
@@ -88,17 +87,14 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [],
+        "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-            ],
-            "loaders": [
-                "django.template.loaders.app_directories.Loader",
-                "admin_tools.template_loaders.Loader",
-            ],
+            ]
         },
     },
 ]
@@ -144,11 +140,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
-
 TIME_ZONE = "UTC"
-
 USE_I18N = True
-
 USE_TZ = True
 
 
@@ -179,8 +172,7 @@ AWS_S3_SECRET_ACCESS_KEY = env.str("MINIO_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = "shark"
 AWS_QUERYSTRING_AUTH = False
 
-ADMIN_TOOLS_INDEX_DASHBOARD = "shark.dashboard.CustomIndexDashboard"
-ADMIN_TOOLS_APP_INDEX_DASHBOARD = "shark.dashboard.CustomAppIndexDashboard"
+GRAPPELLI_INDEX_DASHBOARD = "shark.dashboard.CustomIndexDashboard"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (

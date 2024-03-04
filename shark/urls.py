@@ -26,6 +26,7 @@ urlpatterns = [
     path("admin/sepa/", include("shark.sepa.admin_urls", namespace="sepa_admin")),
     path("admin/doc/", include("django.contrib.admindocs.urls")),
     path("admin/", admin.site.urls),
-    path("admin_tools/", include("admin_tools.urls")),
+    path("grappelli/", include("grappelli.urls")),
+    path("grappelli-docs/", include("grappelli.urls_docs")),
     path("api/", include("shark.api_urls", namespace="api")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
