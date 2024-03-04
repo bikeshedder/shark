@@ -24,6 +24,10 @@ class IdGenerator(object):
     def get_queryset(self):
         return self.model_class.objects.all().order_by("-%s" % self.field_name)
 
+    def get_last(self) -> str | None:
+        obj = self.get_queryset().first()
+        return getattr(obj, self.field_name, None)
+
 
 class InitialAsNumber(IdGenerator):
     """
@@ -72,28 +76,28 @@ class InitialAsNumber(IdGenerator):
         initial_char = chr(ord("a") + int(initial_digits) - 1)
         return (prefix, initial_char, int(n))
 
-    def format_initial(self, char: str) -> str:
-        initial_digits = ord(char.lower()) - ord("a") + 1
+    def format_initial(self, initial_char: str) -> str:
+        initial_digits = ord(initial_char.lower()) - ord("a") + 1
         return (
             f"{initial_digits:0>2}"
             if 1 <= initial_digits <= 26
             else "0".zfill(self.n_length)
         )
 
-    def format_n(self, n) -> str:
-        return str(int2base(n, self.n_base))
+    def format_n(self, n: int) -> str:
+        return int2base(n, self.n_base)
 
-    def get_first(self, initial_char) -> str:
+    def get_first(self, initial_char: str) -> str:
         return self.format(initial_char, 1)
 
-    def get_last(self, initial_char) -> str:
+    def get_last(self, initial_char: str) -> str:
         start = self.prefix + self.format_initial(initial_char)
         obj = (
             self.get_queryset()
             .filter(**{f"{self.field_name}__istartswith": start})
             .first()
         )
-        return getattr(obj, self.field_name) if obj else None
+        return getattr(obj, self.field_name, None)
 
     def next(self, instance=None) -> str:
         initial_char = getattr(instance, self.initial_field_name)[0]
@@ -136,41 +140,39 @@ class DaysSinceEpoch(IdGenerator):
         self.format_string = "{prefix}{days:0>%ds}{n:0>%ds}" % (days_length, n_length)
         self.max_length = len(prefix) + days_length + n_length
 
-    def format(self, days, n):
+    def format(self, days: int, n: int) -> str:
         return self.format_string.format(
             prefix=self.prefix, days=self.format_days(days), n=self.format_n(n)
         )
 
-    def format_days(self, days):
+    def format_days(self, days: int) -> str:
         return int2base(days, self.days_base)
 
-    def format_n(self, n):
+    def format_n(self, n: int) -> str:
         return int2base(n, self.n_base)
 
-    def parse(self, s):
+    def parse(self, id: str):
         lp = len(self.prefix)
         ld = self.days_length
         return (
-            s[:lp],
-            int(s[lp : lp + ld], self.days_base),
-            int(s[lp + ld :], self.n_base),
+            id[:lp],
+            int(id[lp : lp + ld], self.days_base),
+            int(id[lp + ld :], self.n_base),
         )
 
-    def get_start(self, today=None):
+    def get_start(self, today=None) -> str:
         today = today or date.today()
         days = (today - self.epoch).days
         return self.format(days, 0)
 
-    def next(self, instance=None, today=None):
+    def next(self, instance=None, today=None) -> str:
         start = self.get_start(today)
-        try:
-            last = self.get_last()
-            if start > last:
-                return start
-            (prefix, days, last_n) = self.parse(last)
-            return self.format(days, last_n + 1)
-        except self.model_class.DoesNotExist:
+        last = self.get_last()
+        if last is None or start > last:
             return start
+
+        (_prefix, days, last_n) = self.parse(last)
+        return self.format(days, last_n + 1)
 
 
 class YearCustomerN(IdGenerator):
@@ -218,7 +220,7 @@ class YearCustomerN(IdGenerator):
             + n_length
         )
 
-    def format(self, year, customer_number, n):
+    def format(self, year: int, customer_number: str, n: int) -> str:
         return self.format_string.format(
             prefix=self.prefix,
             year=year,
@@ -228,34 +230,32 @@ class YearCustomerN(IdGenerator):
             n=self.format_n(n),
         )
 
-    def format_n(self, n):
+    def format_n(self, n: int) -> str:
         return int2base(n, self.n_base)
 
-    def parse(self, s):
+    def parse(self, id: str) -> tuple[int, str, int]:
         lp = len(self.prefix)
-        _prefix, rest = (s[:lp], s[lp:])
+        _prefix, rest = id[:lp], id[lp:]
         year, rest = rest.split(self.separator1, 1)
         year = int(year)
         customer_number, n = rest.rsplit(self.separator2, 1)
         n = int(n, self.n_base)
         return (year, customer_number, n)
 
-    def get_start(self, customer, today=None):
+    def get_start(self, customer, today=None) -> str:
         today = today or date.today()
         return self.format(today.year, customer.number, 1)
 
-    def next(self, instance, today=None):
+    def next(self, instance, today=None) -> str:
         customer = instance.customer
         today = today or date.today()
         start = self.get_start(customer, today)
-        try:
-            last = self.get_last(customer, today)
-            if start > last:
-                return start
-            (year, customer_number, last_n) = self.parse(last)
-            return self.format(year, customer_number, last_n + 1)
-        except self.model_class.DoesNotExist:
+        last = self.get_last(customer, today)
+        if last is None or start > last:
             return start
+
+        (year, customer_number, last_n) = self.parse(last)
+        return self.format(year, customer_number, last_n + 1)
 
     def get_queryset(self, customer, today):
         prefix = self.year_customer_format_string.format(
@@ -271,9 +271,9 @@ class YearCustomerN(IdGenerator):
             .order_by("-%s" % self.field_name)
         )
 
-    def get_last(self, customer, today):
-        obj = self.get_queryset(customer, today)[:1].get()
-        return getattr(obj, self.field_name)
+    def get_last(self, customer, today) -> str:
+        obj = self.get_queryset(customer, today).first()
+        return getattr(obj, self.field_name, None)
 
 
 class CustomerYearN(IdGenerator):
@@ -322,7 +322,7 @@ class CustomerYearN(IdGenerator):
             + n_length
         )
 
-    def format(self, customer_number, year, n):
+    def format(self, customer_number: str, year: int, n: int) -> str:
         return self.format_string.format(
             prefix=self.prefix,
             year=self.format_year(year),
@@ -332,15 +332,15 @@ class CustomerYearN(IdGenerator):
             n=self.format_n(n),
         )
 
-    def format_year(self, year):
+    def format_year(self, year) -> str:
         return (("%%0%dd" % self.year_length) % year)[-self.year_length :]
 
-    def format_n(self, n):
+    def format_n(self, n: int) -> str:
         return int2base(n, self.n_base)
 
-    def parse(self, s):
+    def parse(self, id) -> tuple[str, int, int]:
         lp = len(self.prefix)
-        _prefix, rest = (s[:lp], s[lp:])
+        _prefix, rest = id[:lp], id[lp:]
         customer_number, rest = rest.split(self.separator1, 1)
         if self.separator2:
             year, n = rest.rsplit(self.separator2, 1)
@@ -351,22 +351,20 @@ class CustomerYearN(IdGenerator):
         n = int(n, self.n_base)
         return (customer_number, year, n)
 
-    def get_start(self, customer, today=None):
+    def get_start(self, customer, today=None) -> str:
         today = today or date.today()
         return self.format(customer.number, today.year, 1)
 
-    def next(self, instance, today=None):
+    def next(self, instance, today=None) -> str:
         customer = instance.customer
         today = today or date.today()
         start = self.get_start(customer, today)
-        try:
-            last = self.get_last(customer, today)
-            if start > last:
-                return start
-            (customer_number, year, last_n) = self.parse(last)
-            return self.format(customer_number, year, last_n + 1)
-        except self.model_class.DoesNotExist:
+        last = self.get_last(customer, today)
+        if last is None or start > last:
             return start
+
+        (customer_number, year, last_n) = self.parse(last)
+        return self.format(customer_number, year, last_n + 1)
 
     def get_queryset(self, customer, today):
         prefix = self.customer_year_format_string.format(
