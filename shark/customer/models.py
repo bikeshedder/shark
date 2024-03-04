@@ -27,7 +27,7 @@ class CustomerTypeField(models.CharField):
 
 
 class Customer(BaseModel, TaggableMixin):
-    number = IdField(generator=InitialAsNumber())
+    number = IdField(generator=InitialAsNumber(), editable=False)
     # XXX add_unique constraint
     name = models.CharField(max_length=50)
 
@@ -81,7 +81,7 @@ class Customer(BaseModel, TaggableMixin):
         verbose_name_plural = _("customers")
 
     def __str__(self):
-        return self.number
+        return f"{self.number} - {self.name}"
 
     @property
     def active(self):

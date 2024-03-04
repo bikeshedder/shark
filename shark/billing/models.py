@@ -37,7 +37,9 @@ class Invoice(BaseModel):
     type = models.CharField(
         _("type"), max_length=20, choices=TYPE_CHOICES, default=TYPE_INVOICE
     )
-    number = IdField(verbose_name=_("number"), generator=YearCustomerN())
+    number = IdField(
+        verbose_name=_("number"), generator=YearCustomerN(), editable=False
+    )
     language = LanguageField(_("language"), blank=True)
 
     PAYMENT_TYPE_INVOICE = "invoice"
