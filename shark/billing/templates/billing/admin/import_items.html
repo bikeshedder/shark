@@ -13,7 +13,7 @@
 
 {% block content_title %}<h1>{% trans "Import invoice items" %}</h1>{% endblock %}
 
-{% block form_top %}
+{% block content %}
 {% if errnous_rows %}
 <div class="box">
 <p>Der Import folgender Artikel war nicht erfolgreich:</p>
@@ -27,9 +27,11 @@
 </li>
 {% endfor %}
 </ul>
+{% else %}
+<p>No errors.</p>
 {% endif %}
 
-{% endblock %}
+{% endblock content %}
 
 {% block submit_buttons_top %}
 <div class="submit-row">

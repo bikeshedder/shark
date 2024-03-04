@@ -41,9 +41,9 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
             "recipient",
             "net",
             "gross",
-            "created",
-            "reminded",
-            "paid",
+            "created_at",
+            "reminded_at",
+            "paid_at",
             "items",
         )
         depth = 1
@@ -74,9 +74,9 @@ class InvoiceListSerializer(serializers.ModelSerializer):
             "number",
             "net",
             "gross",
-            "created",
-            "reminded",
-            "paid",
+            "created_at",
+            "reminded_at",
+            "paid_at",
         )
 
     def get_url(self, instance):
@@ -101,9 +101,9 @@ class InvoiceCreateSerializer(serializers.ModelSerializer):
             "recipient",
             "net",
             "gross",
-            "created",
-            "reminded",
-            "paid",
+            "created_at",
+            "reminded_at",
+            "paid_at",
             "items",
         )
         # depth = 1

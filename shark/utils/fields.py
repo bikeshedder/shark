@@ -7,7 +7,7 @@ from django_countries.fields import CountryField
 
 
 class AddressField(CompositeField):
-    name = models.CharField(_("name"), max_length=100)
+    name = models.CharField(_("name"), max_length=100, blank=True)
     address_addition_1 = models.CharField(
         _("address addition (1st row)"), max_length=100, blank=True
     )

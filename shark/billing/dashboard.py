@@ -25,33 +25,33 @@ class UnpaidInvoicesDashboardModule(DashboardModule):
         admin_url = reverse("admin:billing_invoice_changelist")
 
         def get_admin_url(**kwargs):
-            kwargs.setdefault("paid__isnull", True)
+            kwargs.setdefault("paid_at__isnull", True)
             return "%s?%s" % (
                 admin_url,
                 "&".join("%s=%s" % item for item in kwargs.items()),
             )
 
-        unpaid = Invoice.objects.filter(paid__isnull=True)
-        unpaid_lt14d = unpaid.filter(created__gt=two_weeks_ago)
-        unpaid_gt14d = unpaid.filter(created__lte=two_weeks_ago).filter(
-            created__gt=thirty_days_ago
+        unpaid = Invoice.objects.filter(paid_at__isnull=True)
+        unpaid_lt14d = unpaid.filter(created_at__gt=two_weeks_ago)
+        unpaid_gt14d = unpaid.filter(created_at__lte=two_weeks_ago).filter(
+            created_at__gt=thirty_days_ago
         )
-        unpaid_gt30d = unpaid.filter(created__lte=thirty_days_ago)
+        unpaid_gt30d = unpaid.filter(created_at__lte=thirty_days_ago)
 
         self.unpaid = {
             "lt14d": {
                 "count": unpaid_lt14d.count(),
-                "url": get_admin_url(created__gt=two_weeks_ago),
+                "url": get_admin_url(created_at__gt=two_weeks_ago),
             },
             "gt14d": {
                 "count": unpaid_gt14d.count(),
                 "url": get_admin_url(
-                    created__lte=two_weeks_ago, created__gt=thirty_days_ago
+                    created_at__lte=two_weeks_ago, created_at__gt=thirty_days_ago
                 ),
             },
             "gt30d": {
                 "count": unpaid_gt30d.count(),
-                "url": get_admin_url(created__lte=thirty_days_ago),
+                "url": get_admin_url(created_at__lte=thirty_days_ago),
             },
             "total": {
                 "count": unpaid.count(),

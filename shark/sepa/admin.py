@@ -12,8 +12,8 @@ from shark.utils.mail import send_templated_mail
 
 class DirectDebitMandateAdmin(admin.ModelAdmin):
     list_display = ["customer", "address_html", "iban", "bic"]
-    list_filter = ["created", "signed"]
-    search_fields = ["number", "address", "created"]
+    list_filter = ["created_at", "signed_at"]
+    search_fields = ["number", "address", "created_at"]
     # raw_id_fields = ["document"]
     autocomplete_fields = ("customer",)
 
@@ -26,15 +26,15 @@ class DirectDebitMandateAdmin(admin.ModelAdmin):
 
 
 class DirectDebitTransactionAdmin(admin.ModelAdmin):
-    list_display = ["customer", "mandate", "amount", "invoice", "batch", "created"]
+    list_display = ["customer", "mandate", "amount", "invoice", "batch", "created_at"]
     search_fields = ["customer__name"]
     # raw_id_fields = ['customer', 'mandate', 'invoice', 'accounting_transaction', 'batch']
     raw_id_fields = ["customer", "mandate", "invoice", "batch"]
 
 
 class DirectDebitBatchAdmin(admin.ModelAdmin):
-    list_display = ["uuid", "created", "executed", "sepaxml_link"]
-    list_filter = ["created", "executed"]
+    list_display = ["uuid", "created_at", "executed_at", "sepaxml_link"]
+    list_filter = ["created_at", "executed_at"]
     actions = ["send_pre_notifications"]
 
     def sepaxml_link(self, instance):

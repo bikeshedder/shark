@@ -6,13 +6,14 @@ from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
 from localflavor.generic.models import BICField, IBANField
 
+from shark.base.models import BaseModel
 from shark.utils.settings import get_settings_value
 
 from . import sepaxml
 from .utils import anonymize_iban
 
 
-class DirectDebitMandate(models.Model):
+class DirectDebitMandate(BaseModel):
     customer = models.ForeignKey(
         "customer.Customer",
         on_delete=models.CASCADE,
@@ -30,10 +31,8 @@ class DirectDebitMandate(models.Model):
     iban = IBANField("IBAN", help_text="International Bank Account Number")
     bic = BICField("BIC", help_text="Bank Identifier Code")
     bank_name = models.CharField(max_length=50, blank=True)
-    created = models.DateTimeField(_("created"), auto_now_add=True)
-    updated = models.DateTimeField(_("updated"), auto_now=True)
-    signed = models.DateField(blank=True, null=True)
-    revoked = models.DateField(_("revoked"), blank=True, null=True)
+    signed_at = models.DateField(_("signed_at"), blank=True, null=True)
+    revoked_at = models.DateField(_("revoked_at"), blank=True, null=True)
     last_used = models.DateField(_("last_used"), blank=True, null=True)
     TYPE_CORE = "CORE"
     TYPE_COR1 = "COR1"
@@ -73,7 +72,7 @@ class DirectDebitMandate(models.Model):
         return anonymize_iban(self.iban)
 
 
-class DirectDebitTransaction(models.Model):
+class DirectDebitTransaction(BaseModel):
     customer = models.ForeignKey(
         "customer.Customer",
         on_delete=models.CASCADE,
@@ -99,13 +98,14 @@ class DirectDebitTransaction(models.Model):
         verbose_name=_("SEPA DD batch"),
         on_delete=models.CASCADE,
     )
-    created = models.DateTimeField(_("created"), auto_now_add=True)
 
     @classmethod
     def from_invoice(cls, invoice):
         mandate = (
-            DirectDebitMandate.objects.filter(customer=invoice.customer, revoked=None)
-            .order_by("-created")[:1]
+            DirectDebitMandate.objects.filter(
+                customer=invoice.customer, revoked_at=None
+            )
+            .order_by("-created_at")[:1]
             .get()
         )
         obj = cls(
@@ -138,7 +138,7 @@ def get_default_creditor_bic():
     return get_settings_value("SEPA.CREDITOR_BIC", "")
 
 
-class DirectDebitBatch(models.Model):
+class DirectDebitBatch(BaseModel):
     """
     This model is used to process multiple SEPA DD transactions
     together. This is typically achieved by generating a SEPA XML
@@ -175,8 +175,7 @@ class DirectDebitBatch(models.Model):
     sequence_type = models.CharField(
         _("sequence type"), max_length=4, choices=SEQUENCE_TYPE_CHOICES
     )
-    created = models.DateTimeField(_("created"), auto_now_add=True)
-    executed = models.DateTimeField(_("executed"), blank=True, null=True)
+    executed_at = models.DateTimeField(_("executed_at"), blank=True, null=True)
 
     @property
     def transactions(self):
@@ -206,7 +205,7 @@ class DirectDebitBatch(models.Model):
                     + txn.reference,
                     amount=txn.amount,
                     mandate_id=txn.mandate.reference,
-                    mandate_date=txn.mandate.signed,
+                    mandate_date=txn.mandate.signed_at,
                 )
                 for txn in self.directdebittransaction_set.all()
             ],

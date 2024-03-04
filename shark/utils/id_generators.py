@@ -67,6 +67,7 @@ class InitialAsNumber(IdGenerator):
         self.initial_field_name = initial_field_name
         self.n_length = n_length
         self.n_base = n_base
+        self.prefix = prefix
         self.format_string = "{prefix}{initial:0>2s}{n:0>%ds}" % (n_length)
         self.max_length = len(prefix) + 2 + n_length
 
@@ -76,8 +77,8 @@ class InitialAsNumber(IdGenerator):
         )
 
     def format_initial(self, s):
-        initial = ord(s[0].lower() - ord("a") + 1)
-        return f"{initial:0>2s}" if 1 <= initial <= 26 else "00"
+        initial = ord(s[0].lower()) - ord("a") + 1
+        return f"{str(initial):0>2}" if 1 <= initial <= 26 else "00"
 
     def parse_initial(self, s):
         return chr(ord("a") + int(s) - 1)

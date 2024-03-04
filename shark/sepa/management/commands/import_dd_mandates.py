@@ -41,7 +41,7 @@ class Command(BaseCommand):
                 "bank_name": row["bank_name"],
                 "bic": row["bic"],
                 "iban": row["iban"],
-                "signed": row["signed"],
+                "signed_at": row["signed_at"],
                 "reference": customer.number + "-M01",
             }
             mandate = DirectDebitMandate(**mandate_data)

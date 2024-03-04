@@ -56,7 +56,7 @@ def invoice_pdf(request, number, correction=False):
         document = Document(
             sender=invoice.sender_lines,
             recipient=invoice.recipient_lines,
-            date=date_format(invoice.created, "SHORT_DATE_FORMAT"),
+            date=date_format(invoice.created_at, "SHORT_DATE_FORMAT"),
             content=[
                 Paragraph(
                     "%s %s"

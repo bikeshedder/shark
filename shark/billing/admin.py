@@ -58,7 +58,7 @@ class InvoiceAdmin(admin.ModelAdmin):
                 ]
             },
         ),
-        (_("dates"), {"fields": ("created", "reminded", "paid")}),
+        (_("dates"), {"fields": ("reminded_at", "paid_at")}),
     )
     inlines = [InvoiceItemInline]
     list_display = (
@@ -67,19 +67,19 @@ class InvoiceAdmin(admin.ModelAdmin):
         "get_recipient",
         "net",
         "gross",
-        "created",
-        "paid",
+        "created_at",
+        "paid_at",
         "is_okay",
         "invoice_pdf",
         "correction_pdf",
     )
-    list_editable = ("paid",)
+    list_editable = ("paid_at",)
     list_display_links = ("number",)
     list_select_related = True
-    ordering = ("-created",)
+    ordering = ("-created_at",)
     search_fields = ("number", "customer__number", "customer__name")
-    list_filter = ("created", "paid", "type")
-    date_hierarchy = "created"
+    list_filter = ("created_at", "paid_at", "type")
+    date_hierarchy = "created_at"
     actions = ("total_value_action", "export_for_accounting")
     save_on_top = True
     autocomplete_fields = ("customer",)
@@ -158,8 +158,8 @@ class InvoiceAdmin(admin.ModelAdmin):
         response["Content-Disposition"] = "attachment; filename=invoices.csv"
         writer = csv.writer(response, dialect=excel_semicolon)
         cols = [
-            ("created", None),
-            ("paid", None),
+            ("created_at", None),
+            ("paid_at", None),
             ("number", None),
             ("net", None),
             ("gross", None),

@@ -1,8 +1,8 @@
-from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from taggit.managers import TaggableManager
 
+from shark.base.models import BaseModel, TaggableMixin
 from shark.utils.fields import AddressField, LanguageField
 from shark.utils.id_generators import IdField
 from shark.utils.settings import get_settings_instance, get_settings_value
@@ -26,7 +26,7 @@ class CustomerTypeField(models.CharField):
         return name, path, args, kwargs
 
 
-class Customer(models.Model):
+class Customer(BaseModel, TaggableMixin):
     number = IdField(generator=NUMBER_GENERATOR)
     # XXX add_unique constraint
     name = models.CharField(max_length=50)
@@ -43,8 +43,6 @@ class Customer(models.Model):
     daily_rate = models.DecimalField(
         _("daily rate"), max_digits=7, decimal_places=2, blank=True, null=True
     )
-
-    tags = TaggableManager(blank=True)
 
     # XXX move this to the billing app?
     INVOICE_DISPATCH_TYPE_EMAIL = "email"
@@ -78,9 +76,6 @@ class Customer(models.Model):
         help_text=_("Value added tax identification number"),
     )
 
-    created = models.DateTimeField(_("created"), auto_now_add=True)
-    updated = models.DateTimeField(_("updated"), auto_now=True)
-
     class Meta:
         verbose_name = _("customer")
         verbose_name_plural = _("customers")
@@ -106,18 +101,15 @@ class Customer(models.Model):
         return self.address_set.get(invoice_address=True).address
 
 
-class CustomerNote(models.Model):
+class CustomerNote(BaseModel):
     customer = models.ForeignKey("customer.Customer", on_delete=models.CASCADE)
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.SET_NULL
+        get_user_model(), blank=True, null=True, on_delete=models.SET_NULL
     )
     text = models.TextField()
 
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
 
-
-class CustomerAddress(models.Model):
+class CustomerAddress(BaseModel):
     customer = models.ForeignKey(
         "customer.Customer", on_delete=models.CASCADE, related_name="address_set"
     )

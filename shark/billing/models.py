@@ -6,6 +6,7 @@ from django.db import models
 from django.utils.formats import date_format
 from django.utils.translation import gettext_lazy as _
 
+from shark.base.models import BaseModel
 from shark.utils.fields import AddressField, LanguageField
 from shark.utils.id_generators import IdField
 from shark.utils.rounding import round_to_centi
@@ -20,7 +21,7 @@ UNIT_CHOICES = get_settings_value("INVOICE.UNIT_CHOICES")
 NUMBER_GENERATOR = get_settings_instance("INVOICE.NUMBER_GENERATOR")
 
 
-class Invoice(models.Model):
+class Invoice(BaseModel):
     #
     # general
     #
@@ -75,16 +76,15 @@ class Invoice(models.Model):
     #
     # status
     #
-    created = models.DateField(default=date.today, verbose_name=_("Created"))
-    reminded = models.DateField(blank=True, null=True, verbose_name=_("Reminded"))
-    paid = models.DateField(blank=True, null=True, verbose_name=_("Paid"))
+    reminded_at = models.DateField(blank=True, null=True, verbose_name=_("Reminded"))
+    paid_at = models.DateField(blank=True, null=True, verbose_name=_("Paid"))
 
     class Meta:
         db_table = "billing_invoice"
         verbose_name = _("Invoice")
         verbose_name_plural = _("Invoices")
         unique_together = (("customer", "number"),)
-        ordering = ("-created",)
+        ordering = ("-created_at",)
 
     def __str__(self):
         return "%s %s" % (_("Invoice"), self.number)
@@ -136,12 +136,12 @@ class Invoice(models.Model):
         ]
 
     def is_okay(self):
-        if self.paid:
+        if self.paid_at is not None:
             return True
-        if self.reminded is None:
-            deadline = self.created + INVOICE_PAYMENT_TIMEFRAME
+        if self.reminded_at is None:
+            deadline = self.created_at.date() + INVOICE_PAYMENT_TIMEFRAME
         else:
-            deadline = self.reminded + INVOICE_PAYMENT_TIMEFRAME
+            deadline = self.reminded_at + INVOICE_PAYMENT_TIMEFRAME
         return date.today() <= deadline
 
     is_okay.short_description = _("Okay")
@@ -167,13 +167,6 @@ class Invoice(models.Model):
             item.quantity = -item.quantity
         c.recalculate()
         return c
-
-    #
-    # status
-    #
-    created = models.DateField(default=date.today, verbose_name=_("Created"))
-    reminded = models.DateField(blank=True, null=True, verbose_name=_("Reminded"))
-    paid = models.DateField(blank=True, null=True, verbose_name=_("Paid"))
 
     def recalculate(self):
         self.net = sum(item.total for item in self.items)
