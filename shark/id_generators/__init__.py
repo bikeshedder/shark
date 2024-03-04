@@ -3,12 +3,7 @@ This module contains classes for generating special sequences like
 customer numbers that are not plain integer fields.
 """
 
-from copy import copy
 from datetime import date
-from functools import partial
-
-from django.db import models
-from django.db.models import signals
 
 from shark.utils.int2base import int2base
 
@@ -19,9 +14,6 @@ class IdGenerator(object):
     # of accounting software assumes this limit. 32 chars also allows the
     # use of UUIDs for an ID field which I assume is a sane maximum length.
     max_length = 32
-    """
-    This is just an interface class and does not contain any implementation.
-    """
 
     def __init__(self, model_class=None, field_name=None):
         self.model_class = model_class
@@ -31,10 +23,6 @@ class IdGenerator(object):
 
     def get_queryset(self):
         return self.model_class.objects.all().order_by("-%s" % self.field_name)
-
-    def get_last(self):
-        obj = self.get_queryset()[:1].get()
-        return getattr(obj, self.field_name)
 
 
 class InitialAsNumber(IdGenerator):
@@ -71,53 +59,51 @@ class InitialAsNumber(IdGenerator):
         self.format_string = "{prefix}{initial:0>2s}{n:0>%ds}" % (n_length)
         self.max_length = len(prefix) + 2 + n_length
 
-    def format(self, initial, n):
+    def format(self, initial_char: str, n: int) -> str:
         return self.format_string.format(
-            prefix=self.prefix, initial=self.format_initial(initial), n=self.format_n(n)
+            prefix=self.prefix,
+            initial=self.format_initial(initial_char),
+            n=self.format_n(n),
         )
 
-    def format_initial(self, s):
-        initial = ord(s[0].lower()) - ord("a") + 1
-        return f"{str(initial):0>2}" if 1 <= initial <= 26 else "00"
-
-    def parse_initial(self, s):
-        return chr(ord("a") + int(s) - 1)
-
-    def format_n(self, n):
-        return int2base(n, self.n_base)
-
-    def parse(self, s):
+    def parse(self, id: str) -> tuple[str, str, int]:
         lp = len(self.prefix)
-        prefix = s[:lp]
-        initial = self.parse_initial(s[lp : lp + 2])
-        n = s[lp + 2 :]
-        return (prefix, initial, n)
+        prefix, initial_digits, n = id[:lp], id[lp : lp + 2], id[lp + 2 :]
+        initial_char = chr(ord("a") + int(initial_digits) - 1)
+        return (prefix, initial_char, int(n))
 
-    def get_start(self, initial):
-        return self.format(initial, 1)
+    def format_initial(self, char: str) -> str:
+        initial_digits = ord(char.lower()) - ord("a") + 1
+        return (
+            f"{initial_digits:0>2}"
+            if 1 <= initial_digits <= 26
+            else "0".zfill(self.n_length)
+        )
 
-    def get_last(self, initial):
-        start = self.prefix + self.format_initial(initial)
+    def format_n(self, n) -> str:
+        return str(int2base(n, self.n_base))
+
+    def get_first(self, initial_char) -> str:
+        return self.format(initial_char, 1)
+
+    def get_last(self, initial_char) -> str:
+        start = self.prefix + self.format_initial(initial_char)
         obj = (
             self.get_queryset()
-            .filter(**{f"{self.field_name}__istartswith": start})[:1]
-            .get()
+            .filter(**{f"{self.field_name}__istartswith": start})
+            .first()
         )
-        return getattr(obj, self.field_name)
+        return getattr(obj, self.field_name) if obj else None
 
-    def next(self, instance=None):
-        initial = getattr(instance, self.initial_field_name)[0]
-        start = self.get_start(initial)
-        try:
-            last = self.get_last(initial)
-            if start > last:
-                return start
-            (prefix, last_initial, last_n) = self.parse(last)
-            # XXX days is not defined
-            # return self.format(days, last_n + 1)
-            return ""
-        except self.model_class.DoesNotExist:
-            return start
+    def next(self, instance=None) -> str:
+        initial_char = getattr(instance, self.initial_field_name)[0]
+        first_id = self.get_first(initial_char)
+        last_id = self.get_last(initial_char)
+        if last_id is None:
+            return first_id
+
+        (_prefix, _last_initial, last_n) = self.parse(last_id)
+        return self.format(initial_char, last_n + 1)
 
 
 class DaysSinceEpoch(IdGenerator):
@@ -399,38 +385,3 @@ class CustomerYearN(IdGenerator):
     def get_last(self, customer, today):
         obj = self.get_queryset(customer, today)[:1].get()
         return getattr(obj, self.field_name)
-
-
-class IdField(models.CharField):
-    def __init__(self, **kwargs):
-        self.generator = kwargs.pop("generator", None)
-        kwargs.setdefault("max_length", 32)
-        if self.generator:
-            if self.generator.max_length > kwargs["max_length"]:
-                raise RuntimeError(
-                    "The generator is capable of generating IDs exceeding the max_length of this field. Consider using a different generator class or setting a higher max_length value to this field."
-                )
-        kwargs.setdefault("blank", True)
-        kwargs.setdefault("unique", True)
-        super(IdField, self).__init__(**kwargs)
-
-    def contribute_to_class(self, cls, name):
-        super(IdField, self).contribute_to_class(cls, name)
-        if self.generator:
-            generator = copy(self.generator)
-            if not generator.model_class_given:
-                generator.model_class = cls
-            if not generator.field_name_given:
-                generator.field_name = name
-            signals.pre_save.connect(
-                partial(self._pre_save, generator=generator), sender=cls, weak=False
-            )
-
-    # Do not name this method 'pre_save' as it will otherwise be called without
-    # the generator argument.
-    def _pre_save(self, generator, sender, instance, *args, **kwargs):
-        if getattr(instance, self.name, ""):
-            # Do not create an ID for objects that already have a value set.
-            return
-        value = generator.next(instance=instance)
-        setattr(instance, self.name, value)

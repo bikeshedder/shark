@@ -7,10 +7,11 @@ from django.utils.formats import date_format
 from django.utils.translation import gettext_lazy as _
 
 from shark.base.models import BaseModel
+from shark.id_generators import YearCustomerN
+from shark.id_generators.fields import IdField
 from shark.utils.fields import AddressField, LanguageField
-from shark.utils.id_generators import IdField
 from shark.utils.rounding import round_to_centi
-from shark.utils.settings import get_settings_instance, get_settings_value
+from shark.utils.settings import get_settings_value
 
 INVOICE_PAYMENT_TIMEFRAME = get_settings_value(
     "INVOICE.PAYMENT_TIMEFRAME", timedelta(days=14)
@@ -18,7 +19,6 @@ INVOICE_PAYMENT_TIMEFRAME = get_settings_value(
 VAT_RATE_CHOICES = get_settings_value("VAT_RATE_CHOICES", ((Decimal(0), "0%"),))
 INVOICE_SENDER = get_settings_value("INVOICE.SENDER")
 UNIT_CHOICES = get_settings_value("INVOICE.UNIT_CHOICES")
-NUMBER_GENERATOR = get_settings_instance("INVOICE.NUMBER_GENERATOR")
 
 
 class Invoice(BaseModel):
@@ -37,7 +37,7 @@ class Invoice(BaseModel):
     type = models.CharField(
         _("type"), max_length=20, choices=TYPE_CHOICES, default=TYPE_INVOICE
     )
-    number = IdField(verbose_name=_("number"), generator=NUMBER_GENERATOR)
+    number = IdField(verbose_name=_("number"), generator=YearCustomerN())
     language = LanguageField(_("language"), blank=True)
 
     PAYMENT_TYPE_INVOICE = "invoice"
