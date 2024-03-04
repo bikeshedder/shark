@@ -11,19 +11,20 @@ class CustomerAddressInline(admin.StackedInline):
     inline_classes = ["grp-collapse grp-open"]
 
 
-class CustomerNoteInline(admin.TabularInline):
+class CustomerNoteInline(admin.StackedInline):
     model = models.CustomerNote
     extra = 0
     inline_classes = ["grp-collapse grp-open"]
 
 
+@admin.register(models.Customer)
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ["number", "name", "address_html", "created_at"]
     list_filter = ["created_at"]
     search_fields = ["number", "name"]
     date_hierarchy = "created_at"
     inlines = [CustomerAddressInline, CustomerNoteInline]
-    ordering = ["name"]
+    ordering = ["number", "name"]
 
     def address_html(self, instance):
         return format_html_join(
@@ -34,7 +35,3 @@ class CustomerAdmin(admin.ModelAdmin):
 
     address_html.short_description = _("Addresses")
     address_html.admin_order_field = "address"
-
-
-if not models.Customer._meta.abstract:
-    admin.site.register(models.Customer, CustomerAdmin)
