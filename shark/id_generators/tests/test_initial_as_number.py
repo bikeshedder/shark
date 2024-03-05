@@ -56,3 +56,9 @@ class TestInitialNumberGenerator(TestCase):
         customer.save()
 
         self.assertEqual(customer.id_field, "0102")
+
+    def test_non_standard_character(self):
+        customer = NumberCustomer(name=" ")
+        customer.save()
+
+        self.assertEqual(customer.id_field, "0001")

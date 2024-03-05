@@ -78,11 +78,7 @@ class InitialAsNumber(IdGenerator):
 
     def format_initial(self, initial_char: str) -> str:
         initial_digits = ord(initial_char.lower()) - ord("a") + 1
-        return (
-            f"{initial_digits:0>2}"
-            if 1 <= initial_digits <= 26
-            else "0".zfill(self.n_length)
-        )
+        return f"{initial_digits:0>2}" if 1 <= initial_digits <= 26 else "00"
 
     def format_n(self, n: int) -> str:
         return int2base(n, self.n_base)
