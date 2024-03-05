@@ -23,7 +23,7 @@ def get_address_fieldlist(prefix=""):
 
 
 class AddressField(CompositeField):
-    name = models.CharField(_("name"), max_length=100, blank=True)
+    name = models.CharField(_("name"), max_length=100)
     address_addition_1 = models.CharField(
         _("address addition (1st row)"), max_length=100, blank=True
     )
