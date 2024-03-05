@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "shark.customer",
     "shark.project",
     "shark.sepa",
+    "shark.id_generators",
     # Django Admin - order is mandatory
     # https://django-grappelli.readthedocs.io/en/latest/dashboard_setup.html#dashboard-setup
     "django.contrib.contenttypes",
@@ -189,7 +190,6 @@ SHARK = {
         (Decimal("0.00"), "0%"),
     ),
     "CUSTOMER": {
-        "NUMBER_GENERATOR": "shark.utils.id_generators.InitialAsNumber",
         "TYPE_CHOICES": [("default", _("Default"))],
         "TYPE_DEFAULT": "default",
     },
@@ -207,7 +207,6 @@ SHARK = {
         "TERMS": [
             "settings.SHARK['INVOICE']['TERMS']",
         ],
-        "NUMBER_GENERATOR": "shark.utils.id_generators.YearCustomerN",
         "UNIT_CHOICES": [
             ("s", _("second [s]")),
             ("min", _("minute [min]")),

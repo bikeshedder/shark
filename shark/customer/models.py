@@ -3,11 +3,11 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from shark.base.models import BaseModel, TaggableMixin
+from shark.id_generators import InitialAsNumber
+from shark.id_generators.fields import IdField
 from shark.utils.fields import AddressField, LanguageField
-from shark.utils.id_generators import IdField
-from shark.utils.settings import get_settings_instance, get_settings_value
+from shark.utils.settings import get_settings_value
 
-NUMBER_GENERATOR = get_settings_instance("CUSTOMER.NUMBER_GENERATOR")
 CUSTOMER_TYPE_CHOICES = get_settings_value("CUSTOMER.TYPE_CHOICES")
 CUSTOMER_TYPE_DEFAULT = get_settings_value("CUSTOMER.TYPE_DEFAULT")
 
@@ -27,7 +27,7 @@ class CustomerTypeField(models.CharField):
 
 
 class Customer(BaseModel, TaggableMixin):
-    number = IdField(generator=NUMBER_GENERATOR)
+    number = IdField(generator=InitialAsNumber(), editable=False)
     # XXX add_unique constraint
     name = models.CharField(max_length=50)
 
@@ -81,7 +81,7 @@ class Customer(BaseModel, TaggableMixin):
         verbose_name_plural = _("customers")
 
     def __str__(self):
-        return self.number
+        return f"{self.number} - {self.name}"
 
     @property
     def active(self):

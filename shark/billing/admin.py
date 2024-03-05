@@ -158,7 +158,7 @@ class InvoiceAdmin(admin.ModelAdmin):
         response["Content-Disposition"] = "attachment; filename=invoices.csv"
         writer = csv.writer(response, dialect=excel_semicolon)
         cols = [
-            ("created_at", None),
+            ("created_at", lambda iv: iv.created_at.date()),
             ("paid_at", None),
             ("number", None),
             ("net", None),
