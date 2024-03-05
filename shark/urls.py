@@ -25,6 +25,10 @@ urlpatterns = [
     ),
     path("admin/sepa/", include("shark.sepa.admin_urls", namespace="sepa_admin")),
     path("admin/doc/", include("django.contrib.admindocs.urls")),
+    path(
+        "admin/customer",
+        include("shark.customer.admin_urls", namespace="customer_admin"),
+    ),
     path("admin/", admin.site.urls),
     path("grappelli/", include("grappelli.urls")),
     path("grappelli-docs/", include("grappelli.urls_docs")),

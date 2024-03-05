@@ -1,0 +1,32 @@
+{% extends "admin/change_form.html" %}
+
+{% block javascripts %}
+{{ block.super }}
+<script type="text/javascript">
+    (function($) {
+        $(document).ready(function($) {
+            $("#id_customer").on("change", function(e) {
+                console.log("changed");
+                $.ajax({
+                    type: 'POST',
+                    url: "{% url 'customer_admin:get_customer_address' %}",
+                    data: {'customer_id': $('#id_customer').val(), 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                    success: function(data, _status) {
+                        $("#id_language").val(data.country.toLowerCase()),
+                        $("#id_recipient_name").val(data.name),
+                        $("#id_recipient_address_addition_1").val(data.address_addition_1),
+                        $("#id_recipient_address_addition_2").val(data.address_addition_2),
+                        $("#id_recipient_street").val(data.street),
+                        $("#id_recipient_street_number").val(data.street_number),
+                        $("#id_recipient_city").val(data.city),
+                        $("#id_recipient_postal_code").val(data.postal_code),
+                        $("#id_recipient_state").val(data.state),
+                        $("#id_recipient_country").val(data.country)
+                    },
+                    dataType: "json"
+                });
+            });
+        });
+    })(grp.jQuery)
+</script>
+{% endblock %}
