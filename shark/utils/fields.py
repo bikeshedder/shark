@@ -6,6 +6,22 @@ from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
 
 
+def get_address_fieldlist(prefix=""):
+    fields = [
+        "name",
+        "address_addition_1",
+        "address_addition_2",
+        "street",
+        "street_number",
+        "city",
+        "postal_code",
+        "state",
+        "country",
+    ]
+
+    return [f"{prefix}_{field}" if prefix else field for field in fields]
+
+
 class AddressField(CompositeField):
     name = models.CharField(_("name"), max_length=100, blank=True)
     address_addition_1 = models.CharField(
@@ -53,6 +69,12 @@ class AddressField(CompositeField):
             return format_html_join(
                 mark_safe("<br>"), "{}", ((line,) for line in self.lines)
             )
+
+        @property
+        def values(self):
+            fields = get_address_fieldlist()
+
+            return {field_name: getattr(self, field_name) for field_name in fields}
 
 
 class LanguageField(models.CharField):
