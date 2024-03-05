@@ -17,7 +17,6 @@ INVOICE_PAYMENT_TIMEFRAME = get_settings_value(
     "INVOICE.PAYMENT_TIMEFRAME", timedelta(days=14)
 )
 VAT_RATE_CHOICES = get_settings_value("VAT_RATE_CHOICES", ((Decimal(0), "0%"),))
-INVOICE_SENDER = get_settings_value("INVOICE.SENDER")
 UNIT_CHOICES = get_settings_value("INVOICE.UNIT_CHOICES")
 
 
@@ -59,8 +58,8 @@ class Invoice(BaseModel):
     #
     # address
     #
-    sender = AddressField(default=INVOICE_SENDER)
-    recipient = AddressField(blank=True)
+    sender = AddressField()
+    recipient = AddressField()
 
     #
     # totals

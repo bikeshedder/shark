@@ -10,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 
 from shark import get_admin_change_url, get_admin_changelist_url
 from shark.billing import models
+from shark.utils.fields import get_address_fieldlist
 
 
 class excel_semicolon(csv.excel):
@@ -25,40 +26,15 @@ class InvoiceItemInline(admin.TabularInline):
 
 class InvoiceAdmin(admin.ModelAdmin):
     fieldsets = (
-        (_("general"), {"fields": ("customer", "type", "number", "language")}),
+        (_("general"), {"fields": ("customer", "type", "language")}),
         (
             _("sender"),
-            {
-                "fields": [
-                    "sender_name",
-                    "sender_address_addition_1",
-                    "sender_address_addition_2",
-                    "sender_street",
-                    "sender_street_number",
-                    "sender_postal_code",
-                    "sender_city",
-                    "sender_state",
-                    "sender_country",
-                ]
-            },
+            {"fields": get_address_fieldlist("sender")},
         ),
         (
             _("recipient"),
-            {
-                "fields": [
-                    "recipient_name",
-                    "recipient_address_addition_1",
-                    "recipient_address_addition_2",
-                    "recipient_street",
-                    "recipient_street_number",
-                    "recipient_postal_code",
-                    "recipient_city",
-                    "recipient_state",
-                    "recipient_country",
-                ]
-            },
+            {"fields": get_address_fieldlist("recipient")},
         ),
-        (_("dates"), {"fields": ("reminded_at", "paid_at")}),
     )
     inlines = [InvoiceItemInline]
     list_display = (
@@ -81,8 +57,20 @@ class InvoiceAdmin(admin.ModelAdmin):
     list_filter = ("created_at", "paid_at", "type")
     date_hierarchy = "created_at"
     actions = ("total_value_action", "export_for_accounting")
-    save_on_top = True
-    autocomplete_fields = ("customer",)
+    raw_id_fields = ("customer",)
+    autocomplete_lookup_fields = {
+        "fk": ["customer"],
+    }
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+
+        if obj is None:
+            tenant_address_dict = request.tenant.address.values
+            for key, value in tenant_address_dict.items():
+                form.base_fields["sender_" + key].initial = value
+
+        return form
 
     def get_customer(self, obj):
         return format_html(

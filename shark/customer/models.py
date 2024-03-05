@@ -100,6 +100,15 @@ class Customer(BaseModel, TaggableMixin):
     def billing_address(self):
         return self.address_set.get(invoice_address=True).address
 
+    # Grappelli autocomplete
+    @staticmethod
+    def autocomplete_search_fields():
+        return (
+            "id__iexact",
+            "number__icontains",
+            "name__icontains",
+        )
+
 
 class CustomerNote(BaseModel):
     customer = models.ForeignKey("customer.Customer", on_delete=models.CASCADE)
@@ -113,8 +122,7 @@ class CustomerAddress(BaseModel):
     customer = models.ForeignKey(
         "customer.Customer", on_delete=models.CASCADE, related_name="address_set"
     )
-    address = AddressField(prefix="")
-    sender_line = models.CharField(max_length=100, blank=True, default="")
+    address = AddressField()
     invoice_address = models.BooleanField(default=False)
 
     @property

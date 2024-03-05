@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "shark.billing",
     "shark.customer",
     "shark.project",
+    "shark.tenant",
     "shark.sepa",
     "shark.id_generators",
     # Django Admin - order is mandatory
@@ -80,6 +81,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "shark.tenant.middleware.add_tenant",
 ]
 
 ROOT_URLCONF = "shark.urls"
@@ -197,12 +199,6 @@ SHARK = {
         "BACKGROUND": {
             # 'FIRST_PAGE': ...
             # 'LATER_PAGE': ...
-        },
-        "SENDER": {
-            "name": "settings.SHARK['INVOICE']['SENDER']['name']",
-            "street": "settings.SHARK['INVOICE']['SENDER']['street']",
-            "postal_code": "settings.SHARK['INVOICE']['SENDER']['postal_code']",
-            "city": "settings.SHARK['INVOICE']['SENDER']['city']",
         },
         "TERMS": [
             "settings.SHARK['INVOICE']['TERMS']",
