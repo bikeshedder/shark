@@ -11,7 +11,7 @@ class Tenant(BaseModel):
     address = AddressField()
 
     @property
-    def default_invoice_template(self) -> InvoiceTemplate | None:
+    def default_invoice_template(self) -> InvoiceTemplate | FakeInvoiceTemplate:
         return (
             self.invoicetemplate_set.filter(is_default=True).first()
             # FakeInvoiceTemplate is an empty InvoiceTemplate
