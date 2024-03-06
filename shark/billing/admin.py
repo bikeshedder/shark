@@ -24,6 +24,7 @@ class InvoiceItemInline(admin.TabularInline):
     exclude = ("customer",)
 
 
+@admin.register(models.Invoice)
 class InvoiceAdmin(admin.ModelAdmin):
     fieldsets = (
         (_("general"), {"fields": ("customer", "type", "language")}),
@@ -66,7 +67,7 @@ class InvoiceAdmin(admin.ModelAdmin):
         form = super().get_form(request, obj, **kwargs)
 
         if obj is None:
-            tenant_address_dict = request.tenant.address.values
+            tenant_address_dict = request.tenant.address.as_dict
             for key, value in tenant_address_dict.items():
                 form.base_fields["sender_" + key].initial = value
 
@@ -174,6 +175,7 @@ class InvoiceAdmin(admin.ModelAdmin):
     export_for_accounting.short_description = "Export selected invoices for accounting"
 
 
+@admin.register(models.InvoiceItem)
 class InvoiceItemAdmin(admin.ModelAdmin):
     list_display = (
         "customer",
@@ -227,5 +229,22 @@ class InvoiceItemAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(models.Invoice, InvoiceAdmin)
-admin.site.register(models.InvoiceItem, InvoiceItemAdmin)
+@admin.register(models.InvoiceTemplate)
+class InvoiceTemplateAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "is_default",
+        "preview_invoice",
+    )
+
+    list_editable = ("is_default",)
+
+    def preview_invoice(self, obj):
+        url = reverse("billing_admin:invoice_template_preview_pdf", args=(obj.id,))
+        return format_html('<a href="{}">Preview</a>', url)
+
+    preview_invoice.short_description = "Preview"
+
+    def save_model(self, request, obj, form, change):
+        obj.tenant = request.tenant
+        super().save_model(request, obj, form, change)

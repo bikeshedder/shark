@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404
@@ -6,10 +5,9 @@ from django.template.response import TemplateResponse
 from django.utils.translation import ngettext
 
 from .admin_forms import ImportItemsForm
-from .models import Invoice, InvoiceItem
+from .models import Invoice, InvoiceItem, InvoiceTemplate
 from .utils import invoice_to_pdf
-
-INVOICE_TERMS = settings.SHARK["INVOICE"]["TERMS"]
+from .utils.fake_invoice import create_fake_invoice
 
 
 @permission_required("billing.add_invoice")
@@ -20,11 +18,11 @@ def invoice(request):
     )
 
 
-# Temporary fix to allow pdf creation
-class Template:
-    terms = ["test"]
-    first_page_bg = None
-    later_pages_bg = None
+@permission_required("billing.add_invoicetemplate")
+def preview_invoice_template(request, id):
+    invoice_template = get_object_or_404(InvoiceTemplate, id=id)
+    invoice = create_fake_invoice(template=invoice_template)
+    return invoice_to_pdf.as_http_response(invoice)
 
 
 @permission_required("billing.change_invoice")
@@ -33,7 +31,7 @@ def invoice_pdf(request, number, correction=False):
     if correction:
         invoice = invoice.correction
 
-    invoice.template = Template()
+    invoice.template = request.tenant.default_invoice_template
     response = invoice_to_pdf.as_http_response(invoice)
     if "download" in request.GET:
         filename = "%s.pdf" % invoice.number

@@ -196,13 +196,6 @@ SHARK = {
         "TYPE_DEFAULT": "default",
     },
     "INVOICE": {
-        "BACKGROUND": {
-            # 'FIRST_PAGE': ...
-            # 'LATER_PAGE': ...
-        },
-        "TERMS": [
-            "settings.SHARK['INVOICE']['TERMS']",
-        ],
         "UNIT_CHOICES": [
             ("s", _("second [s]")),
             ("min", _("minute [min]")),

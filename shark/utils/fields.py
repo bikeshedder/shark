@@ -71,7 +71,7 @@ class AddressField(CompositeField):
             )
 
         @property
-        def values(self):
+        def as_dict(self):
             fields = get_address_fieldlist()
 
             return {field_name: getattr(self, field_name) for field_name in fields}
