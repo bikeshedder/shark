@@ -27,6 +27,7 @@ class Invoice(BaseModel):
     customer = models.ForeignKey(
         "customer.Customer", on_delete=models.CASCADE, verbose_name=_("Customer")
     )
+
     TYPE_INVOICE = "invoice"
     TYPE_CORRECTION = "correction"
     TYPE_CHOICES = (
@@ -162,6 +163,8 @@ class Invoice(BaseModel):
             language=self.language,
             sender=self.sender,
             recipient=self.recipient,
+            created_at=self.created_at,
+            type=self.TYPE_CORRECTION,
         )
         c._item_cache = [item.clone() for item in self.items]
         for item in c.items:
@@ -356,3 +359,29 @@ class InvoiceItem(models.Model):
 
     get_total.short_description = _("Sum of line")
     total = property(get_total)
+
+
+class InvoiceTemplate(BaseModel):
+    name = models.CharField(_("Name"))
+    first_page_bg = models.FileField(_("First invoice page bg"), null=True, blank=True)
+    later_pages_bg = models.FileField(
+        _("Later invoice pages bg"), null=True, blank=True
+    )
+
+    terms = models.TextField(blank=True)
+    is_default = models.BooleanField(default=False)
+
+    tenant = models.ForeignKey(
+        "tenant.Tenant", editable=False, on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if self.is_default is True:
+            InvoiceTemplate.objects.filter(tenant=self.tenant).exclude(
+                pk=self.pk
+            ).update(is_default=False)
+
+        super().save(*args, **kwargs)

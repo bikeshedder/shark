@@ -23,12 +23,12 @@ def as_http_response(invoice):
 def write_pdf(invoice, fh):
     with trans_override(invoice.language):
         if invoice.type == Invoice.TYPE_INVOICE:
-            if callable(invoice.template.terms):
-                terms = invoice.template.terms(invoice)
-            else:
-                terms = [
-                    Paragraph(term, styles["Terms"]) for term in invoice.template.terms
-                ]
+            terms = invoice.template.terms
+            if callable(terms):
+                terms = terms(invoice)
+            if isinstance(terms, str):
+                terms = terms.split("\n")
+            terms = [Paragraph(term, styles["Terms"]) for term in terms]
         else:
             terms = []
 
@@ -64,7 +64,12 @@ def write_pdf(invoice, fh):
                 info_dict = writer._info.getObject()
                 info_dict.update(content.getDocumentInfo())
                 first_bg = PdfFileReader(invoice.template.first_page_bg.file, "rb")
-                later_bg = PdfFileReader(invoice.template.later_pages_bg.file, "rb")
+                later_bg = PdfFileReader(
+                    invoice.template.later_pages_bg.file
+                    if invoice.template.later_pages_bg
+                    else invoice.template.first_page_bg.file,
+                    "rb",
+                )
                 bg = [first_bg.getPage(0), later_bg.getPage(0)]
                 for i, page in enumerate(content.pages):
                     page.mergePage(bg[min(i, 1)])

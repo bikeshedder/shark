@@ -9,5 +9,10 @@ urlpatterns = [
     #            name='invoiceitem_invoice'),
     path("invoiceitem/import/", views.import_items, name="import_items"),
     path("invoice/<number>.pdf", views.invoice_pdf, name="invoice_pdf"),
+    path(
+        "invoice/template/preview/<id>.pdf",
+        views.preview_invoice_template,
+        name="invoice_template_preview_pdf",
+    ),
     path("correction/<number>.pdf", views.correction_pdf, name="correction_pdf"),
 ]
