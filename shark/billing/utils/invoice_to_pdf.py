@@ -26,8 +26,9 @@ def write_pdf(invoice, fh):
             terms = invoice.template.terms
             if callable(terms):
                 terms = terms(invoice)
-            elif isinstance(terms, str):
-                terms = terms.split("\n")
+            else:
+                if isinstance(terms, str):
+                    terms = terms.split("\n")
                 terms = [Paragraph(term, styles["Terms"]) for term in terms]
         else:
             terms = []
