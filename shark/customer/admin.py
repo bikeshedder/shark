@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.utils.html import format_html_join
 from django.utils.translation import gettext_lazy as _
 
+from shark.tenant.admin import TenantAwareAdmin
+
 from . import models
 
 
@@ -17,6 +19,7 @@ class CustomerNoteInline(admin.StackedInline):
     inline_classes = ["grp-collapse grp-open"]
 
 
+@TenantAwareAdmin
 @admin.register(models.Customer)
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ["number", "name", "address_html", "created_at"]
