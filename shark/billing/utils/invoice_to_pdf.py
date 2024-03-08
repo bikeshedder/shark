@@ -12,18 +12,20 @@ from reportlab.lib.units import mm
 from reportlab.platypus import Paragraph
 from reportlab.platypus.flowables import KeepTogether, Spacer
 
-from ..models import Invoice
+from ..models import Invoice, InvoiceTemplate
 
 
-def as_http_response(invoice):
+def as_http_response(
+    invoice: Invoice, invoice_template: InvoiceTemplate
+) -> HttpResponse:
     response = HttpResponse(content_type="application/pdf")
-    return write_pdf(invoice, response)
+    return write_pdf(response, invoice, invoice_template)
 
 
-def write_pdf(invoice, fh):
+def write_pdf(fh, invoice: Invoice, invoice_template: InvoiceTemplate):
     with trans_override(invoice.language):
         if invoice.type == Invoice.TYPE_INVOICE:
-            terms = invoice.template.terms
+            terms = invoice_template.terms
             if callable(terms):
                 terms = terms(invoice)
             else:
@@ -55,7 +57,7 @@ def write_pdf(invoice, fh):
             + terms,
         )
 
-        if invoice.template.first_page_bg:
+        if invoice_template.first_page_bg:
             with tempfile.TemporaryFile() as tmp:
                 # Create content in a temporary file
                 template.render(document, tmp)
@@ -64,11 +66,11 @@ def write_pdf(invoice, fh):
                 content = PdfFileReader(tmp)
                 info_dict = writer._info.getObject()
                 info_dict.update(content.getDocumentInfo())
-                first_bg = PdfFileReader(invoice.template.first_page_bg.file, "rb")
+                first_bg = PdfFileReader(invoice_template.first_page_bg.file, "rb")
                 later_bg = PdfFileReader(
-                    invoice.template.later_pages_bg.file
-                    if invoice.template.later_pages_bg
-                    else invoice.template.first_page_bg.file,
+                    invoice_template.later_pages_bg.file
+                    if invoice_template.later_pages_bg
+                    else invoice_template.first_page_bg.file,
                     "rb",
                 )
                 bg = [first_bg.getPage(0), later_bg.getPage(0)]

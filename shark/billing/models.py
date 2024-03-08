@@ -119,7 +119,9 @@ class Invoice(BaseModel):
                 f"{self.recipient.street} {self.recipient.street_number}",
                 f"{self.recipient.postal_code} {self.recipient.city}",
                 self.recipient.state,
-                self.recipient.country.name if self.recipient.country != "DE" else "",
+                self.recipient.country.name
+                if self.recipient.country != self.sender.country
+                else "",
             ]
             if line
         ]
@@ -132,7 +134,9 @@ class Invoice(BaseModel):
                 self.sender.name,
                 f"{self.sender.street} {self.sender.street_number}",
                 f"{self.sender.postal_code} {self.sender.city}",
-                self.sender.country if self.sender.country != "DE" else "",
+                self.sender.country.name
+                if self.recipient.country != self.sender.country
+                else "",
             ]
             if line
         ]

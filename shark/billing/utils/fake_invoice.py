@@ -1,5 +1,7 @@
 from datetime import date
 
+from django_countries.fields import Country
+
 from shark.utils.fields import get_address_fieldlist
 
 from ..models import Invoice, InvoiceTemplate
@@ -20,17 +22,7 @@ class FakeInvoice(Invoice):
         proxy = True
 
 
-class FakeInvoiceTemplate(InvoiceTemplate):
-    terms = []
-    first_page_bg = None
-    later_pages_bg = None
-
-    class Meta:
-        managed = False
-        proxy = True
-
-
-def create_fake_invoice(template=None):
+def create_fake_invoice():
     invoice = FakeInvoice()
 
     sender_values = [
@@ -42,6 +34,7 @@ def create_fake_invoice(template=None):
         "PDFTown",
         "42069",
         "",
+        Country("DE"),
     ]
 
     recipient_values = [
@@ -53,6 +46,7 @@ def create_fake_invoice(template=None):
         "Chadville",
         "1337",
         "",
+        Country("DE"),
     ]
 
     for field, value in [
@@ -64,10 +58,14 @@ def create_fake_invoice(template=None):
     invoice.language = "de"
     invoice.created_at = date.today()
 
-    if template is None:
-        template = FakeInvoiceTemplate()
-        template.terms = ["Terms and conditions", "Lorem ipsum dolor...", "Etc"]
-
-    invoice.template = template
-
     return invoice
+
+
+class EmptyInvoiceTemplate(InvoiceTemplate):
+    terms = []
+    first_page_bg = None
+    later_pages_bg = None
+
+    class Meta:
+        managed = False
+        proxy = True
