@@ -14,7 +14,11 @@
                         'csrfmiddlewaretoken': '{{ csrf_token }}'
                     },
                     success: function(data, _status) {
-                        $("#id_language").val(data.country.toLowerCase()),
+                        // Only accept supported languages
+                        let language_code = data.country.toLowerCase()
+                        if (language_code !== "de") language_code = "en"
+
+                        $("#id_language").val(language_code),
                         $("#id_recipient_name").val(data.name),
                         $("#id_recipient_address_addition_1").val(data.address_addition_1),
                         $("#id_recipient_address_addition_2").val(data.address_addition_2),

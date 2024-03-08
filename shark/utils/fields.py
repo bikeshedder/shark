@@ -81,19 +81,11 @@ class LanguageField(models.CharField):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("max_length", 7)
         kwargs.setdefault("choices", settings.LANGUAGES)
-        kwargs.setdefault(
-            "help_text",
-            _(
-                "This field will be automatically filled with the language of the customer. If no language for the customer is specified the default language (%s) will be used."
-                % settings.LANGUAGE_CODE
-            ),
-        )
         super().__init__(*args, **kwargs)
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         del kwargs["choices"]
-        del kwargs["help_text"]
         if "default" in kwargs:
             del kwargs["default"]
         return name, path, args, kwargs
