@@ -17,6 +17,15 @@ from pathlib import Path
 
 import environ
 from django.utils.translation import gettext_lazy as _
+from django_countries.widgets import LazyChoicesMixin
+
+# Patch django_countries until new version is released
+# This is the only dep that's blocking the upgrade
+# https://github.com/SmileyChris/django-countries/issues/447#issuecomment-1890946593
+LazyChoicesMixin.get_choices = lambda self: self._choices
+LazyChoicesMixin.choices = property(
+    LazyChoicesMixin.get_choices, LazyChoicesMixin.set_choices
+)
 
 env = environ.Env(
     # set casting, default value
@@ -151,7 +160,6 @@ LANGUAGES = [
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
