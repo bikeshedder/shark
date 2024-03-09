@@ -17,21 +17,11 @@ Including another URLconf
 
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    path(
-        "admin/billing/", include("shark.billing.admin_urls", namespace="billing_admin")
-    ),
-    path("admin/sepa/", include("shark.sepa.admin_urls", namespace="sepa_admin")),
-    path("admin/doc/", include("django.contrib.admindocs.urls")),
-    path(
-        "admin/customer",
-        include("shark.customer.admin_urls", namespace="customer_admin"),
-    ),
-    path("admin/", admin.site.urls),
+    path("admin/", include("shark.admin_urls")),
+    path("api/", include("shark.api_urls")),
     path("grappelli/", include("grappelli.urls")),
     path("grappelli-docs/", include("grappelli.urls_docs")),
-    path("api/", include("shark.api_urls", namespace="api")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

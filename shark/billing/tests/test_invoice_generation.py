@@ -21,14 +21,14 @@ class TestInvoicePdfGeneration(TestCase):
         invoice = create_fake_invoice()
         invoice_template = EmptyInvoiceTemplate()
 
-        # Ommitted if same country
+        # Omitted if same country
         response = invoice_to_pdf.as_http_response(invoice, invoice_template)
         content = PdfFileReader(BytesIO(response.content)).pages[0].extractText()
-        self.assertIs("Germany" in content, False)
+        self.assertFalse("Germany" in content)
 
         # Present if different countries
         invoice.sender.country = Country("KH")
         response = invoice_to_pdf.as_http_response(invoice, invoice_template)
         content = PdfFileReader(BytesIO(response.content)).pages[0].extractText()
-        self.assertIs("Germany" in content, True)
-        self.assertIs("Cambodia" in content, True)
+        self.assertTrue("Germany" in content)
+        self.assertTrue("Cambodia" in content)
