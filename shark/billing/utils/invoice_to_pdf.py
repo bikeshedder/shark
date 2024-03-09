@@ -24,7 +24,7 @@ def as_http_response(
 
 def write_pdf(fh, invoice: Invoice, invoice_template: InvoiceTemplate):
     with trans_override(invoice.language):
-        if invoice.type == Invoice.TYPE_INVOICE:
+        if invoice.type == Invoice.Type.INVOICE:
             terms = invoice_template.terms
             if callable(terms):
                 terms = terms(invoice)

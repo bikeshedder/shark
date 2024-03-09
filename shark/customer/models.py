@@ -44,31 +44,28 @@ class Customer(BaseModel, TaggableMixin, TenantMixin):
         _("daily rate"), max_digits=7, decimal_places=2, blank=True, null=True
     )
 
-    # XXX move this to the billing app?
-    INVOICE_DISPATCH_TYPE_EMAIL = "email"
-    INVOICE_DISPATCH_TYPE_MAIL = "mail"
-    INVOICE_DISPATCH_TYPE_CHOICES = (
-        (INVOICE_DISPATCH_TYPE_EMAIL, _("via email")),
-        (INVOICE_DISPATCH_TYPE_MAIL, _("via mail")),
-    )
+    class InvoiceDispatchType(models.TextChoices):
+        EMAIL = "email", _("via email")
+        MAIL = "mail", _("via mail")
+
     invoice_dispatch_type = models.CharField(
         max_length=20,
-        choices=INVOICE_DISPATCH_TYPE_CHOICES,
-        default="email",
+        choices=InvoiceDispatchType,
+        default=InvoiceDispatchType.EMAIL,
         verbose_name=_("Invoice dispatch type"),
     )
-    PAYMENT_TYPE_INVOICE = "invoice"
-    PAYMENT_TYPE_DIRECT_DEBIT = "direct_debit"
-    PAYMENT_TYPE_CHOICES = (
-        (PAYMENT_TYPE_INVOICE, _("Invoice")),
-        (PAYMENT_TYPE_DIRECT_DEBIT, _("Direct debit")),
-    )
+
+    class PaymentType(models.TextChoices):
+        INVOICE = "invoice", _("Invoice")
+        DIRECT_DEBIT = "direct_debit", _("Direct debit")
+
     payment_type = models.CharField(
         max_length=20,
-        choices=PAYMENT_TYPE_CHOICES,
-        default="invoice",
+        choices=PaymentType,
+        default=PaymentType.INVOICE,
         verbose_name=_("Payment Type"),
     )
+
     vatin = models.CharField(
         max_length=14,
         blank=True,
@@ -97,7 +94,7 @@ class Customer(BaseModel, TaggableMixin, TenantMixin):
         return self.country.id == "DE" or (self.country.eu and not self.vatin)
 
     @property
-    def billing_address(self):
+    def billing_address(self) -> AddressField:
         return self.address_set.get(invoice_address=True).address
 
     # Grappelli autocomplete
@@ -123,7 +120,7 @@ class CustomerAddress(BaseModel):
         "customer.Customer", on_delete=models.CASCADE, related_name="address_set"
     )
     address = AddressField()
-    invoice_address = models.BooleanField(default=False)
+    billing_address = models.BooleanField(default=False)
 
     @property
     def lines(self):

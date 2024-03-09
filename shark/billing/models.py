@@ -1,9 +1,10 @@
 from datetime import date, timedelta
 from decimal import Decimal
 
-from django.conf import settings
+from django.contrib import admin
 from django.db import models
 from django.utils.formats import date_format
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from shark.base.models import BaseModel, TenantMixin
@@ -27,33 +28,28 @@ class Invoice(BaseModel):
     customer = models.ForeignKey(
         "customer.Customer", on_delete=models.CASCADE, verbose_name=_("Customer")
     )
-
-    TYPE_INVOICE = "invoice"
-    TYPE_CORRECTION = "correction"
-    TYPE_CHOICES = (
-        (TYPE_INVOICE, _("Invoice")),
-        (TYPE_CORRECTION, _("Correction of invoice")),
-    )
-    type = models.CharField(
-        _("type"), max_length=20, choices=TYPE_CHOICES, default=TYPE_INVOICE
-    )
     number = IdField(
         verbose_name=_("number"), generator=YearCustomerN(), editable=False
     )
-    language = LanguageField(_("language"), blank=True)
+    language = LanguageField(_("language"))
 
-    PAYMENT_TYPE_INVOICE = "invoice"
-    PAYMENT_TYPE_DIRECT_DEBIT = "direct_debit"
-    PAYMENT_TYPE_CHOICES = (
-        (PAYMENT_TYPE_INVOICE, _("Invoice")),
-        (PAYMENT_TYPE_DIRECT_DEBIT, _("Direct debit")),
+    class Type(models.TextChoices):
+        INVOICE = "invoice", _("Invoice")
+        CORRECTION = "correction", _("Correction of invoice")
+
+    type = models.CharField(
+        _("type"), max_length=20, choices=Type, default=Type.INVOICE
     )
+
+    class PaymentType(models.TextChoices):
+        INVOICE = "invoice", _("Invoice")
+        DIRECT_DEBIT = "direct_debit", _("Direct debit")
+
     payment_type = models.CharField(
         _("Payment Type"),
         max_length=20,
-        choices=PAYMENT_TYPE_CHOICES,
-        default="invoice",
-        help_text=_("Will be copied from customer's preferences automatically."),
+        choices=PaymentType,
+        default=PaymentType.INVOICE,
     )
 
     #
@@ -82,7 +78,6 @@ class Invoice(BaseModel):
     paid_at = models.DateField(blank=True, null=True, verbose_name=_("Paid"))
 
     class Meta:
-        db_table = "billing_invoice"
         verbose_name = _("Invoice")
         verbose_name_plural = _("Invoices")
         unique_together = (("customer", "number"),)
@@ -91,56 +86,22 @@ class Invoice(BaseModel):
     def __str__(self):
         return "%s %s" % (_("Invoice"), self.number)
 
-    def save(self, *args, **kwargs):
-        if not self.recipient.name:
-            self.recipient = self.customer.billing_address
-        if not self.language:
-            self.language = (
-                self.customer.language
-                if self.customer.language
-                else settings.LANGUAGE_CODE
-            )
-        try:
-            super(Invoice, self).save(*args, **kwargs)
-        except Exception:
-            from django.db import connection
-
-            print(connection.queries[-1]["sql"])
-            raise
-
     @property
     def recipient_lines(self):
-        return [
-            line
-            for line in [
-                self.recipient.name,
-                self.recipient.address_addition_1,
-                self.recipient.address_addition_2,
-                f"{self.recipient.street} {self.recipient.street_number}",
-                f"{self.recipient.postal_code} {self.recipient.city}",
-                self.recipient.state,
-                self.recipient.country.name
-                if self.recipient.country != self.sender.country
-                else "",
-            ]
-            if line
-        ]
+        lines = self.recipient.lines
+        if self.recipient.country == self.sender.country:
+            del lines[-1]
+        return lines
 
     @property
     def sender_lines(self):
-        return [
-            line
-            for line in [
-                self.sender.name,
-                f"{self.sender.street} {self.sender.street_number}",
-                f"{self.sender.postal_code} {self.sender.city}",
-                self.sender.country.name
-                if self.recipient.country != self.sender.country
-                else "",
-            ]
-            if line
-        ]
+        lines = self.sender.lines_short
+        if self.recipient.country == self.sender.country:
+            del lines[-1]
+        return lines
 
+    @property
+    @admin.display(description=_("Okay"), boolean=True)
     def is_okay(self):
         if self.paid_at is not None:
             return True
@@ -150,14 +111,9 @@ class Invoice(BaseModel):
             deadline = self.reminded_at + INVOICE_PAYMENT_TIMEFRAME
         return date.today() <= deadline
 
-    is_okay.short_description = _("Okay")
-    is_okay.boolean = True
-
-    @property
+    @cached_property
     def items(self):
-        if not hasattr(self, "_item_cache"):
-            self._item_cache = self.item_set.all()
-        return self._item_cache
+        return self.item_set.all()
 
     @property
     def correction(self):
@@ -170,7 +126,7 @@ class Invoice(BaseModel):
             created_at=self.created_at,
             type=self.TYPE_CORRECTION,
         )
-        c._item_cache = [item.clone() for item in self.items]
+        c.items = [item.clone() for item in self.items]
         for item in c.items:
             item.quantity = -item.quantity
         c.recalculate()
@@ -178,20 +134,18 @@ class Invoice(BaseModel):
 
     def recalculate(self):
         self.net = sum(item.total for item in self.items)
-        vat_amount = sum(vat_amount for vat_rate, vat_amount in self.vat)
+        vat_amount = sum(vat_amount for _vat_rate, vat_amount in self.vat_items)
         self.gross = self.net + vat_amount
 
-    @property
-    def vat(self):
-        """
-        Return a list of (vat_rate, amount) tuples.
-        """
+    @cached_property
+    def vat_items(self):
         # create a dict which maps the vat rate to a list of items
         vat_dict = {}
         for item in self.items:
             if item.vat_rate == 0:
                 continue
             vat_dict.setdefault(item.vat_rate, []).append(item)
+
         # sum up item per vat rate and create an ordered list of
         # (vat_rate, vat_amount) tuples.
         vat_list = []
@@ -200,46 +154,8 @@ class Invoice(BaseModel):
             vat_amount = round_to_centi(vat_rate * amount)
             vat_list.append((vat_rate, vat_amount))
         vat_list.sort()
+
         return vat_list
-
-    @property
-    def vat_items(self):
-        # XXX either this or the vat property should be dropped
-        class VatItem(object):
-            def __init__(self, rate, amount):
-                self.rate = rate
-                self.amount = amount
-
-        return [VatItem(*t) for t in self.vat]
-
-
-class UnitField(models.CharField):
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault("max_length", 10)
-        kwargs.setdefault("choices", UNIT_CHOICES)
-        super().__init__(*args, **kwargs)
-
-    def deconstruct(self):
-        name, path, args, kwargs = super().deconstruct()
-        del kwargs["choices"]
-        if "default" in kwargs:
-            del kwargs["default"]
-        return name, path, args, kwargs
-
-
-class VatRateField(models.DecimalField):
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault("max_digits", 3)
-        kwargs.setdefault("decimal_places", 2)
-        kwargs.setdefault("choices", VAT_RATE_CHOICES)
-        super().__init__(*args, **kwargs)
-
-    def deconstruct(self):
-        name, path, args, kwargs = super().deconstruct()
-        del kwargs["choices"]
-        if "default" in kwargs:
-            del kwargs["default"]
-        return name, path, args, kwargs
 
 
 class InvoiceItem(models.Model):
@@ -254,15 +170,10 @@ class InvoiceItem(models.Model):
     customer = models.ForeignKey(
         "customer.Customer", on_delete=models.CASCADE, verbose_name=_("customer")
     )
-    TYPE_ITEM = "item"
-    TYPE_TITLE = "title"
-    TYPE_CHOICES = [
-        (TYPE_ITEM, "Item"),
-        (TYPE_TITLE, "Title"),
-    ]
-    type = models.CharField(max_length=10, choices=TYPE_CHOICES, default=TYPE_ITEM)
-    position = models.PositiveIntegerField(
-        blank=True, null=True, verbose_name=_("position")
+    text = models.CharField(max_length=200, verbose_name=_("description"))
+    position = models.PositiveIntegerField(verbose_name=_("position"))
+    unit = models.CharField(
+        max_length=10, blank=True, choices=UNIT_CHOICES, verbose_name=_("unit")
     )
     quantity = models.DecimalField(
         max_digits=10,
@@ -276,30 +187,51 @@ class InvoiceItem(models.Model):
         verbose_name=_("SKU"),
         help_text=_("Stock-keeping unit (e.g. Article number)"),
     )
-    text = models.CharField(max_length=200, verbose_name=_("description"))
-    begin = models.DateField(blank=True, null=True, verbose_name=_("begin"))
-    end = models.DateField(blank=True, null=True, verbose_name=_("end"))
     price = models.DecimalField(
         max_digits=10, decimal_places=2, verbose_name=_("price")
     )
-    unit = UnitField(blank=True, verbose_name=_("unit"))
     discount = models.DecimalField(
         max_digits=3,
         decimal_places=2,
         default=Decimal("0.00"),
         verbose_name=("discount"),
     )
-    vat_rate = VatRateField(verbose_name=("VAT rate"))
+    vat_rate = models.DecimalField(
+        max_digits=3,
+        decimal_places=2,
+        verbose_name=("VAT rate"),
+        choices=VAT_RATE_CHOICES,
+    )
 
     class Meta:
         db_table = "billing_invoice_item"
         verbose_name = _("Item")
         verbose_name_plural = _("Items")
         unique_together = (("invoice", "position"),)
-        ordering = ("position",)
 
     def __str__(self):
         return "#%d %s" % (self.position or 0, self.text)
+
+    @property
+    @admin.display(description=_("Subtotal"), boolean=True)
+    def subtotal(self):
+        return round_to_centi(self.quantity * self.price)
+
+    @property
+    def discount_percentage(self):
+        return self.discount * 100
+
+    @property
+    def discount_amount(self):
+        return round_to_centi(self.discount * self.subtotal)
+
+    @property
+    @admin.display(description=_("Sum of line"))
+    def total(self):
+        return self.subtotal - self.discount_amount
+
+    begin = models.DateField(blank=True, null=True, verbose_name=_("begin"))
+    end = models.DateField(blank=True, null=True, verbose_name=_("end"))
 
     def clone(self):
         return InvoiceItem(
@@ -325,7 +257,9 @@ class InvoiceItem(models.Model):
                 raise RuntimeError("The customer must be set if no invoice is given")
         super(InvoiceItem, self).save(*args, **kwargs)
 
-    def get_period(self):
+    @property
+    @admin.display(description=_("Billing period"))
+    def period(self):
         if self.begin and self.end:
             begin = date_format(self.begin, "SHORT_DATE_FORMAT")
             end = (
@@ -337,43 +271,21 @@ class InvoiceItem(models.Model):
         else:
             return None
 
-    get_period.short_description = _("Billing period")
-    period = property(get_period)
-
     @property
     def date(self):
         return self.begin or self.end if bool(self.begin) != bool(self.end) else None
 
-    def get_subtotal(self):
-        return round_to_centi(self.quantity * self.price)
-
-    get_subtotal.short_description = _("Subtotal")
-    subtotal = property(get_subtotal)
-
-    @property
-    def discount_percentage(self):
-        return self.discount * 100
-
-    @property
-    def discount_amount(self):
-        return round_to_centi(self.discount * self.subtotal)
-
-    def get_total(self):
-        return self.subtotal - self.discount_amount
-
-    get_total.short_description = _("Sum of line")
-    total = property(get_total)
-
 
 class InvoiceTemplate(BaseModel, TenantMixin):
     name = models.CharField(_("Name"))
+    is_default = models.BooleanField(default=False)
+
     first_page_bg = models.FileField(_("First invoice page bg"), null=True, blank=True)
     later_pages_bg = models.FileField(
         _("Later invoice pages bg"), null=True, blank=True
     )
 
     terms = models.TextField(blank=True)
-    is_default = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

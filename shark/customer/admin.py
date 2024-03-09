@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.utils.html import format_html_join
 from django.utils.translation import gettext_lazy as _
 
 from shark.tenant.admin import TenantAwareAdmin
@@ -23,18 +22,12 @@ class CustomerNoteInline(admin.StackedInline):
 @admin.register(models.Customer)
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ["number", "name", "address_html", "created_at"]
-    list_filter = ["created_at"]
-    search_fields = ["number", "name"]
     date_hierarchy = "created_at"
-    inlines = [CustomerAddressInline, CustomerNoteInline]
     ordering = ["number", "name"]
+    inlines = [CustomerAddressInline, CustomerNoteInline]
 
-    def address_html(self, instance):
-        return format_html_join(
-            "\n",
-            "<p>{}</p>",
-            ((address.lines_html,) for address in instance.address_set.all()),
-        )
+    search_fields = ["number", "name"]
 
-    address_html.short_description = _("Addresses")
-    address_html.admin_order_field = "address"
+    @admin.display(description=_("Billing address"))
+    def address_html(self, instance: models.Customer):
+        return instance.billing_address.lines_html

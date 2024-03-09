@@ -11,7 +11,7 @@ from . import models
 def get_customer_address(request):
     customer_id = request.POST.get("customer_id")
     address = get_object_or_404(
-        models.CustomerAddress, customer=customer_id, invoice_address=True
+        models.CustomerAddress, customer=customer_id, billing_address=True
     ).address
 
     data = {field: getattr(address, field) for field in get_address_fieldlist()}

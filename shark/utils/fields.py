@@ -1,7 +1,7 @@
 from composite_field import CompositeField
 from django.conf import settings
 from django.db import models
-from django.utils.html import format_html_join, mark_safe
+from django.utils.html import format_html_join
 from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
 
@@ -49,7 +49,7 @@ class AddressField(CompositeField):
 
     class Proxy(CompositeField.Proxy):
         @property
-        def lines(self):
+        def lines(self) -> list[str]:
             return [
                 line
                 for line in [
@@ -65,15 +65,25 @@ class AddressField(CompositeField):
             ]
 
         @property
-        def lines_html(self):
-            return format_html_join(
-                mark_safe("<br>"), "{}", ((line,) for line in self.lines)
-            )
+        def lines_short(self) -> list[str]:
+            return [
+                line
+                for line in [
+                    self.name,
+                    f"{self.street} {self.street_number}".strip(),
+                    f"{self.postal_code} {self.city}".strip(),
+                    self.country.name,
+                ]
+                if line
+            ]
 
         @property
-        def as_dict(self):
-            fields = get_address_fieldlist()
+        def lines_html(self) -> str:
+            return format_html_join("", "<p>{}</p>", ((line,) for line in self.lines))
 
+        @property
+        def as_dict(self) -> dict:
+            fields = get_address_fieldlist()
             return {field_name: getattr(self, field_name) for field_name in fields}
 
 

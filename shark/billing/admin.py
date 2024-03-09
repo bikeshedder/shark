@@ -75,21 +75,19 @@ class InvoiceAdmin(admin.ModelAdmin):
 
         return form
 
+    @admin.display(description=_("Customer"), ordering="customer")
     def get_customer(self, obj):
         return format_html(
             '<a href="{}">{}</a>', get_admin_change_url(obj.customer), obj.customer
         )
 
-    get_customer.short_description = _("Customer")
-    get_customer.admin_order_field = "customer"
-
+    @admin.display(description=_("Recipient"))
     def get_recipient(self, obj):
         return format_html_join(
             mark_safe("<br>"), "{}", ((line,) for line in obj.recipient_lines)
         )
 
-    get_recipient.short_description = _("Recipient")
-
+    @admin.display(description="Invoice")
     def invoice_pdf(self, obj):
         view_url = reverse("billing_admin:invoice_pdf", args=(obj.number,))
         download_url = reverse("billing_admin:invoice_pdf", args=(obj.number,))
@@ -99,8 +97,7 @@ class InvoiceAdmin(admin.ModelAdmin):
             download_url,
         )
 
-    invoice_pdf.short_description = "Invoice"
-
+    @admin.display(description="Correction")
     def correction_pdf(self, obj):
         view_url = reverse("billing_admin:correction_pdf", args=(obj.number,))
         download_url = reverse("billing_admin:correction_pdf", args=(obj.number,))
@@ -109,8 +106,6 @@ class InvoiceAdmin(admin.ModelAdmin):
             view_url,
             download_url,
         )
-
-    correction_pdf.short_description = "Correction"
 
     def response_add(self, request, obj, *args, **kwargs):
         obj.recalculate()
@@ -122,6 +117,7 @@ class InvoiceAdmin(admin.ModelAdmin):
         obj.save()
         return super(InvoiceAdmin, self).response_change(request, obj, *args, **kwargs)
 
+    @admin.display(description=_("Calculate total value of selected invoices"))
     def total_value_action(self, request, queryset):
         net = Decimal(0)
         gross = Decimal(0)
@@ -139,10 +135,7 @@ class InvoiceAdmin(admin.ModelAdmin):
             % {"count": len(queryset), "value": value},
         )
 
-    total_value_action.short_description = _(
-        "Calculate total value of selected invoices"
-    )
-
+    @admin.display(description="Export selected invoices for accounting")
     def export_for_accounting(self, request, queryset):
         queryset = queryset.select_related("customer")
         response = HttpResponse(content_type="text/csv")
@@ -154,8 +147,8 @@ class InvoiceAdmin(admin.ModelAdmin):
             ("number", None),
             ("net", None),
             ("gross", None),
-            ("vat_rate", lambda iv: iv.vat[0][0] if iv.vat else 0),
-            ("vat", lambda iv: iv.vat[0][1] if iv.vat else 0),
+            ("vat_rate", lambda iv: iv.vat_items[0][0] if iv.vat_items else 0),
+            ("vat", lambda iv: iv.vat_items[0][1] if iv.vat_items else 0),
             ("payment_type", None),
             ("customer_number", lambda iv: iv.customer.number),
             ("customer_vatin", lambda iv: iv.customer.vatin),
@@ -173,8 +166,6 @@ class InvoiceAdmin(admin.ModelAdmin):
                 ]
             )
         return response
-
-    export_for_accounting.short_description = "Export selected invoices for accounting"
 
 
 @admin.register(models.InvoiceItem)
@@ -201,6 +192,7 @@ class InvoiceItemAdmin(admin.ModelAdmin):
     autocomplete_fields = ("customer", "invoice")
     raw_id_fields = ("invoice",)
 
+    @admin.display(description=_("Create invoice(s) for selected item(s)"))
     def action_create_invoice(self, request, queryset):
         # customer_id -> items
         items_dict = {}
@@ -226,10 +218,6 @@ class InvoiceItemAdmin(admin.ModelAdmin):
             invoice.save()
         return HttpResponseRedirect(get_admin_changelist_url(models.Invoice))
 
-    action_create_invoice.short_description = _(
-        "Create invoice(s) for selected item(s)"
-    )
-
 
 @TenantAwareAdmin
 @admin.register(models.InvoiceTemplate)
@@ -242,8 +230,7 @@ class InvoiceTemplateAdmin(admin.ModelAdmin):
 
     list_editable = ("is_default",)
 
+    @admin.display(description="Preview")
     def preview_invoice(self, obj):
         url = reverse("billing_admin:invoice_template_preview_pdf", args=(obj.id,))
         return format_html('<a href="{}">Preview</a>', url)
-
-    preview_invoice.short_description = "Preview"
