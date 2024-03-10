@@ -95,7 +95,7 @@ class Customer(BaseModel, TaggableMixin, TenantMixin):
 
     @property
     def billing_address(self) -> AddressField:
-        return self.address_set.get(invoice_address=True).address
+        return self.address_set.get(billing_address=True).address
 
     # Grappelli autocomplete
     @staticmethod

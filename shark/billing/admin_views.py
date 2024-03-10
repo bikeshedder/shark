@@ -31,7 +31,7 @@ def invoice_pdf(request, number, correction=False):
     if correction:
         invoice = invoice.correction
 
-    invoice_template = request.tenant.default_invoice_template
+    invoice_template = request.tenant.selected_invoice_template
     response = invoice_to_pdf.as_http_response(invoice, invoice_template)
     if "download" in request.GET:
         filename = "%s.pdf" % invoice.number

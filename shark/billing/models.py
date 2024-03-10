@@ -1,3 +1,8 @@
+# Allow look-ahead Type annotations
+# Without this, the Type's class definition needs to come before its usage
+# Obsolete with Python 4
+from __future__ import annotations
+
 from datetime import date, timedelta
 from decimal import Decimal
 
@@ -111,7 +116,7 @@ class Invoice(BaseModel):
         return date.today() <= deadline
 
     @cached_property
-    def items(self):
+    def items(self) -> list[InvoiceItem]:
         return self.item_set.all()
 
     @property
@@ -123,7 +128,7 @@ class Invoice(BaseModel):
             sender=self.sender,
             recipient=self.recipient,
             created_at=self.created_at,
-            type=self.TYPE_CORRECTION,
+            type=self.Type.CORRECTION,
         )
         c.items = [item.clone() for item in self.items]
         for item in c.items:
