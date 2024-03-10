@@ -11,9 +11,9 @@ class Tenant(BaseModel):
     address = AddressField()
 
     @property
-    def default_invoice_template(self) -> InvoiceTemplate:
+    def selected_invoice_template(self) -> InvoiceTemplate:
         return (
-            self.invoicetemplate_set.filter(is_default=True).first()
+            self.invoicetemplate_set.filter(is_selected=True).first()
             or EmptyInvoiceTemplate()
         )
 

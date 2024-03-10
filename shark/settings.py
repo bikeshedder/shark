@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from datetime import timedelta
-from decimal import Decimal
 from pathlib import Path
 
 import environ
@@ -199,11 +198,6 @@ REST_FRAMEWORK = {
 }
 
 SHARK = {
-    "VAT_RATE_CHOICES": (
-        (Decimal("0.19"), "19%"),
-        (Decimal("0.07"), "7%"),
-        (Decimal("0.00"), "0%"),
-    ),
     "CUSTOMER": {
         "TYPE_CHOICES": [("default", _("Default"))],
         "TYPE_DEFAULT": "default",

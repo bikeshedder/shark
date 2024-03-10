@@ -17,14 +17,16 @@ class TenantAdmin(admin.ModelAdmin):
     )
 
 
-# Decorator to be used for any objects that are directly tied to a Tenant
-#
-# Tenants should disappear completely from the UI and only act as way to
-# isolate DB entries from other Tenants
 def TenantAwareAdmin(cls):
+    """
+    Decorator to be used for ModelAdmins
+
+    This sets an object's Tenant FK to the Tenant that is returned from the middleware
+    """
     save_model = getattr(cls, "save_model")
 
     def save_model_with_tenant(self, request, obj, form, change):
+        # Only apply at object creation
         if obj.pk is None:
             tenant = request.tenant
             if tenant is None:

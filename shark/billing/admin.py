@@ -224,11 +224,11 @@ class InvoiceItemAdmin(admin.ModelAdmin):
 class InvoiceTemplateAdmin(admin.ModelAdmin):
     list_display = (
         "name",
-        "is_default",
+        "is_selected",
         "preview_invoice",
     )
 
-    list_editable = ("is_default",)
+    list_editable = ("is_selected",)
 
     @admin.display(description="Preview")
     def preview_invoice(self, obj):

@@ -17,7 +17,6 @@ from shark.utils.settings import get_settings_value
 INVOICE_PAYMENT_TIMEFRAME = get_settings_value(
     "INVOICE.PAYMENT_TIMEFRAME", timedelta(days=14)
 )
-VAT_RATE_CHOICES = get_settings_value("VAT_RATE_CHOICES", ((Decimal(0), "0%"),))
 UNIT_CHOICES = get_settings_value("INVOICE.UNIT_CHOICES")
 
 
@@ -196,6 +195,13 @@ class InvoiceItem(models.Model):
         default=Decimal("0.00"),
         verbose_name=("discount"),
     )
+
+    VAT_RATE_CHOICES = [
+        (Decimal("0.19"), "19%"),
+        (Decimal("0.07"), "7%"),
+        (Decimal("0.00"), "0%"),
+    ]
+
     vat_rate = models.DecimalField(
         max_digits=3,
         decimal_places=2,
@@ -278,7 +284,7 @@ class InvoiceItem(models.Model):
 
 class InvoiceTemplate(BaseModel, TenantMixin):
     name = models.CharField(_("Name"))
-    is_default = models.BooleanField(default=False)
+    is_selected = models.BooleanField(default=False)
 
     first_page_bg = models.FileField(_("First invoice page bg"), null=True, blank=True)
     later_pages_bg = models.FileField(
@@ -291,9 +297,9 @@ class InvoiceTemplate(BaseModel, TenantMixin):
         return self.name
 
     def save(self, *args, **kwargs):
-        if self.is_default is True:
+        if self.is_selected:
             InvoiceTemplate.objects.filter(tenant=self.tenant).exclude(
                 pk=self.pk
-            ).update(is_default=False)
+            ).update(is_selected=False)
 
         super().save(*args, **kwargs)
