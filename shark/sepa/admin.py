@@ -16,8 +16,7 @@ class DirectDebitMandateAdmin(admin.ModelAdmin):
     list_display = ["customer", "address_html", "iban", "bic"]
     list_filter = ["created_at", "signed_at"]
     search_fields = ["number", "address", "created_at"]
-    # raw_id_fields = ["document"]
-    autocomplete_fields = ("customer",)
+    autocomplete_fields = ["customer"]
 
     @admin.display(description=_("address"))
     def address_html(self, instance):
@@ -30,7 +29,6 @@ class DirectDebitMandateAdmin(admin.ModelAdmin):
 class DirectDebitTransactionAdmin(admin.ModelAdmin):
     list_display = ["customer", "mandate", "amount", "invoice", "batch", "created_at"]
     search_fields = ["customer__name"]
-    # raw_id_fields = ['customer', 'mandate', 'invoice', 'accounting_transaction', 'batch']
     raw_id_fields = ["customer", "mandate", "invoice", "batch"]
 
 

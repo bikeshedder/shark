@@ -34,19 +34,13 @@ class DirectDebitMandate(BaseModel):
     signed_at = models.DateField(_("signed_at"), blank=True, null=True)
     revoked_at = models.DateField(_("revoked_at"), blank=True, null=True)
     last_used = models.DateField(_("last_used"), blank=True, null=True)
-    TYPE_CORE = "CORE"
-    TYPE_COR1 = "COR1"
-    TYPE_B2B = "B2B"
-    TYPE_CHOICES = (
-        (TYPE_CORE, "CORE"),
-        (TYPE_COR1, "COR1"),
-        (TYPE_B2B, "B2B"),
-    )
-    type = models.CharField(max_length=4, choices=TYPE_CHOICES)
-    # document = models.ForeignKey('documents.Document',
-    #        on_delete=models.CASCADE,
-    #        verbose_name=_('signed document'),
-    #        blank=True, null=True)
+
+    class Type(models.TextChoices):
+        TYPE_CORE = "CORE", "CORE"
+        TYPE_COR1 = "COR1", "COR1"
+        TYPE_B2B = "B2B", "B2b"
+
+    type = models.CharField(max_length=4, choices=Type)
 
     class Meta:
         verbose_name = _("SEPA direct debit mandate")
@@ -164,16 +158,15 @@ class DirectDebitBatch(BaseModel):
         ),
     )
     mandate_type = models.CharField(
-        _("mandate type"), max_length=4, choices=DirectDebitMandate.TYPE_CHOICES
+        _("mandate type"), max_length=4, choices=DirectDebitMandate.Type
     )
-    SEQUENCE_TYPE_FRST = "FRST"
-    SEQUENCE_TYPE_RCUR = "RCUR"
-    SEQUENCE_TYPE_CHOICES = (
-        (SEQUENCE_TYPE_FRST, "FRST"),
-        (SEQUENCE_TYPE_RCUR, "RCUR"),
-    )
+
+    class SequenceType(models.TextChoices):
+        SEQUENCE_TYPE_FRST = "FRST", "FRST"
+        SEQUENCE_TYPE_RCUR = "RCUR", "RCUR"
+
     sequence_type = models.CharField(
-        _("sequence type"), max_length=4, choices=SEQUENCE_TYPE_CHOICES
+        _("sequence type"), max_length=4, choices=SequenceType
     )
     executed_at = models.DateTimeField(_("executed_at"), blank=True, null=True)
 
