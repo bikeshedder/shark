@@ -198,20 +198,7 @@ REST_FRAMEWORK = {
 }
 
 SHARK = {
-    "CUSTOMER": {
-        "TYPE_CHOICES": [("default", _("Default"))],
-        "TYPE_DEFAULT": "default",
-    },
     "INVOICE": {
-        "UNIT_CHOICES": [
-            ("s", _("second [s]")),
-            ("min", _("minute [min]")),
-            ("h", _("hour [h]")),
-            ("d", _("day [d]")),
-            ("w", _("week [w]")),
-            ("m", _("month [m]")),
-            ("a", _("year [a]")),
-        ],
         "PAYMENT_TIMEFRAME": timedelta(days=14),
     },
     "SEPA": {

@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
@@ -11,6 +12,11 @@ class TimeStampMixin(models.Model):
 
     class Meta:
         abstract = True
+
+    @property
+    @admin.display(description=_("Created date"))
+    def created_at_date(self):
+        return self.created_at.date()
 
 
 class TaggableMixin(models.Model):
@@ -29,6 +35,28 @@ class TenantMixin(models.Model):
         abstract = True
 
 
+class BillableMixin(models.Model):
+    hourly_rate = models.DecimalField(
+        _("hourly rate"), max_digits=7, decimal_places=2, blank=True, null=True
+    )
+
+    class Meta:
+        abstract = True
+
+    @property
+    def rate(self):
+        raise NotImplementedError()
+
+
 class BaseModel(TimeStampMixin):
     class Meta:
         abstract = True
+
+
+class ProxyManager(models.Manager):
+    def __init__(self, type):
+        super().__init__()
+        self.type = type
+
+    def get_queryset(self):
+        return super().get_queryset().filter(type=self.type)

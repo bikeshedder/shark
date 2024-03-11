@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from grappelli.dashboard.modules import DashboardModule
 
-from shark.billing.models import Invoice, InvoiceItem
+from shark.billing.models import Invoice
 
 
 class UnpaidInvoicesDashboardModule(DashboardModule):
@@ -60,25 +60,3 @@ class UnpaidInvoicesDashboardModule(DashboardModule):
         }
 
         self._initialized = True
-
-
-class LooseItemsDashboardModule(DashboardModule):
-    title = _("Loose invoice items")
-    template = "billing/dashboard/loose-items.html"
-
-    def is_empty(self):
-        return False
-
-    def init_with_context(self, context):
-        if self._initialized:
-            return
-
-        self.items = InvoiceItem.objects.filter(invoice__isnull=True)
-        self.item_count = self.items.count()
-        self.list_url = (
-            reverse("admin:billing_invoiceitem_changelist") + "?invoice__isnull=True"
-        )
-
-        self._initialized = True
-        # XXX disabled for now
-        # self.invoice_url = reverse('billing_admin:invoiceitem_invoice')

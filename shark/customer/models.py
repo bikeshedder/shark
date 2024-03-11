@@ -2,31 +2,13 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from shark.base.models import BaseModel, TaggableMixin, TenantMixin
+from shark.base.models import BaseModel, BillableMixin, TaggableMixin, TenantMixin
 from shark.id_generators import InitialAsNumber
 from shark.id_generators.fields import IdField
 from shark.utils.fields import AddressField, LanguageField
-from shark.utils.settings import get_settings_value
-
-CUSTOMER_TYPE_CHOICES = get_settings_value("CUSTOMER.TYPE_CHOICES")
-CUSTOMER_TYPE_DEFAULT = get_settings_value("CUSTOMER.TYPE_DEFAULT")
 
 
-class CustomerTypeField(models.CharField):
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault("max_length", 20)
-        kwargs.setdefault("choices", CUSTOMER_TYPE_CHOICES)
-        kwargs.setdefault("default", CUSTOMER_TYPE_DEFAULT)
-        super().__init__(*args, **kwargs)
-
-    def deconstruct(self):
-        name, path, args, kwargs = super().deconstruct()
-        del kwargs["choices"]
-        del kwargs["default"]
-        return name, path, args, kwargs
-
-
-class Customer(BaseModel, TaggableMixin, TenantMixin):
+class Customer(BaseModel, BillableMixin, TaggableMixin, TenantMixin):
     number = IdField(generator=InitialAsNumber(), editable=False)
     # XXX add_unique constraint
     name = models.CharField(max_length=50)
@@ -35,14 +17,6 @@ class Customer(BaseModel, TaggableMixin, TenantMixin):
     # field is mainly used to determine which language to use when
     # generating invoices and email messages.
     language = LanguageField(_("language"), blank=True)
-
-    # rates when creating invoices
-    hourly_rate = models.DecimalField(
-        _("hourly rate"), max_digits=7, decimal_places=2, blank=True, null=True
-    )
-    daily_rate = models.DecimalField(
-        _("daily rate"), max_digits=7, decimal_places=2, blank=True, null=True
-    )
 
     class InvoiceDispatchType(models.TextChoices):
         EMAIL = "email", _("via email")
@@ -78,13 +52,11 @@ class Customer(BaseModel, TaggableMixin, TenantMixin):
         verbose_name_plural = _("customers")
 
     def __str__(self):
-        return f"{self.number} - {self.name}"
+        return self.name
 
     @property
-    def active(self):
-        # The customer active flag does not depend on anything but
-        # the enabled flag.
-        return self.enabled
+    def rate(self):
+        return self.hourly_rate
 
     @property
     def vat_required(self):

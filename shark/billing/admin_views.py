@@ -5,17 +5,9 @@ from django.template.response import TemplateResponse
 from django.utils.translation import ngettext
 
 from .admin_forms import ImportItemsForm
-from .models import Invoice, InvoiceItem, InvoiceTemplate
+from .models import Invoice, InvoiceTemplate
 from .utils import invoice_to_pdf
 from .utils.fake_invoice import create_fake_invoice
-
-
-@permission_required("billing.add_invoice")
-def invoice(request):
-    items = InvoiceItem.objects.filter(invoice=None)
-    return TemplateResponse(
-        request, "billing/admin/invoiceitem_invoice.html", {"items": items}
-    )
 
 
 @permission_required("billing.add_invoicetemplate")

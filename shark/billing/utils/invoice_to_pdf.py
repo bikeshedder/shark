@@ -36,6 +36,12 @@ def write_pdf(fh, invoice: Invoice, invoice_template: InvoiceTemplate):
             terms = []
 
         template = BriefTemplate()
+
+        for item in invoice.items:
+            setattr(item, "period", "")
+            setattr(item, "date", "")
+            setattr(item, "unit", "")
+
         document = Document(
             sender=invoice.sender_lines,
             recipient=invoice.recipient_lines,

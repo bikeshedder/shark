@@ -12,7 +12,7 @@ from django.utils.formats import date_format
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
-from shark.base.models import BaseModel, TenantMixin
+from shark.base.models import BaseModel, ProxyManager, TenantMixin
 from shark.id_generators import YearCustomerN
 from shark.id_generators.fields import IdField
 from shark.utils.fields import AddressField, LanguageField
@@ -22,7 +22,6 @@ from shark.utils.settings import get_settings_value
 INVOICE_PAYMENT_TIMEFRAME = get_settings_value(
     "INVOICE.PAYMENT_TIMEFRAME", timedelta(days=14)
 )
-UNIT_CHOICES = get_settings_value("INVOICE.UNIT_CHOICES")
 
 
 class Invoice(BaseModel):
@@ -138,7 +137,7 @@ class Invoice(BaseModel):
 
     def recalculate(self):
         self.net = sum(item.total for item in self.items)
-        vat_amount = sum(vat_amount for _vat_rate, vat_amount in self.vat_items)
+        vat_amount = sum(item.amount for item in self.vat_items)
         self.gross = self.net + vat_amount
 
     @cached_property
@@ -159,7 +158,12 @@ class Invoice(BaseModel):
             vat_list.append((vat_rate, vat_amount))
         vat_list.sort()
 
-        return vat_list
+        class VatItem(object):
+            def __init__(self, rate, amount):
+                self.rate = rate
+                self.amount = amount
+
+        return [VatItem(*t) for t in vat_list]
 
 
 class InvoiceItem(models.Model):
@@ -171,25 +175,26 @@ class InvoiceItem(models.Model):
         null=True,
         verbose_name=_("invoice"),
     )
-    customer = models.ForeignKey(
-        "customer.Customer", on_delete=models.CASCADE, verbose_name=_("customer")
-    )
-    text = models.CharField(max_length=200, verbose_name=_("description"))
-    position = models.PositiveIntegerField(verbose_name=_("position"))
-    unit = models.CharField(
-        max_length=10, blank=True, choices=UNIT_CHOICES, verbose_name=_("unit")
-    )
-    quantity = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        default=Decimal("1"),
-        verbose_name=_("quantity"),
-    )
+
+    class Type(models.TextChoices):
+        TimeItem = "time"
+        ArticleItem = "article"
+
+    type = models.CharField(max_length=10, choices=Type, default=Type.TimeItem)
     sku = models.CharField(
         max_length=20,
         blank=True,
         verbose_name=_("SKU"),
         help_text=_("Stock-keeping unit (e.g. Article number)"),
+    )
+
+    position = models.PositiveSmallIntegerField(verbose_name=_("position"))
+    text = models.CharField(max_length=200, verbose_name=_("description"))
+    quantity = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal("1"),
+        verbose_name=_("quantity"),
     )
     price = models.DecimalField(
         max_digits=10, decimal_places=2, verbose_name=_("price")
@@ -212,16 +217,28 @@ class InvoiceItem(models.Model):
         decimal_places=2,
         verbose_name=("VAT rate"),
         choices=VAT_RATE_CHOICES,
+        default=VAT_RATE_CHOICES[0][0],
     )
 
     class Meta:
-        db_table = "billing_invoice_item"
         verbose_name = _("Item")
         verbose_name_plural = _("Items")
-        unique_together = (("invoice", "position"),)
+        ordering = ["position"]
 
     def __str__(self):
         return "#%d %s" % (self.position or 0, self.text)
+
+    def clone(self):
+        return InvoiceItem(
+            invoice=self.invoice,
+            position=self.position,
+            quantity=self.quantity,
+            sku=self.sku,
+            text=self.text,
+            price=self.price,
+            discount=self.discount,
+            vat_rate=self.vat_rate,
+        )
 
     @property
     @admin.display(description=_("Subtotal"), boolean=True)
@@ -241,32 +258,12 @@ class InvoiceItem(models.Model):
     def total(self):
         return self.subtotal - self.discount_amount
 
-    begin = models.DateField(blank=True, null=True, verbose_name=_("begin"))
-    end = models.DateField(blank=True, null=True, verbose_name=_("end"))
 
-    def clone(self):
-        return InvoiceItem(
-            invoice=self.invoice,
-            customer=self.customer,
-            position=self.position,
-            quantity=self.quantity,
-            sku=self.sku,
-            text=self.text,
-            begin=self.begin,
-            end=self.end,
-            price=self.price,
-            unit=self.unit,
-            discount=self.discount,
-            vat_rate=self.vat_rate,
-        )
+class InvoiceTimeItem(InvoiceItem):
+    objects = ProxyManager(InvoiceItem.Type.TimeItem)
 
-    def save(self, *args, **kwargs):
-        if not self.customer_id:
-            if self.invoice_id:
-                self.customer_id = self.invoice.customer_id
-            else:
-                raise RuntimeError("The customer must be set if no invoice is given")
-        super(InvoiceItem, self).save(*args, **kwargs)
+    class Meta:
+        proxy = True
 
     @property
     @admin.display(description=_("Billing period"))
@@ -285,6 +282,13 @@ class InvoiceItem(models.Model):
     @property
     def date(self):
         return self.begin or self.end if bool(self.begin) != bool(self.end) else None
+
+
+class InvoiceArticleItem(InvoiceItem):
+    objects = ProxyManager(InvoiceItem.Type.ArticleItem)
+
+    class Meta:
+        proxy = True
 
 
 class InvoiceTemplate(BaseModel, TenantMixin):

@@ -2,15 +2,18 @@ import csv
 from decimal import Decimal
 
 from django.contrib import admin
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from django.urls import reverse
-from django.utils.html import format_html, format_html_join, mark_safe
+from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext, ngettext
 from django.utils.translation import gettext_lazy as _
+from grappelli.forms import GrappelliSortableHiddenMixin
 
-from shark import get_admin_change_url, get_admin_changelist_url
+from shark import get_admin_change_url
+from shark.customer.models import CustomerAddress
+from shark.project.models import Project, Task
 from shark.tenant.admin import TenantAwareAdmin
-from shark.utils.fields import get_address_fieldlist
+from shark.utils.fields import get_address_fieldlist, get_language_from_country
 
 from . import models
 
@@ -19,11 +22,21 @@ class excel_semicolon(csv.excel):
     delimiter = ";"
 
 
-class InvoiceItemInline(admin.TabularInline):
+class InvoiceItemInline(GrappelliSortableHiddenMixin, admin.TabularInline):
     model = models.InvoiceItem
-    extra = 3
-    ordering = ("position",)
-    exclude = ("customer",)
+    exclude = ["sku"]
+
+    objects = []
+
+    def get_extra(self, request, obj=None, **kwargs):
+        if request.method == "GET":
+            project_id = request.GET.get("project")
+            if project_id:
+                tasks = Task.objects.filter(project__id=project_id).all()
+                tasks = [task for task in tasks if not task.invoice]
+                self.objects = tasks
+                return len(tasks)
+        return 0
 
 
 @admin.register(models.Invoice)
@@ -52,15 +65,15 @@ class InvoiceAdmin(admin.ModelAdmin):
         "invoice_pdf",
         "correction_pdf",
     )
-    list_editable = ("paid_at",)
-    list_display_links = ("number",)
+    list_editable = ["paid_at"]
+    list_display_links = ["number"]
     list_select_related = True
     ordering = ("-created_at",)
     search_fields = ("number", "customer__number", "customer__name")
     list_filter = ("created_at", "paid_at", "type")
     date_hierarchy = "created_at"
     actions = ("total_value_action", "export_for_accounting")
-    raw_id_fields = ("customer",)
+    raw_id_fields = ["customer"]
     autocomplete_lookup_fields = {
         "fk": ["customer"],
     }
@@ -73,7 +86,45 @@ class InvoiceAdmin(admin.ModelAdmin):
             for key, value in tenant_address_dict.items():
                 form.base_fields["sender_" + key].initial = value
 
+            if request.method == "GET":
+                project_id = request.GET.get("project")
+                if project_id:
+                    project = Project.objects.get(pk=project_id)
+
+                    form.base_fields["customer"].initial = project.customer
+                    customer_address = CustomerAddress.objects.get(
+                        customer=project.customer
+                    )
+                    for key, value in customer_address.address.as_dict.items():
+                        form.base_fields["recipient_" + key].initial = value
+                    form.base_fields["language"].initial = get_language_from_country(
+                        customer_address.address.country
+                    )
+
         return form
+
+    def get_formset_kwargs(self, request, obj, inline, prefix):
+        formset_params = super().get_formset_kwargs(request, obj, inline, prefix)
+
+        if not obj.pk:
+            if request.method == "GET" and isinstance(inline, InvoiceItemInline):
+                project_id = request.GET.get("project")
+                if project_id:
+                    tasks = inline.objects
+                    formset_params |= {
+                        "initial": [
+                            {
+                                "text": task.name,
+                                "type": models.InvoiceItem.Type.TimeItem,
+                                "price": task.rate,
+                                "quantity": task.hours_expected,
+                                "vat_rate": Decimal("0.19"),
+                            }
+                            for task in tasks
+                        ]
+                    }
+
+        return formset_params
 
     @admin.display(description=_("Customer"), ordering="customer")
     def get_customer(self, obj):
@@ -84,7 +135,7 @@ class InvoiceAdmin(admin.ModelAdmin):
     @admin.display(description=_("Recipient"))
     def get_recipient(self, obj):
         return format_html_join(
-            mark_safe("<br>"), "{}", ((line,) for line in obj.recipient_lines)
+            "", "<p>{}</p>", ((line,) for line in obj.recipient_lines)
         )
 
     @admin.display(description="Invoice")
@@ -155,7 +206,7 @@ class InvoiceAdmin(admin.ModelAdmin):
             (
                 "address",
                 lambda iv: iv.recipient,
-            ),  # FIXME replace by new customer.billing_address
+            ),
         ]
         writer.writerow([c[0] for c in cols])
         for invoice in queryset:
@@ -166,57 +217,6 @@ class InvoiceAdmin(admin.ModelAdmin):
                 ]
             )
         return response
-
-
-@admin.register(models.InvoiceItem)
-class InvoiceItemAdmin(admin.ModelAdmin):
-    list_display = (
-        "customer",
-        "invoice",
-        "position",
-        "sku",
-        "text",
-        "begin",
-        "end",
-        "quantity",
-        "price",
-        "total",
-        "discount",
-        "vat_rate",
-    )
-    list_display_links = ("position", "text")
-    list_filter = ("begin", "end", "vat_rate")
-    ordering = ("customer__number", "invoice__number", "position")
-    search_fields = ("invoice__number", "customer__number", "sku", "text")
-    actions = ("action_create_invoice",)
-    autocomplete_fields = ("customer", "invoice")
-    raw_id_fields = ("invoice",)
-
-    @admin.display(description=_("Create invoice(s) for selected item(s)"))
-    def action_create_invoice(self, request, queryset):
-        # customer_id -> items
-        items_dict = {}
-        # [(customer, items)]
-        customer_items_list = []
-        for item in queryset.filter(invoice=None).order_by("text"):
-            try:
-                items = items_dict[item.customer_id]
-            except KeyError:
-                items = items_dict[item.customer_id] = []
-                customer_items_list.append((item.customer, items))
-            items.append(item)
-        # create invoices
-        for customer, items in customer_items_list:
-            invoice = models.Invoice()
-            invoice.customer = customer
-            invoice.save()
-            for position, item in enumerate(items, 1):
-                item.position = position
-                item.invoice = invoice
-                item.save()
-            invoice.recalculate()
-            invoice.save()
-        return HttpResponseRedirect(get_admin_changelist_url(models.Invoice))
 
 
 @TenantAwareAdmin

@@ -3,7 +3,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.html import format_html_join
 from django.utils.translation import gettext_lazy as _
-from django_countries.fields import CountryField
+from django_countries.fields import Country, CountryField
 
 
 def get_address_fieldlist(prefix=""):
@@ -85,6 +85,14 @@ class AddressField(CompositeField):
         def as_dict(self) -> dict:
             fields = get_address_fieldlist()
             return {field_name: getattr(self, field_name) for field_name in fields}
+
+
+def get_language_from_country(country: Country):
+    match country.code:
+        case "DE" | "AT" | "CH":
+            return "de"
+        case _:
+            return "en"
 
 
 class LanguageField(models.CharField):
