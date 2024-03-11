@@ -1,15 +1,17 @@
 from django.conf import settings
 from django.contrib import admin
 from django.urls import reverse
-from django.utils.html import format_html, format_html_join, mark_safe
+from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 from django.utils.translation import override as trans_override
 
-from shark.sepa import models
 from shark.utils.mail import send_templated_mail
 
+from . import models
 
+
+@admin.register(models.DirectDebitMandate)
 class DirectDebitMandateAdmin(admin.ModelAdmin):
     list_display = ["customer", "address_html", "iban", "bic"]
     list_filter = ["created_at", "signed_at"]
@@ -17,14 +19,14 @@ class DirectDebitMandateAdmin(admin.ModelAdmin):
     # raw_id_fields = ["document"]
     autocomplete_fields = ("customer",)
 
+    @admin.display(description=_("address"))
     def address_html(self, instance):
         return format_html_join(
-            mark_safe("<br>"), "{}", ((line,) for line in instance.address_lines)
+            "", "<p>{}</p>", ((line,) for line in instance.address_lines)
         )
 
-    address_html.short_description = _("address")
 
-
+@admin.register(models.DirectDebitTransaction)
 class DirectDebitTransactionAdmin(admin.ModelAdmin):
     list_display = ["customer", "mandate", "amount", "invoice", "batch", "created_at"]
     search_fields = ["customer__name"]
@@ -32,11 +34,13 @@ class DirectDebitTransactionAdmin(admin.ModelAdmin):
     raw_id_fields = ["customer", "mandate", "invoice", "batch"]
 
 
+@admin.register(models.DirectDebitBatch)
 class DirectDebitBatchAdmin(admin.ModelAdmin):
     list_display = ["uuid", "created_at", "executed_at", "sepaxml_link"]
     list_filter = ["created_at", "executed_at"]
     actions = ["send_pre_notifications"]
 
+    @admin.display(description="SEPA XML")
     def sepaxml_link(self, instance):
         return format_html(
             '<a href="{}">{}</a>',
@@ -44,8 +48,7 @@ class DirectDebitBatchAdmin(admin.ModelAdmin):
             "Download",
         )
 
-    sepaxml_link.short_description = "SEPA XML"
-
+    @admin.display(description="Send pre-notifications for selected batches")
     def send_pre_notifications(self, request, queryset):
         for batch in queryset:
             transaction_list = list(
@@ -84,12 +87,3 @@ class DirectDebitBatchAdmin(admin.ModelAdmin):
                     "batch_uuid": batch.uuid,
                 },
             )
-
-    send_pre_notifications.short_description = _(
-        "Send pre-notifications for selected batches"
-    )
-
-
-admin.site.register(models.DirectDebitMandate, DirectDebitMandateAdmin)
-admin.site.register(models.DirectDebitTransaction, DirectDebitTransactionAdmin)
-admin.site.register(models.DirectDebitBatch, DirectDebitBatchAdmin)
