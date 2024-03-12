@@ -1,20 +1,13 @@
-import tempfile
-
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
-from django.utils.formats import date_format
-from django.utils.translation import gettext, ngettext
-from django.utils.translation import override as trans_override
-from PyPDF3 import PdfFileReader, PdfFileWriter
+from django.utils.translation import ngettext
 
-from shark.billing.admin_forms import ImportItemsForm
-from shark.billing.models import Invoice, InvoiceItem
-
-INVOICE_TERMS = settings.SHARK["INVOICE"]["TERMS"]
+from .admin_forms import ImportItemsForm
+from .models import Invoice, InvoiceItem, InvoiceTemplate
+from .utils import invoice_to_pdf
+from .utils.fake_invoice import create_fake_invoice
 
 
 @permission_required("billing.add_invoice")
@@ -25,82 +18,24 @@ def invoice(request):
     )
 
 
+@permission_required("billing.add_invoicetemplate")
+def preview_invoice_template(request, id):
+    invoice_template = get_object_or_404(InvoiceTemplate, id=id)
+    invoice = create_fake_invoice()
+    return invoice_to_pdf.as_http_response(invoice, invoice_template)
+
+
 @permission_required("billing.change_invoice")
 def invoice_pdf(request, number, correction=False):
     invoice = get_object_or_404(Invoice, number=number)
     if correction:
         invoice = invoice.correction
-    from dinbrief.document import Document
-    from dinbrief.invoice import ItemTable, TotalTable
-    from dinbrief.styles import styles
-    from dinbrief.template import BriefTemplate
-    from reportlab.lib.units import mm
-    from reportlab.platypus import Paragraph
-    from reportlab.platypus.flowables import KeepTogether, Spacer
 
-    with trans_override(invoice.language):
-        response = HttpResponse(content_type="application/pdf")
-        if "download" in request.GET:
-            filename = "%s.pdf" % invoice.number
-            response["Content-Disposition"] = "attachment; filename=%s" % filename
-
-        if invoice.type == Invoice.TYPE_INVOICE:
-            if callable(INVOICE_TERMS):
-                terms = INVOICE_TERMS(invoice)
-            else:
-                terms = [Paragraph(term, styles["Terms"]) for term in INVOICE_TERMS]
-        else:
-            terms = []
-
-        template = BriefTemplate()
-        document = Document(
-            sender=invoice.sender_lines,
-            recipient=invoice.recipient_lines,
-            date=date_format(invoice.created_at, "SHORT_DATE_FORMAT"),
-            content=[
-                Paragraph(
-                    "%s %s"
-                    % (
-                        invoice.get_type_display()
-                        if not correction
-                        else gettext("Correction of invoice"),
-                        invoice.number,
-                    ),
-                    styles["Subject"],
-                ),
-                Spacer(template.CONTENT_WIDTH, 2 * mm),
-                ItemTable(template, invoice),
-                KeepTogether(TotalTable(template, invoice)),
-                Spacer(template.CONTENT_WIDTH, 10 * mm),
-            ]
-            + terms,
-        )
-
-        if settings.SHARK["INVOICE"]["BACKGROUND"]:
-            with tempfile.TemporaryFile() as tmp:
-                # Create content in a temporary file
-                template.render(document, tmp)
-                # Combine background with the content
-                writer = PdfFileWriter()
-                content = PdfFileReader(tmp)
-                info_dict = writer._info.getObject()
-                info_dict.update(content.getDocumentInfo())
-                first_bg = PdfFileReader(
-                    open(settings.SHARK["INVOICE"]["BACKGROUND"]["FIRST_PAGE"], "rb")
-                )
-                later_bg = PdfFileReader(
-                    open(settings.SHARK["INVOICE"]["BACKGROUND"]["LATER_PAGE"], "rb")
-                )
-                bg = [first_bg.getPage(0), later_bg.getPage(0)]
-                for i, page in enumerate(content.pages):
-                    page.mergePage(bg[min(i, 1)])
-                    page.compressContentStreams()
-                    writer.addPage(page)
-                writer.write(response)
-        else:
-            # Render content directly to the HTTP response object if no
-            # background images are configured.
-            template.render(document, response)
+    invoice_template = request.tenant.default_invoice_template
+    response = invoice_to_pdf.as_http_response(invoice, invoice_template)
+    if "download" in request.GET:
+        filename = "%s.pdf" % invoice.number
+        response["Content-Disposition"] = "attachment; filename=%s" % filename
 
     return response
 

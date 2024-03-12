@@ -142,7 +142,12 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "de"
+LANGUAGES = [
+    ("de", _("German")),
+    ("en", _("English")),
+]
+
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
@@ -196,13 +201,6 @@ SHARK = {
         "TYPE_DEFAULT": "default",
     },
     "INVOICE": {
-        "BACKGROUND": {
-            # 'FIRST_PAGE': ...
-            # 'LATER_PAGE': ...
-        },
-        "TERMS": [
-            "settings.SHARK['INVOICE']['TERMS']",
-        ],
         "UNIT_CHOICES": [
             ("s", _("second [s]")),
             ("min", _("minute [min]")),

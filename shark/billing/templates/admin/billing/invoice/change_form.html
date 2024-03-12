@@ -6,11 +6,13 @@
     (function($) {
         $(document).ready(function($) {
             $("#id_customer").on("change", function(e) {
-                console.log("changed");
                 $.ajax({
                     type: 'POST',
                     url: "{% url 'customer_admin:get_customer_address' %}",
-                    data: {'customer_id': $('#id_customer').val(), 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                    data: {
+                        'customer_id': $('#id_customer').val(),
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
                     success: function(data, _status) {
                         // Only accept supported languages
                         let language_code = data.country.toLowerCase()
