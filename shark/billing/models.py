@@ -6,7 +6,7 @@ from django.db import models
 from django.utils.formats import date_format
 from django.utils.translation import gettext_lazy as _
 
-from shark.base.models import BaseModel
+from shark.base.models import BaseModel, TenantMixin
 from shark.id_generators import YearCustomerN
 from shark.id_generators.fields import IdField
 from shark.utils.fields import AddressField, LanguageField
@@ -365,7 +365,7 @@ class InvoiceItem(models.Model):
     total = property(get_total)
 
 
-class InvoiceTemplate(BaseModel):
+class InvoiceTemplate(BaseModel, TenantMixin):
     name = models.CharField(_("Name"))
     first_page_bg = models.FileField(_("First invoice page bg"), null=True, blank=True)
     later_pages_bg = models.FileField(
@@ -374,10 +374,6 @@ class InvoiceTemplate(BaseModel):
 
     terms = models.TextField(blank=True)
     is_default = models.BooleanField(default=False)
-
-    tenant = models.ForeignKey(
-        "tenant.Tenant", editable=False, on_delete=models.CASCADE
-    )
 
     def __str__(self):
         return self.name

@@ -20,6 +20,15 @@ class TaggableMixin(models.Model):
         abstract = True
 
 
+class TenantMixin(models.Model):
+    tenant = models.ForeignKey(
+        "tenant.Tenant", editable=False, on_delete=models.CASCADE
+    )
+
+    class Meta:
+        abstract = True
+
+
 class BaseModel(TimeStampMixin):
     class Meta:
         abstract = True

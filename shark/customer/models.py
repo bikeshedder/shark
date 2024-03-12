@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from shark.base.models import BaseModel, TaggableMixin
+from shark.base.models import BaseModel, TaggableMixin, TenantMixin
 from shark.id_generators import InitialAsNumber
 from shark.id_generators.fields import IdField
 from shark.utils.fields import AddressField, LanguageField
@@ -26,7 +26,7 @@ class CustomerTypeField(models.CharField):
         return name, path, args, kwargs
 
 
-class Customer(BaseModel, TaggableMixin):
+class Customer(BaseModel, TaggableMixin, TenantMixin):
     number = IdField(generator=InitialAsNumber(), editable=False)
     # XXX add_unique constraint
     name = models.CharField(max_length=50)

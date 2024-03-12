@@ -9,8 +9,10 @@ from django.utils.translation import gettext, ngettext
 from django.utils.translation import gettext_lazy as _
 
 from shark import get_admin_change_url, get_admin_changelist_url
-from shark.billing import models
+from shark.tenant.admin import TenantAwareAdmin
 from shark.utils.fields import get_address_fieldlist
+
+from . import models
 
 
 class excel_semicolon(csv.excel):
@@ -229,6 +231,7 @@ class InvoiceItemAdmin(admin.ModelAdmin):
     )
 
 
+@TenantAwareAdmin
 @admin.register(models.InvoiceTemplate)
 class InvoiceTemplateAdmin(admin.ModelAdmin):
     list_display = (
@@ -244,7 +247,3 @@ class InvoiceTemplateAdmin(admin.ModelAdmin):
         return format_html('<a href="{}">Preview</a>', url)
 
     preview_invoice.short_description = "Preview"
-
-    def save_model(self, request, obj, form, change):
-        obj.tenant = request.tenant
-        super().save_model(request, obj, form, change)
