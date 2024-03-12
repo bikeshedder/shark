@@ -13,7 +13,6 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from shark.base.models import BaseModel, ProxyManager, TenantMixin
-from shark.id_generators import YearCustomerN
 from shark.id_generators.fields import IdField
 from shark.utils.fields import AddressField, LanguageField
 from shark.utils.rounding import round_to_centi
@@ -31,8 +30,11 @@ class Invoice(BaseModel):
     customer = models.ForeignKey(
         "customer.Customer", on_delete=models.CASCADE, verbose_name=_("Customer")
     )
+
     number = IdField(
-        verbose_name=_("number"), generator=YearCustomerN(), editable=False
+        type="invoice",
+        verbose_name=_("number"),
+        editable=False,
     )
     language = LanguageField(_("language"))
 

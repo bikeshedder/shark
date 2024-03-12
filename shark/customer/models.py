@@ -3,15 +3,13 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from shark.base.models import BaseModel, BillableMixin, TaggableMixin, TenantMixin
-from shark.id_generators import InitialAsNumber
 from shark.id_generators.fields import IdField
 from shark.utils.fields import AddressField, LanguageField
 
 
 class Customer(BaseModel, BillableMixin, TaggableMixin, TenantMixin):
-    number = IdField(generator=InitialAsNumber(), editable=False)
-    # XXX add_unique constraint
     name = models.CharField(max_length=50)
+    number = IdField(type="customer", editable=False)
 
     # Language to be used when communicating with the customer. This
     # field is mainly used to determine which language to use when

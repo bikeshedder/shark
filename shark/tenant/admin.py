@@ -9,7 +9,16 @@ from . import models
 @admin.register(models.Tenant)
 class TenantAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {"fields": ["name"]}),
+        (
+            None,
+            {
+                "fields": [
+                    "name",
+                    "customer_number_generator",
+                    "invoice_number_generator",
+                ]
+            },
+        ),
         (
             _("address"),
             {"fields": get_address_fieldlist("address")},
