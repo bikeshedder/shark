@@ -2,6 +2,7 @@ import csv
 from decimal import Decimal
 
 from django.contrib import admin
+from django.forms.widgets import HiddenInput
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
@@ -24,11 +25,21 @@ class excel_semicolon(csv.excel):
 
 class InvoiceItemInline(GrappelliSortableHiddenMixin, admin.TabularInline):
     model = models.InvoiceItem
-    exclude = ["sku"]
 
     objects = []
 
     def get_extra(self, request, obj=None, **kwargs):
+        """
+        `extra` is the initial amount of rows to be displayed
+
+        If an Invoice is created for a project with existing tasks
+        `extra` should be equal to the number of tasks
+
+        This also stores the tasks on the Inline instance
+        so they can be used later to populate the fields
+
+        Else return 0
+        """
         if request.method == "GET":
             project_id = request.GET.get("project")
             if project_id:
@@ -37,6 +48,12 @@ class InvoiceItemInline(GrappelliSortableHiddenMixin, admin.TabularInline):
                 self.objects = tasks
                 return len(tasks)
         return 0
+
+    def get_formset(self, request, obj=None, **kwargs):
+        # Hide sku field which is tied to a related object
+        fs = super().get_formset(request, obj, **kwargs)
+        fs.form.base_fields["sku"].widget = HiddenInput()
+        return fs
 
 
 @admin.register(models.Invoice)
@@ -87,6 +104,7 @@ class InvoiceAdmin(admin.ModelAdmin):
                 form.base_fields["sender_" + key].initial = value
 
             if request.method == "GET":
+                # Prefill form if Invoice is created for a Project
                 project_id = request.GET.get("project")
                 if project_id:
                     project = Project.objects.get(pk=project_id)
@@ -101,12 +119,17 @@ class InvoiceAdmin(admin.ModelAdmin):
                         customer_address.address.country
                     )
 
+                    # Hide fields that are not supposed to be changed
+                    form.base_fields["customer"].widget = HiddenInput()
+                    form.base_fields["type"].widget = HiddenInput()
+
         return form
 
     def get_formset_kwargs(self, request, obj, inline, prefix):
         formset_params = super().get_formset_kwargs(request, obj, inline, prefix)
 
         if not obj.pk:
+            # Fill item rows for billable tasks if Invoice is created for Project
             if request.method == "GET" and isinstance(inline, InvoiceItemInline):
                 project_id = request.GET.get("project")
                 if project_id:
@@ -116,6 +139,7 @@ class InvoiceAdmin(admin.ModelAdmin):
                             {
                                 "text": task.name,
                                 "type": models.InvoiceItem.Type.TimeItem,
+                                "sku": task.pk,
                                 "price": task.rate,
                                 "quantity": task.hours_expected,
                                 "vat_rate": Decimal("0.19"),
@@ -161,12 +185,12 @@ class InvoiceAdmin(admin.ModelAdmin):
     def response_add(self, request, obj, *args, **kwargs):
         obj.recalculate()
         obj.save()
-        return super(InvoiceAdmin, self).response_add(request, obj, *args, **kwargs)
+        return super().response_add(request, obj, *args, **kwargs)
 
     def response_change(self, request, obj, *args, **kwargs):
         obj.recalculate()
         obj.save()
-        return super(InvoiceAdmin, self).response_change(request, obj, *args, **kwargs)
+        return super().response_change(request, obj, *args, **kwargs)
 
     @admin.display(description=_("Calculate total value of selected invoices"))
     def total_value_action(self, request, queryset):
@@ -228,7 +252,7 @@ class InvoiceTemplateAdmin(admin.ModelAdmin):
         "preview_invoice",
     )
 
-    list_editable = ("is_selected",)
+    list_editable = ["is_selected"]
 
     @admin.display(description="Preview")
     def preview_invoice(self, obj):
