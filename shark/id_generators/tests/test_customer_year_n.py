@@ -11,26 +11,26 @@ from shark.tenant.models import Tenant
 CURRENT_YEAR = date.today().year
 
 
-class TestYearCustomerNGenerator(TestCase):
+class TestCustomerYearNGenerator(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.tenant = Tenant.objects.create(
             name="test-tenant",
-            invoice_number_generator=InvoiceNumberGenerators.YEAR_CUSTOMER_N,
+            invoice_number_generator=InvoiceNumberGenerators.CUSTOMER_YEAR_N,
         )
         cls.customer = Customer.objects.create(tenant=cls.tenant, name="Anna")
 
     def test_first_and_next(self):
         invoice = Invoice.objects.create(customer=self.customer)
-        self.assertEqual(invoice.number, f"{CURRENT_YEAR}-{self.customer.number}-01")
+        self.assertEqual(invoice.number, f"{self.customer.number}-{CURRENT_YEAR}-01")
 
         invoice2 = Invoice.objects.create(customer=self.customer)
-        self.assertEqual(invoice2.number, f"{CURRENT_YEAR}-{self.customer.number}-02")
+        self.assertEqual(invoice2.number, f"{self.customer.number}-{CURRENT_YEAR}-02")
 
     def test_different_customer(self):
         customer = Customer.objects.create(tenant=self.tenant, name="Bernd")
         invoice = Invoice.objects.create(customer=customer)
-        self.assertEqual(invoice.number, f"{CURRENT_YEAR}-{customer.number}-01")
+        self.assertEqual(invoice.number, f"{customer.number}-{CURRENT_YEAR}-01")
 
     def test_uniqueness(self):
         with self.assertRaises(IntegrityError):

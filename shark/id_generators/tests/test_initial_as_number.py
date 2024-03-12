@@ -1,64 +1,44 @@
-from django.db import models
-from django.db.utils import IntegrityError
+from django.db import IntegrityError
 from django.test import TestCase
 
-from .. import InitialAsNumber
-from ..fields import IdField
-
-
-class NumberCustomer(models.Model):
-    id_field = IdField(generator=InitialAsNumber())
-    name = models.CharField()
-
-
-class PrefixedNumberCustomer(models.Model):
-    id_field = IdField(generator=InitialAsNumber(prefix="TEST"))
-    name = models.CharField()
+from shark.customer.models import Customer
+from shark.id_generators.utils import CustomerNumberGenerators
+from shark.tenant.models import Tenant
 
 
 class TestInitialNumberGenerator(TestCase):
     customer = None
 
-    def setUp(self):
-        global customer
-        customer = NumberCustomer(name="Ambros")
-        customer.save()
+    @classmethod
+    def setUpTestData(cls):
+        cls.tenant = Tenant.objects.create(
+            name="test-tenant",
+            invoice_number_generator=CustomerNumberGenerators.INITIAL_AS_NUMBER,
+        )
 
-    def test_first(self):
-        self.assertEqual(customer.id_field, "0101")
+    def test_first_and_next(self):
+        customer = Customer.objects.create(tenant=self.tenant, name="Anna")
+        self.assertEqual(customer.number, "0101")
 
-    def test_next(self):
-        customer = NumberCustomer(name="Anton")
-        customer.save()
-
-        self.assertEqual(customer.id_field, "0102")
+        customer2 = Customer.objects.create(tenant=self.tenant, name="Anton")
+        self.assertEqual(customer2.number, "0102")
 
     def test_different_initial(self):
-        customer = NumberCustomer(name="Berta")
-        customer.save()
-
-        self.assertEqual(customer.id_field, "0201")
+        customer = Customer.objects.create(tenant=self.tenant, name="Bert")
+        self.assertEqual(customer.number, "0201")
 
     def test_uniqueness(self):
+        Customer.objects.create(tenant=self.tenant, name="Anna")
         with self.assertRaises(IntegrityError):
-            NumberCustomer(id_field="0101").save()
-
-    def test_prefix(self):
-        customer = PrefixedNumberCustomer(name="Anna")
-        customer.save()
-
-        self.assertEqual(customer.id_field, "TEST0101")
-
-    def test_no_pollution(self):
-        PrefixedNumberCustomer(name="Ambros").save()
-
-        customer = NumberCustomer(name="Anna")
-        customer.save()
-
-        self.assertEqual(customer.id_field, "0102")
+            Customer.objects.create(number="0101")
 
     def test_non_standard_character(self):
-        customer = NumberCustomer(name=" ")
-        customer.save()
+        customer = Customer.objects.create(tenant=self.tenant, name=" ")
 
-        self.assertEqual(customer.id_field, "0001")
+        self.assertEqual(customer.number, "0001")
+
+    # def test_prefix(self):
+    #     customer = PrefixedNumberCustomer(name="Anna")
+    #     customer.save()
+
+    #     self.assertEqual(customer.id_field, "TEST0101")
