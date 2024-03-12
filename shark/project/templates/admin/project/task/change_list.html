@@ -11,12 +11,12 @@
             const rows = $("#result_list .grp-row");
             rows.each(function() {
                 const dueByTd = $(this).find(".field-due_by")
-                const finishedAt = $(this).find(".field-finished_at").text()
+                const completedAt = $(this).find(".field-completed_at").text()
                 const dueBy = dueByTd.text()
                 {% comment %}
-                "Due date is set and task is not finished => check for overdue tasks"
+                "Due date is set and task is not completed => check for overdue tasks"
                 {% endcomment %}
-                if (dueBy !== "-" && finishedAt === "-") {
+                if (dueBy !== "-" && completedAt === "-") {
                     const dueDate = parseShortDate(dueBy).valueOf()
                     if (dueDate === today) {
                         $(dueByTd).css("background-color", "yellow")

@@ -38,7 +38,7 @@ class Task(BaseModel, BillableMixin):
         null=True, blank=True, max_digits=7, decimal_places=2
     )
     due_by = models.DateField(null=True, blank=True)
-    finished_at = models.DateField(null=True, blank=True)
+    completed_at = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return self.name

@@ -23,7 +23,7 @@ class TaskAdmin(admin.ModelAdmin):
         "time_expected",
         "time_actual",
         "due_by",
-        "finished_at",
+        "completed_at",
     )
 
-    list_filter = ["project", "created_at", "due_by", "finished_at"]
+    list_filter = ["project", "created_at", "due_by", "completed_at"]

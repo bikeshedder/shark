@@ -38,7 +38,7 @@ class DirectDebitMandate(BaseModel):
     class Type(models.TextChoices):
         TYPE_CORE = "CORE", "CORE"
         TYPE_COR1 = "COR1", "COR1"
-        TYPE_B2B = "B2B", "B2b"
+        TYPE_B2B = "B2B", "B2B"
 
     type = models.CharField(max_length=4, choices=Type)
 
