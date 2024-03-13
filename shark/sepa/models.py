@@ -18,7 +18,6 @@ class DirectDebitMandate(BaseModel):
         "customer.Customer",
         on_delete=models.CASCADE,
         verbose_name=_("customer"),
-        related_name="direct_debit_mandate_set",
     )
     reference = models.CharField(
         _("mandate reference"), max_length=35, unique=True, blank=True, null=True
@@ -36,9 +35,9 @@ class DirectDebitMandate(BaseModel):
     last_used = models.DateField(_("last_used"), blank=True, null=True)
 
     class Type(models.TextChoices):
-        TYPE_CORE = "CORE", "CORE"
-        TYPE_COR1 = "COR1", "COR1"
-        TYPE_B2B = "B2B", "B2B"
+        CORE = "CORE", "CORE"
+        COR1 = "COR1", "COR1"
+        B2B = "B2B", "B2B"
 
     type = models.CharField(max_length=4, choices=Type)
 
@@ -47,10 +46,7 @@ class DirectDebitMandate(BaseModel):
         verbose_name_plural = _("SEPA direct debit mandates")
 
     def __str__(self):
-        if self.reference:
-            return self.reference
-        else:
-            return "<no reference>"
+        return self.reference or "<no reference>"
 
     @property
     def address_lines(self):
@@ -71,7 +67,6 @@ class DirectDebitTransaction(BaseModel):
         "customer.Customer",
         on_delete=models.CASCADE,
         verbose_name=_("customer"),
-        related_name="direct_debit_transaction_set",
     )
     mandate = models.ForeignKey(
         "sepa.DirectDebitMandate",
@@ -162,8 +157,8 @@ class DirectDebitBatch(BaseModel):
     )
 
     class SequenceType(models.TextChoices):
-        SEQUENCE_TYPE_FRST = "FRST", "FRST"
-        SEQUENCE_TYPE_RCUR = "RCUR", "RCUR"
+        FRST = "FRST", "FRST"
+        RCUR = "RCUR", "RCUR"
 
     sequence_type = models.CharField(
         _("sequence type"), max_length=4, choices=SequenceType

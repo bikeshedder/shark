@@ -19,7 +19,7 @@ class DirectDebitMandateAdmin(admin.ModelAdmin):
     autocomplete_fields = ["customer"]
 
     @admin.display(description=_("address"))
-    def address_html(self, instance):
+    def address_html(self, instance: models.DirectDebitMandate):
         return format_html_join(
             "", "<p>{}</p>", ((line,) for line in instance.address_lines)
         )
@@ -39,7 +39,7 @@ class DirectDebitBatchAdmin(admin.ModelAdmin):
     actions = ["send_pre_notifications"]
 
     @admin.display(description="SEPA XML")
-    def sepaxml_link(self, instance):
+    def sepaxml_link(self, instance: models.DirectDebitBatch):
         return format_html(
             '<a href="{}">{}</a>',
             reverse("sepa_admin:directdebitbatch_sepaxml", args=(instance.pk,)),
