@@ -4,7 +4,7 @@ from django_countries.fields import Country
 
 from shark.utils.fields import get_address_fieldlist
 
-from ..models import Invoice, InvoiceTemplate
+from ..models import Invoice
 
 
 # Generate fake invoice models without customer relation
@@ -20,6 +20,7 @@ class FakeInvoice(Invoice):
     class Meta:
         managed = False
         proxy = True
+        default_permissions = []
 
 
 def create_fake_invoice():
@@ -61,11 +62,7 @@ def create_fake_invoice():
     return invoice
 
 
-class EmptyInvoiceTemplate(InvoiceTemplate):
+class EmptyInvoiceTemplate(object):
     terms = []
     first_page_bg = None
     later_pages_bg = None
-
-    class Meta:
-        managed = False
-        proxy = True
