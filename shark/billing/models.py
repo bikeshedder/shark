@@ -106,7 +106,8 @@ class Invoice(BaseModel):
         if self.paid_at is not None:
             return True
 
-        period_to_pay = timedelta(days=self.customer.days_to_pay or 14)
+        days_to_pay = self.customer.days_to_pay
+        period_to_pay = timedelta(days=days_to_pay if days_to_pay is not None else 14)
         if self.reminded_at is None:
             deadline = self.created_at.date() + period_to_pay
         else:

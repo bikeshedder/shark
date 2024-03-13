@@ -30,7 +30,7 @@ class DirectDebitMandate(BaseModel):
     postal_code = models.CharField(max_length=20)
     city = models.CharField(max_length=100)
     country = CountryField(default="DE")
-    account = AccountInformation()
+    account = AccountInformation(prefix="")
     signed_at = models.DateField(_("signed_at"), blank=True, null=True)
     revoked_at = models.DateField(_("revoked_at"), blank=True, null=True)
     last_used = models.DateField(_("last_used"), blank=True, null=True)
@@ -60,7 +60,7 @@ class DirectDebitMandate(BaseModel):
 
     @property
     def anonymized_iban(self):
-        return anonymize_iban(self.account.iban)
+        return anonymize_iban(self.iban)
 
 
 class DirectDebitTransaction(BaseModel):
@@ -166,8 +166,8 @@ class DirectDebitBatch(BaseModel, TenantMixin):
                 sepaxml.Transaction(
                     debitor_name=txn.mandate.name,
                     debitor_country=txn.mandate.country,
-                    debitor_iban=txn.mandate.account.iban,
-                    debitor_bic=txn.mandate.account.bic,
+                    debitor_iban=txn.mandate.iban,
+                    debitor_bic=txn.mandate.bic,
                     reference=settings.SHARK["SEPA"]["TRANSACTION_REFERENCE_PREFIX"]
                     + txn.reference,
                     amount=txn.amount,

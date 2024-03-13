@@ -71,7 +71,7 @@ class Customer(
         return country.code == "DE" or country.code in EU_COUNTRIES and not self.vatin
 
     @property
-    def billing_address(self) -> AddressField | None:
+    def billing_address(self) -> AddressField:
         return self.address_set.get(billing_address=True).address
 
     # Grappelli autocomplete

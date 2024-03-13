@@ -14,7 +14,7 @@ from . import models
 
 @admin.register(models.DirectDebitMandate)
 class DirectDebitMandateAdmin(admin.ModelAdmin):
-    list_display = ["customer", "address_html", "account_iban", "account_bic"]
+    list_display = ["customer", "address_html", "iban", "bic"]
     list_filter = ["created_at", "signed_at"]
     search_fields = ["number", "address", "created_at"]
     autocomplete_fields = ["customer"]
