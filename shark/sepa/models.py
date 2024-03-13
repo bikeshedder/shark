@@ -4,10 +4,13 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
-from localflavor.generic.models import BICField, IBANField
 
-from shark.base.models import BaseModel
-from shark.utils.settings import get_settings_value
+from shark.base.models import BaseModel, TenantMixin
+from shark.sepa.fields import (
+    AccountInformation,
+    CreditorInformation,
+    get_creditor_fieldlist,
+)
 
 from . import sepaxml
 from .utils import anonymize_iban
@@ -27,9 +30,7 @@ class DirectDebitMandate(BaseModel):
     postal_code = models.CharField(max_length=20)
     city = models.CharField(max_length=100)
     country = CountryField(default="DE")
-    iban = IBANField("IBAN", help_text="International Bank Account Number")
-    bic = BICField("BIC", help_text="Bank Identifier Code")
-    bank_name = models.CharField(max_length=50, blank=True)
+    account = AccountInformation()
     signed_at = models.DateField(_("signed_at"), blank=True, null=True)
     revoked_at = models.DateField(_("revoked_at"), blank=True, null=True)
     last_used = models.DateField(_("last_used"), blank=True, null=True)
@@ -59,7 +60,7 @@ class DirectDebitMandate(BaseModel):
 
     @property
     def anonymized_iban(self):
-        return anonymize_iban(self.iban)
+        return anonymize_iban(self.account.iban)
 
 
 class DirectDebitTransaction(BaseModel):
@@ -107,45 +108,16 @@ class DirectDebitTransaction(BaseModel):
         return obj
 
 
-def get_default_creditor_id():
-    return get_settings_value("SEPA.CREDITOR_ID", "")
-
-
-def get_default_creditor_name():
-    return get_settings_value("SEPA.CREDITOR_NAME", "")
-
-
-def get_default_creditor_country():
-    return get_settings_value("SEPA.CREDITOR_COUNTRY", "")
-
-
-def get_default_creditor_iban():
-    return get_settings_value("SEPA.CREDITOR_IBAN", "")
-
-
-def get_default_creditor_bic():
-    return get_settings_value("SEPA.CREDITOR_BIC", "")
-
-
-class DirectDebitBatch(BaseModel):
+class DirectDebitBatch(BaseModel, TenantMixin):
     """
     This model is used to process multiple SEPA DD transactions
     together. This is typically achieved by generating a SEPA XML
     file.
     """
 
-    uuid = models.UUIDField(_("UUID"), default=uuid.uuid4)
-    creditor_id = models.CharField(
-        _("creditor id"), max_length=20, default=get_default_creditor_id
-    )
-    creditor_name = models.CharField(
-        _("creditor name"), max_length=70, default=get_default_creditor_name
-    )
-    creditor_country = models.CharField(
-        _("creditor country"), max_length=2, default=get_default_creditor_country
-    )
-    creditor_iban = IBANField(_("creditor IBAN"), default=get_default_creditor_iban)
-    creditor_bic = BICField(_("creditor BIC"), default=get_default_creditor_bic)
+    uuid = models.UUIDField(_("UUID"), default=uuid.uuid4, editable=False)
+
+    creditor = CreditorInformation()
     due_date = models.DateField(
         _("due date"),
         help_text=_(
@@ -165,6 +137,13 @@ class DirectDebitBatch(BaseModel):
     )
     executed_at = models.DateTimeField(_("executed_at"), blank=True, null=True)
 
+    def save(self, *args, **kwargs):
+        # Inherit creditor values from tenant
+        for field in get_creditor_fieldlist():
+            if not getattr(self, field, None):
+                setattr(self, field, getattr(self.tenant, field))
+        super().save(*args, **kwargs)
+
     @property
     def transactions(self):
         return list(self.directdebittransaction_set.all())
@@ -175,11 +154,11 @@ class DirectDebitBatch(BaseModel):
         """
         dd = sepaxml.DirectDebit(
             id=self.uuid.hex,
-            creditor_id=self.creditor_id,
-            creditor_name=self.creditor_name,
-            creditor_country=self.creditor_country,
-            creditor_iban=self.creditor_iban,
-            creditor_bic=self.creditor_bic,
+            creditor_id=self.creditor.id,
+            creditor_name=self.creditor.name,
+            creditor_country=self.creditor.country,
+            creditor_iban=self.creditor.iban,
+            creditor_bic=self.creditor.bic,
             due_date=self.due_date,
             mandate_type=self.mandate_type,
             sequence_type=self.sequence_type,
@@ -187,8 +166,8 @@ class DirectDebitBatch(BaseModel):
                 sepaxml.Transaction(
                     debitor_name=txn.mandate.name,
                     debitor_country=txn.mandate.country,
-                    debitor_iban=txn.mandate.iban,
-                    debitor_bic=txn.mandate.bic,
+                    debitor_iban=txn.mandate.account.iban,
+                    debitor_bic=txn.mandate.account.bic,
                     reference=settings.SHARK["SEPA"]["TRANSACTION_REFERENCE_PREFIX"]
                     + txn.reference,
                     amount=txn.amount,

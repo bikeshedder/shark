@@ -14,7 +14,7 @@ def get_customer_address(request):
         models.CustomerAddress, customer=customer_id, billing_address=True
     ).address
 
-    data = {field: getattr(address, field) for field in get_address_fieldlist()}
+    data = {field: getattr(address, field) for field in get_address_fieldlist("")}
     data["country"] = data["country"].code
 
     return JsonResponse(data)

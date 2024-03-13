@@ -1,31 +1,27 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
+from django_countries.fields import Country
 
-from shark.base.models import BaseModel, BillableMixin, TaggableMixin, TenantMixin
+from shark.base.models import (
+    BaseModel,
+    BillableMixin,
+    InvoiceOptionsMixin,
+    TaggableMixin,
+    TenantMixin,
+)
 from shark.id_generators.fields import IdField
-from shark.utils.fields import AddressField, LanguageField
+from shark.sepa.fields import AccountInformation
+from shark.utils.fields import EU_COUNTRIES, AddressField, LanguageField
 
 
-class Customer(BaseModel, BillableMixin, TaggableMixin, TenantMixin):
+class Customer(
+    BaseModel, BillableMixin, TaggableMixin, TenantMixin, InvoiceOptionsMixin
+):
     name = models.CharField(max_length=50)
     number = IdField(type="customer", editable=False)
-
-    # Language to be used when communicating with the customer. This
-    # field is mainly used to determine which language to use when
-    # generating invoices and email messages.
     language = LanguageField(_("language"), blank=True)
-
-    class InvoiceDispatchType(models.TextChoices):
-        EMAIL = "email", _("via email")
-        MAIL = "mail", _("via mail")
-
-    invoice_dispatch_type = models.CharField(
-        max_length=20,
-        choices=InvoiceDispatchType,
-        default=InvoiceDispatchType.EMAIL,
-        verbose_name=_("Invoice dispatch type"),
-    )
 
     class PaymentType(models.TextChoices):
         INVOICE = "invoice", _("Invoice")
@@ -37,6 +33,8 @@ class Customer(BaseModel, BillableMixin, TaggableMixin, TenantMixin):
         default=PaymentType.INVOICE,
         verbose_name=_("Payment Type"),
     )
+
+    account = AccountInformation(blank=True)
 
     vatin = models.CharField(
         max_length=14,
@@ -56,22 +54,30 @@ class Customer(BaseModel, BillableMixin, TaggableMixin, TenantMixin):
     def rate(self):
         return self.hourly_rate
 
+    @cached_property
+    def days_to_pay(self):
+        return (
+            self.payment_timeframe_days
+            if self.payment_timeframe_days is not None
+            else self.tenant.payment_timeframe_days
+        )
+
     @property
     def vat_required(self):
         # VAT for invoices is required if customer...
         # ...lives in Germany
         # ...lives in the EU and does not have a VATIN
-        return self.country.id == "DE" or (self.country.eu and not self.vatin)
+        country: Country = self.billing_address.country
+        return country.code == "DE" or country.code in EU_COUNTRIES and not self.vatin
 
     @property
-    def billing_address(self) -> AddressField:
+    def billing_address(self) -> AddressField | None:
         return self.address_set.get(billing_address=True).address
 
     # Grappelli autocomplete
     @staticmethod
     def autocomplete_search_fields():
         return (
-            "id__iexact",
             "number__icontains",
             "name__icontains",
         )

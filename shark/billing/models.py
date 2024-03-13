@@ -16,11 +16,6 @@ from shark.base.models import BaseModel, ProxyManager, TenantMixin
 from shark.id_generators.fields import IdField
 from shark.utils.fields import AddressField, LanguageField
 from shark.utils.rounding import round_to_centi
-from shark.utils.settings import get_settings_value
-
-INVOICE_PAYMENT_TIMEFRAME = get_settings_value(
-    "INVOICE.PAYMENT_TIMEFRAME", timedelta(days=14)
-)
 
 
 class Invoice(BaseModel):
@@ -110,10 +105,12 @@ class Invoice(BaseModel):
     def is_okay(self):
         if self.paid_at is not None:
             return True
+
+        period_to_pay = timedelta(days=self.customer.days_to_pay or 14)
         if self.reminded_at is None:
-            deadline = self.created_at.date() + INVOICE_PAYMENT_TIMEFRAME
+            deadline = self.created_at.date() + period_to_pay
         else:
-            deadline = self.reminded_at + INVOICE_PAYMENT_TIMEFRAME
+            deadline = self.reminded_at + period_to_pay
         return date.today() <= deadline
 
     @cached_property

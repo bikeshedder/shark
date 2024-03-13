@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 from django.utils.translation import override as trans_override
 
+from shark.sepa.fields import get_creditor_fieldlist
 from shark.utils.mail import send_templated_mail
 
 from . import models
@@ -13,7 +14,7 @@ from . import models
 
 @admin.register(models.DirectDebitMandate)
 class DirectDebitMandateAdmin(admin.ModelAdmin):
-    list_display = ["customer", "address_html", "iban", "bic"]
+    list_display = ["customer", "address_html", "account_iban", "account_bic"]
     list_filter = ["created_at", "signed_at"]
     search_fields = ["number", "address", "created_at"]
     autocomplete_fields = ["customer"]
@@ -37,6 +38,15 @@ class DirectDebitBatchAdmin(admin.ModelAdmin):
     list_display = ["uuid", "created_at", "executed_at", "sepaxml_link"]
     list_filter = ["created_at", "executed_at"]
     actions = ["send_pre_notifications"]
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+
+        if obj is None:
+            for field in get_creditor_fieldlist():
+                form.base_fields[field].initial = getattr(request.tenant, field, "")
+
+        return form
 
     @admin.display(description="SEPA XML")
     def sepaxml_link(self, instance: models.DirectDebitBatch):
@@ -69,6 +79,7 @@ class DirectDebitBatchAdmin(admin.ModelAdmin):
                         ],
                         to=[
                             address.email
+                            # TODO: no email_set exists
                             for address in transaction.customer.email_set.all()
                         ],
                         bcc=settings.SHARK["SEPA"]["PRE_NOTIFICATION_EMAIL_BCC"],

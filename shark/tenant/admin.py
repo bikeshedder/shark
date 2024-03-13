@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
+from shark.sepa.fields import get_creditor_fieldlist
 from shark.utils.fields import get_address_fieldlist
 
 from . import models
@@ -21,7 +22,11 @@ class TenantAdmin(admin.ModelAdmin):
         ),
         (
             _("address"),
-            {"fields": get_address_fieldlist("address")},
+            {"fields": get_address_fieldlist()},
+        ),
+        (
+            _("creditor"),
+            {"fields": get_creditor_fieldlist()},
         ),
     )
 

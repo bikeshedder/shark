@@ -99,7 +99,7 @@ class InvoiceAdmin(admin.ModelAdmin):
         form = super().get_form(request, obj, **kwargs)
 
         if obj is None:
-            tenant_address_dict = request.tenant.address.as_dict
+            tenant_address_dict = request.tenant.address.to_dict()
             for key, value in tenant_address_dict.items():
                 form.base_fields["sender_" + key].initial = value
 
@@ -113,7 +113,7 @@ class InvoiceAdmin(admin.ModelAdmin):
                     customer_address = CustomerAddress.objects.get(
                         customer=project.customer
                     )
-                    for key, value in customer_address.address.as_dict.items():
+                    for key, value in customer_address.address.to_dict().items():
                         form.base_fields["recipient_" + key].initial = value
                     form.base_fields["language"].initial = get_language_from_country(
                         customer_address.address.country

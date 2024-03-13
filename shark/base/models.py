@@ -1,7 +1,12 @@
+from typing import TYPE_CHECKING
+
 from django.contrib import admin
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
+
+if TYPE_CHECKING:
+    from shark.tenant.models import Tenant
 
 
 class TimeStampMixin(models.Model):
@@ -27,7 +32,7 @@ class TaggableMixin(models.Model):
 
 
 class TenantMixin(models.Model):
-    tenant = models.ForeignKey(
+    tenant: "Tenant" = models.ForeignKey(
         "tenant.Tenant", editable=False, on_delete=models.CASCADE
     )
 
@@ -46,6 +51,24 @@ class BillableMixin(models.Model):
     @property
     def rate(self):
         raise NotImplementedError()
+
+
+class InvoiceOptionsMixin(models.Model):
+    class InvoiceDispatchType(models.TextChoices):
+        EMAIL = "email", _("via email")
+        MAIL = "mail", _("via mail")
+
+    invoice_dispatch_type = models.CharField(
+        max_length=20,
+        choices=InvoiceDispatchType,
+        default=InvoiceDispatchType.EMAIL,
+        verbose_name=_("Invoice dispatch type"),
+    )
+
+    payment_timeframe_days = models.PositiveSmallIntegerField(blank=True, null=True)
+
+    class Meta:
+        abstract = True
 
 
 class BaseModel(TimeStampMixin):

@@ -6,20 +6,15 @@ from django.utils.translation import gettext_lazy as _
 from django_countries.fields import Country, CountryField
 
 
-def get_address_fieldlist(prefix=""):
-    fields = [
-        "name",
-        "address_addition_1",
-        "address_addition_2",
-        "street",
-        "street_number",
-        "city",
-        "postal_code",
-        "state",
-        "country",
-    ]
+def get_address_fieldlist(prefix="address"):
+    """
+    Gets the composite_field's subfield names.
 
-    return [f"{prefix}_{field}" if prefix else field for field in fields]
+    By default, fields will have the `address_` prefix.
+    Set new prefix or empty string to change this behavior.
+    """
+    fields = list(AddressField.subfields.keys())
+    return [f"{prefix}_{field}" for field in fields] if prefix else fields
 
 
 class AddressField(CompositeField):
@@ -81,11 +76,6 @@ class AddressField(CompositeField):
         def lines_html(self) -> str:
             return format_html_join("", "<p>{}</p>", ((line,) for line in self.lines))
 
-        @property
-        def as_dict(self) -> dict:
-            fields = get_address_fieldlist()
-            return {field_name: getattr(self, field_name) for field_name in fields}
-
 
 def get_language_from_country(country: Country):
     match country.code:
@@ -107,3 +97,34 @@ class LanguageField(models.CharField):
         if "default" in kwargs:
             del kwargs["default"]
         return name, path, args, kwargs
+
+
+EU_COUNTRIES = [
+    "BE",
+    "EL",
+    "LT",
+    "PT",
+    "BG",
+    "ES",
+    "LU",
+    "RO",
+    "CZ",
+    "FR",
+    "HU",
+    "SI",
+    "DK",
+    "HR",
+    "MT",
+    "SK",
+    "DE",
+    "IT",
+    "NL",
+    "FI",
+    "EE",
+    "CY",
+    "AT",
+    "SE",
+    "IE",
+    "LV",
+    "PL",
+]

@@ -1,6 +1,6 @@
 from django.db import models
 
-from shark.base.models import BaseModel
+from shark.base.models import BaseModel, InvoiceOptionsMixin
 from shark.billing.models import InvoiceTemplate
 from shark.billing.utils.fake_invoice import EmptyInvoiceTemplate
 from shark.id_generators.utils import (
@@ -9,11 +9,12 @@ from shark.id_generators.utils import (
     get_customer_generator,
     get_invoice_generator,
 )
+from shark.sepa.fields import CreditorInformation
 from shark.utils.fields import AddressField
 from shark.utils.importlib import import_object
 
 
-class Tenant(BaseModel):
+class Tenant(BaseModel, InvoiceOptionsMixin):
     name = models.CharField(max_length=255, unique=True)
     address = AddressField()
 
@@ -24,6 +25,8 @@ class Tenant(BaseModel):
     invoice_number_generator = models.CharField(
         choices=InvoiceNumberGenerators, default=InvoiceNumberGenerators.CUSTOMER_YEAR_N
     )
+
+    creditor = CreditorInformation(blank=True)
 
     def __str__(self):
         return self.name
