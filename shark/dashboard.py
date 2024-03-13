@@ -36,11 +36,6 @@ class CustomIndexDashboard(Dashboard):
                 children=[
                     modules.ModelList(
                         _("Applications"),
-                        exclude=("django.contrib.*",),
-                    ),
-                    modules.ModelList(
-                        _("Administration"),
-                        models=("django.contrib.*",),
                     ),
                     modules.RecentActions(
                         _("Recent actions"),

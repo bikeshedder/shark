@@ -55,6 +55,7 @@ ALLOWED_HOSTS = [env("ALLOWED_HOSTS")]
 INSTALLED_APPS = [
     # Shark applications
     "shark",
+    "shark.auth",
     "shark.base",
     "shark.billing",
     "shark.customer",
@@ -111,7 +112,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "shark.wsgi.application"
-
+AUTH_USER_MODEL = "shark_auth.User"
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
