@@ -91,6 +91,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "shark.auth.middleware.login_required",
     "shark.tenant.middleware.add_tenant",
+    "shark.tenant.middleware.remove_tenant_capturing_group",
 ]
 
 ROOT_URLCONF = "shark.urls"
@@ -106,6 +107,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "shark.tenant.context_processors.tenant",
             ]
         },
     },

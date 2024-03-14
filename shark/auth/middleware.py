@@ -2,7 +2,7 @@ from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import reverse
 
-LOGIN_REQUIRED_EXEMPT_ROUTES = settings.LOGIN_REQUIRED_EXEMPT_ROUTES
+LOGIN_REQUIRED_EXEMPT_ROUTES = getattr(settings, "LOGIN_REQUIRED_EXEMPT_ROUTES", [])
 
 
 def login_required(get_response):

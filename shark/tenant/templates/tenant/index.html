@@ -1,1 +1,8 @@
-On tenant index page: {{ tenant.name }}
+<div>
+<ul>
+{% for project in projects %}
+<li><a href="{% url 'project:index' tenant.name|lower project.pk %}">{{ project.name }}</a></li>
+{% empty %}
+<li>No projects found.
+{% endfor %}
+</div>

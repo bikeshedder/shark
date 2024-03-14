@@ -28,3 +28,18 @@ def add_tenant(get_response):
         return response
 
     return middleware
+
+
+def process_view(request, view_func, view_args, view_kwargs):
+    if "tenant_name" in view_kwargs:
+        del view_kwargs["tenant_name"]
+
+
+def remove_tenant_capturing_group(get_response):
+    def middleware(request: HttpRequest):
+        response = get_response(request)
+
+        return response
+
+    middleware.process_view = process_view
+    return middleware
