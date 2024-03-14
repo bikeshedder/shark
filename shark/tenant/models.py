@@ -51,11 +51,16 @@ class Tenant(BaseModel, InvoiceOptionsMixin):
         return import_object(generator_class)()
 
 
-class Employee(BaseModel, TenantMixin):
+class TenantMember(BaseModel, TenantMixin):
     user: User = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    projects = models.ManyToManyField("project.Project", blank=True)
 
     class Role(models.TextChoices):
         ADMIN = "ADMIN"
         EMPLOYEE = "EMPLOYEE"
+        CUSTOMER_REPRESENTATIVE = "CUST_REP"
 
     role = models.CharField(max_length=10, choices=Role)
+
+    def __str__(self):
+        return self.user.get_full_name() or self.user.email

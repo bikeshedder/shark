@@ -1,3 +1,11 @@
+<div>
+<ul>
+{% for tenant in tenants %}
+<li><a href="{% url 'tenant:index' tenant.name|lower %}">{{ tenant.name }}</a></li>
+{% empty %}
+<li>No tenants found.
+{% endfor %}
+</div>
 <form id="logout-form" method="post" action="{% url 'logout' %}">
     {% csrf_token %}
     <button type="submit">Logout</button>

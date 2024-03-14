@@ -7,8 +7,8 @@ from shark.utils.fields import get_address_fieldlist
 from . import models
 
 
-class EmployeeAdmin(admin.StackedInline):
-    model = models.Employee
+class TenantMemberAdmin(admin.StackedInline):
+    model = models.TenantMember
     extra = 0
     inline_classes = ["grp-collapse grp-open"]
 
@@ -36,7 +36,7 @@ class TenantAdmin(admin.ModelAdmin):
         ),
     )
 
-    inlines = [EmployeeAdmin]
+    inlines = [TenantMemberAdmin]
 
 
 def TenantAwareAdmin(cls):
