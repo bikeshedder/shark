@@ -11,9 +11,9 @@ def add_tenant(get_response):
                 # TODO: current assumption: admin is being used with a single tenant
                 tenant = Tenant.objects.first()
             elif request.path.startswith("/app/") and request.path != "/app/":
-                # path is /tenant_name/....
+                # path is /app/tenant_name/....
                 # we split the tenant_name
-                tenant_name = request.path.split("/")[1]
+                tenant_name = request.path.split("/")[2]
                 tenant = Tenant.objects.filter(name__iexact=tenant_name).get()
 
             # TODO: Verify user has access to tenant
