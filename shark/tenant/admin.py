@@ -7,6 +7,12 @@ from shark.utils.fields import get_address_fieldlist
 from . import models
 
 
+class EmployeeAdmin(admin.StackedInline):
+    model = models.Employee
+    extra = 0
+    inline_classes = ["grp-collapse grp-open"]
+
+
 @admin.register(models.Tenant)
 class TenantAdmin(admin.ModelAdmin):
     fieldsets = (
@@ -29,6 +35,8 @@ class TenantAdmin(admin.ModelAdmin):
             {"fields": get_creditor_fieldlist()},
         ),
     )
+
+    inlines = [EmployeeAdmin]
 
 
 def TenantAwareAdmin(cls):

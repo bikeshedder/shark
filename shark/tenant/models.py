@@ -1,6 +1,8 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 
-from shark.base.models import BaseModel, InvoiceOptionsMixin
+from shark.auth.models import User
+from shark.base.models import BaseModel, InvoiceOptionsMixin, TenantMixin
 from shark.billing.models import InvoiceTemplate
 from shark.billing.utils.fake_invoice import EmptyInvoiceTemplate
 from shark.id_generators.utils import (
@@ -47,3 +49,13 @@ class Tenant(BaseModel, InvoiceOptionsMixin):
         # Dynamically import the generator class
         generator_class = get_invoice_generator(self.invoice_number_generator)
         return import_object(generator_class)()
+
+
+class Employee(BaseModel, TenantMixin):
+    user: User = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+
+    class Role(models.TextChoices):
+        ADMIN = "ADMIN"
+        EMPLOYEE = "EMPLOYEE"
+
+    role = models.CharField(max_length=10, choices=Role)
