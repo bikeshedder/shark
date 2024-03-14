@@ -148,7 +148,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LOGIN_URL = "/auth/login"
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "/app/"
 LOGOUT_REDIRECT_URL = LOGIN_URL
 
 # Skip login_required middleware for these apps

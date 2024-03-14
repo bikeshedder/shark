@@ -17,10 +17,28 @@ Including another URLconf
 
 from django.conf import settings
 from django.conf.urls.static import static
+from django.shortcuts import redirect
 from django.urls import include, path
 
 urlpatterns = [
-    path("", include("shark.base.urls")),
+    path("", lambda request: redirect("app/")),
+    path("app/", include("shark.base.urls")),
+    path(
+        "app/<str:tenant_name>/",
+        include(
+            [
+                path("", include("shark.tenant.urls")),
+                path(
+                    "<int:project_pk>/",
+                    include(
+                        [
+                            path("", include("shark.project.urls")),
+                        ]
+                    ),
+                ),
+            ]
+        ),
+    ),
     path("auth/", include("shark.auth.urls")),
     path("admin/", include("shark.admin_urls")),
     path("api/", include("shark.api_urls")),
