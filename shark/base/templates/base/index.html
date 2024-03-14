@@ -1,12 +1,13 @@
+{% extends "base/site.html" %}
+
+{% block content %}
 <div>
-<ul>
-{% for tenant in tenants %}
-<li><a href="{% url 'tenant:index' tenant.name|lower %}">{{ tenant.name }}</a></li>
-{% empty %}
-<li>No tenants found.
-{% endfor %}
+    <ul>
+        {% for tenant in tenants %}
+        <li><a href="{% url 'tenant:index' tenant.name|lower %}">{{ tenant.name }}</a></li>
+        {% empty %}
+        <li>No tenants found.</li>
+        {% endfor %}
+    </ul>
 </div>
-<form id="logout-form" method="post" action="{% url 'logout' %}">
-    {% csrf_token %}
-    <button type="submit">Logout</button>
-</form>
+{% endblock content %}

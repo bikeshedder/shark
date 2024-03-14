@@ -1,1 +1,13 @@
-On project index page {{ tenant.name }}
+{% extends "base/site.html" %}
+
+{% block content %}
+<div>
+    <ul>
+        {% for task in tasks %}
+        <li>{{ task.name }}</li>
+        {% empty %}
+        <li>No tasks found.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock content %}
