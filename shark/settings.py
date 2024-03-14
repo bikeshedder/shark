@@ -89,6 +89,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "shark.auth.middleware.login_required",
     "shark.tenant.middleware.add_tenant",
 ]
 
@@ -146,6 +147,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGIN_URL = "/auth/login"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = LOGIN_URL
+
+# Skip login_required middleware for these apps
+LOGIN_REQUIRED_EXEMPT_ROUTES = ["/auth", "/admin"]
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/

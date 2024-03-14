@@ -20,6 +20,8 @@ from django.conf.urls.static import static
 from django.urls import include, path
 
 urlpatterns = [
+    path("", include("shark.base.urls")),
+    path("auth/", include("shark.auth.urls")),
     path("admin/", include("shark.admin_urls")),
     path("api/", include("shark.api_urls")),
     path("grappelli/", include("grappelli.urls")),
