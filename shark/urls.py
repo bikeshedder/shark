@@ -18,13 +18,13 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
-from django.urls import include, path
+from django.urls import include, path, re_path
 
 urlpatterns = [
     path("", lambda request: redirect("app/")),
     path("app/", include("shark.base.urls")),
-    path(
-        "app/<str:tenant_name>/",
+    re_path(
+        r"app/[^/]+/",
         include(
             [
                 path("", include("shark.tenant.urls")),
