@@ -43,5 +43,12 @@ urlpatterns = [
     path("admin/", include("shark.admin_urls")),
     path("api/", include("shark.api_urls")),
     path("grappelli/", include("grappelli.urls")),
-    path("grappelli-docs/", include("grappelli.urls_docs")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG:
+    urlpatterns.extend(
+        [
+            path("grappelli-docs/", include("grappelli.urls_docs")),
+            path("__reload__/", include("django_browser_reload.urls")),
+        ]
+    )

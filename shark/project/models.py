@@ -27,9 +27,7 @@ class Project(BaseModel, BillableMixin, TenantMixin):
 
 
 class Task(BaseModel, BillableMixin):
-    project = models.ForeignKey(
-        "project.Project", related_name="tasks", on_delete=models.CASCADE
-    )
+    project = models.ForeignKey("project.Project", on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     hours_expected = models.DecimalField(
         null=True, blank=True, max_digits=7, decimal_places=2

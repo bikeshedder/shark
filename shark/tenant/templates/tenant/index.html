@@ -1,13 +1,13 @@
 {% extends "base/site.html" %}
 
 {% block content %}
-<div>
-    <ul>
-        {% for project in projects %}
-        <li><a href="{% url 'project:index' tenant.name|lower project.pk %}">{{ project.name }}</a></li>
+{% include "base/includes/grid-three-cols.html" %}
+    {% for project in projects %}
+    {% include "base/includes/card.html" %}
+        <a href="{% url 'project:index' tenant.name|lower project.pk %}">{{ project.name }}</a>
         {% empty %}
-        <li>No projects found.</li>
+        <p>No projects found.</p>
         {% endfor %}
-    </ul>
+    </div>
 </div>
 {% endblock content %}

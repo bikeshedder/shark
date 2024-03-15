@@ -79,6 +79,8 @@ INSTALLED_APPS = [
     "localflavor",
     "rest_framework",
     "storages",
+    "tailwind",
+    "django_browser_reload",
 ]
 
 MIDDLEWARE = [
@@ -92,6 +94,7 @@ MIDDLEWARE = [
     "shark.auth.middleware.login_required",
     "shark.tenant.middleware.add_tenant",
     "shark.tenant.middleware.remove_tenant_capturing_group",
+    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
 ROOT_URLCONF = "shark.urls"
@@ -154,7 +157,7 @@ LOGIN_REDIRECT_URL = "/app/"
 LOGOUT_REDIRECT_URL = LOGIN_URL
 
 # Skip login_required middleware for these apps
-LOGIN_REQUIRED_EXEMPT_ROUTES = ["/auth", "/admin"]
+LOGIN_REQUIRED_ROUTES = ["/app"]
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
@@ -185,9 +188,12 @@ MEDIA_ROOT = BASE_DIR / "htdocs" / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-
 FORMAT_MODULE_PATH = "shark.base.formats"
 
+TAILWIND_APP_NAME = "shark.base"
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
 
 # Used for document storage
 AWS_S3_ENDPOINT_URL = "http://minio:9000"
