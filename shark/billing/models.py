@@ -1,11 +1,8 @@
-# Allow look-ahead Type annotations
-# Without this, the Type's class definition needs to come before its usage
-# Obsolete with Python 4
-from __future__ import annotations
-
 from copy import copy
+from dataclasses import dataclass
 from datetime import date, timedelta
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from django.contrib import admin
 from django.db import models
@@ -18,12 +15,15 @@ from shark.id_generators.fields import IdField
 from shark.utils.fields import AddressField, LanguageField
 from shark.utils.rounding import round_to_centi
 
+if TYPE_CHECKING:
+    from shark.customer.models import Customer
+
 
 class Invoice(BaseModel):
     #
     # general
     #
-    customer = models.ForeignKey(
+    customer: "Customer" = models.ForeignKey(
         "customer.Customer", on_delete=models.CASCADE, verbose_name=_("Customer")
     )
 
@@ -116,20 +116,13 @@ class Invoice(BaseModel):
         return date.today() <= deadline
 
     @cached_property
-    def items(self) -> list[InvoiceItem]:
+    def items(self) -> list["InvoiceItem"]:
         return self.item_set.all()
 
     @property
     def correction(self):
-        c = Invoice(
-            customer=self.customer,
-            number=self.number,
-            language=self.language,
-            sender=self.sender,
-            recipient=self.recipient,
-            created_at=self.created_at,
-            type=self.Type.CORRECTION,
-        )
+        c = copy(self)
+        c.type = Invoice.Type.CORRECTION
         c.items = [copy(item) for item in self.items]
         for item in c.items:
             item.quantity = -item.quantity
@@ -144,7 +137,7 @@ class Invoice(BaseModel):
     @cached_property
     def vat_items(self):
         # create a dict which maps the vat rate to a list of items
-        vat_dict = {}
+        vat_dict: dict[Decimal, list[InvoiceItem]] = {}
         for item in self.items:
             if item.vat_rate == 0:
                 continue
@@ -159,16 +152,16 @@ class Invoice(BaseModel):
             vat_list.append((vat_rate, vat_amount))
         vat_list.sort()
 
-        class VatItem(object):
-            def __init__(self, rate, amount):
-                self.rate = rate
-                self.amount = amount
+        @dataclass
+        class VatItem:
+            rate: Decimal
+            amount: Decimal
 
-        return [VatItem(*t) for t in vat_list]
+        return [VatItem(*tuple) for tuple in vat_list]
 
 
 class InvoiceItem(models.Model):
-    invoice = models.ForeignKey(
+    invoice: Invoice = models.ForeignKey(
         Invoice,
         related_name="item_set",
         on_delete=models.CASCADE,
@@ -194,14 +187,12 @@ class InvoiceItem(models.Model):
     price = models.DecimalField(
         max_digits=10, decimal_places=2, verbose_name=_("price")
     )
-    begin = models.DateField(_("begin"), blank=True, null=True)
-    end = models.DateField(_("end"), blank=True, null=True)
 
     class Units(models.TextChoices):
         HOURS = "h"
         PIECES = "pc"
 
-    unit = models.CharField(choices=Units, default=Units.PIECES)
+    unit = models.CharField(choices=Units, default=Units.HOURS)
     discount = models.DecimalField(
         max_digits=3,
         decimal_places=2,
@@ -212,8 +203,10 @@ class InvoiceItem(models.Model):
         max_digits=3,
         decimal_places=2,
         verbose_name=("VAT rate"),
-        default=Decimal("0.00"),
+        default=Decimal("0.19"),
     )
+    begin = models.DateField(_("begin"), blank=True, null=True)
+    end = models.DateField(_("end"), blank=True, null=True)
 
     class Meta:
         verbose_name = _("Item")
@@ -239,7 +232,7 @@ class InvoiceItem(models.Model):
 
     @property
     @admin.display(description=_("Sum of line"))
-    def total(self):
+    def total(self) -> Decimal:
         return self.subtotal - self.discount_amount
 
     @property

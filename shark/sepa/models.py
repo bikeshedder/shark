@@ -1,4 +1,5 @@
 import uuid
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.db import models
@@ -12,12 +13,16 @@ from shark.sepa.fields import (
     get_creditor_fieldlist,
 )
 
+if TYPE_CHECKING:
+    from shark.billing.models import Invoice
+    from shark.customer.models import Customer
+
 from . import sepaxml
 from .utils import anonymize_iban
 
 
 class DirectDebitMandate(BaseModel):
-    customer = models.ForeignKey(
+    customer: "Customer" = models.ForeignKey(
         "customer.Customer",
         on_delete=models.CASCADE,
         verbose_name=_("customer"),
@@ -61,51 +66,6 @@ class DirectDebitMandate(BaseModel):
     @property
     def anonymized_iban(self):
         return anonymize_iban(self.iban)
-
-
-class DirectDebitTransaction(BaseModel):
-    customer = models.ForeignKey(
-        "customer.Customer",
-        on_delete=models.CASCADE,
-        verbose_name=_("customer"),
-    )
-    mandate = models.ForeignKey(
-        "sepa.DirectDebitMandate",
-        verbose_name=_("SEPA DD mandate"),
-        on_delete=models.CASCADE,
-    )
-    reference = models.CharField(max_length=140)
-    amount = models.DecimalField(_("amount"), max_digits=11, decimal_places=2)
-    invoice = models.ForeignKey(
-        "billing.Invoice",
-        verbose_name=_("invoice"),
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True,
-    )
-    batch = models.ForeignKey(
-        "sepa.DirectDebitBatch",
-        verbose_name=_("SEPA DD batch"),
-        on_delete=models.CASCADE,
-    )
-
-    @classmethod
-    def from_invoice(cls, invoice):
-        mandate = (
-            DirectDebitMandate.objects.filter(
-                customer=invoice.customer, revoked_at=None
-            )
-            .order_by("-created_at")[:1]
-            .get()
-        )
-        obj = cls(
-            customer=invoice.customer,
-            mandate=mandate,
-            reference=invoice.number,
-            amount=invoice.gross,
-            invoice=invoice,
-        )
-        return obj
 
 
 class DirectDebitBatch(BaseModel, TenantMixin):
@@ -178,3 +138,48 @@ class DirectDebitBatch(BaseModel, TenantMixin):
             ],
         )
         return dd.render_xml()
+
+
+class DirectDebitTransaction(BaseModel):
+    customer: "Customer" = models.ForeignKey(
+        "customer.Customer",
+        on_delete=models.CASCADE,
+        verbose_name=_("customer"),
+    )
+    mandate: "DirectDebitMandate" = models.ForeignKey(
+        DirectDebitMandate,
+        verbose_name=_("SEPA DD mandate"),
+        on_delete=models.CASCADE,
+    )
+    reference = models.CharField(max_length=140)
+    amount = models.DecimalField(_("amount"), max_digits=11, decimal_places=2)
+    invoice: "Invoice" = models.ForeignKey(
+        "billing.Invoice",
+        verbose_name=_("invoice"),
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
+    batch: "DirectDebitBatch" = models.ForeignKey(
+        DirectDebitBatch,
+        verbose_name=_("SEPA DD batch"),
+        on_delete=models.CASCADE,
+    )
+
+    @classmethod
+    def from_invoice(cls, invoice: "Invoice"):
+        mandate = (
+            DirectDebitMandate.objects.filter(
+                customer=invoice.customer, revoked_at=None
+            )
+            .order_by("-created_at")[:1]
+            .get()
+        )
+        obj = cls(
+            customer=invoice.customer,
+            mandate=mandate,
+            reference=invoice.number,
+            amount=invoice.gross,
+            invoice=invoice,
+        )
+        return obj

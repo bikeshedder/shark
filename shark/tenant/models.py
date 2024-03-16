@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from django.contrib.auth import get_user_model
 from django.db import models
 
@@ -14,6 +16,9 @@ from shark.id_generators.utils import (
 from shark.sepa.fields import CreditorInformation
 from shark.utils.fields import AddressField
 from shark.utils.importlib import import_object
+
+if TYPE_CHECKING:
+    from shark.project.models import Project
 
 
 class Tenant(BaseModel, InvoiceOptionsMixin):
@@ -51,9 +56,11 @@ class Tenant(BaseModel, InvoiceOptionsMixin):
         return import_object(generator_class)()
 
 
-class TenantMember(BaseModel, TenantMixin):
-    user: User = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    projects = models.ManyToManyField("project.Project", blank=True)
+class Member(BaseModel, TenantMixin):
+    user: "User" = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    projects: "models.ManyToManyField[Project]" = models.ManyToManyField(
+        "project.Project", blank=True
+    )
 
     class Role(models.TextChoices):
         ADMIN = "ADMIN"
