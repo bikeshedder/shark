@@ -2,7 +2,7 @@ from copy import copy
 from dataclasses import dataclass
 from datetime import date, timedelta
 from decimal import Decimal
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from django.contrib import admin
 from django.db import models
@@ -41,6 +41,7 @@ class Invoice(BaseModel):
     type = models.CharField(
         _("type"), max_length=20, choices=Type, default=Type.INVOICE
     )
+    get_type_display: Callable[[], str]
 
     class PaymentType(models.TextChoices):
         INVOICE = "invoice", _("Invoice")

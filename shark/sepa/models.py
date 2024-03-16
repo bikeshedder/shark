@@ -1,5 +1,5 @@
 import uuid
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from django.conf import settings
 from django.db import models
@@ -35,6 +35,7 @@ class DirectDebitMandate(BaseModel):
     postal_code = models.CharField(max_length=20)
     city = models.CharField(max_length=100)
     country = CountryField(default="DE")
+    get_country_display: Callable[[], str]
     account = AccountInformation(prefix="")
     signed_at = models.DateField(_("signed_at"), blank=True, null=True)
     revoked_at = models.DateField(_("revoked_at"), blank=True, null=True)
