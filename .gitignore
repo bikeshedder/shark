@@ -4,6 +4,7 @@
 
 !.devcontainer/
 !.github/
+!.gitignore
 
 !.env.*example
 !.env.ci

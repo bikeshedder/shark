@@ -12,6 +12,9 @@
         },
         "ghcr.io/robbert229/devcontainer-features/postgresql-client:1": {
             "version": "16"
+        },
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "21"
         }
     },
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
@@ -22,7 +25,7 @@
         "minio:9001"
     ],
     // Use 'postCreateCommand' to run commands after the container is created.
-    "postCreateCommand": "poetry install && poetry run pre-commit install",
+    "postCreateCommand": "poetry install && poetry run pre-commit install && poetry run ./manage.py tailwind install",
     // Configure tool-specific properties.
     "customizations": {
         "vscode": {
@@ -32,7 +35,8 @@
                 "tamasfe.even-better-toml",
                 "eamodio.gitlens",
                 "redhat.vscode-yaml",
-                "EditorConfig.EditorConfig"
+                "EditorConfig.EditorConfig",
+                "bradlc.vscode-tailwindcss"
             ],
             "settings": {
                 "editor.formatOnSave": true,

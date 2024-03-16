@@ -1,13 +1,16 @@
 {% extends "base/site.html" %}
 
 {% block content %}
-<div>
-    <ul>
-        {% for tenant in tenants %}
-        <li><a href="{% url 'tenant:index' tenant.name|lower %}">{{ tenant.name }}</a></li>
+<h2 class="text-3xl mb-6">Select Tenant</h2>
+{% include "base/includes/grid-four-cols.html" %}
+    {% for tenant in tenants %}
+    {% include "base/includes/card.html" %}
+    <div class="flex-1 flex justify-center">
+        <a href="{% url 'tenant:index' tenant.name|lower %}" class="text-3xl">{{ tenant.name }}</a>
         {% empty %}
-        <li>No tenants found.</li>
+        <p>No tenants found.</p>
         {% endfor %}
-    </ul>
+    </div>
+    </div>
 </div>
 {% endblock content %}

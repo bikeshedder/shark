@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 
@@ -8,6 +9,8 @@ urlpatterns = [
         "customer",
         include("shark.customer.admin_urls", namespace="customer_admin"),
     ),
-    path("doc/", include("django.contrib.admindocs.urls")),
     path("", admin.site.urls),
 ]
+
+if settings.DEBUG:
+    urlpatterns.append(path("doc/", include("django.contrib.admindocs.urls")))

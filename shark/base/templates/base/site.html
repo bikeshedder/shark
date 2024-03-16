@@ -1,10 +1,99 @@
-<div style="display: flex; flex-direction: column;">
-    <div style="align-self: end;">
-        <form id="logout-form" method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit">Logout</button>
-        </form>
-    </div>
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{% block title %}Shark{% endblock title %}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {% tailwind_css %}
+    {% block extrahead %}{% endblock extrahead %}
+</head>
+
+<body class="text-gray-800 bg-gray-200 font-inter h-full">
+{% include "base/topnav.html" %}
+{% block main %}
+<main class="w-full h-full transition-all p-6 pb-2">
 {% block content %}
 {% endblock content %}
-</div>
+</main>
+{% endblock main %}
+
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script>
+    // start: Popper
+    const popperInstance = {}
+    document.querySelectorAll('.dropdown').forEach(function (item, index) {
+        const popperId = 'popper-' + index
+        const toggle = item.querySelector('.dropdown-toggle')
+        const menu = item.querySelector('.dropdown-menu')
+        menu.dataset.popperId = popperId
+        popperInstance[popperId] = Popper.createPopper(toggle, menu, {
+            modifiers: [
+                {
+                    name: 'offset',
+                    options: {
+                        offset: [0, 8],
+                    },
+                },
+                {
+                    name: 'preventOverflow',
+                    options: {
+                        padding: 24,
+                    },
+                },
+            ],
+            placement: 'bottom-end'
+        });
+    })
+    document.addEventListener('click', function (e) {
+        const toggle = e.target.closest('.dropdown-toggle')
+        const menu = e.target.closest('.dropdown-menu')
+        if (toggle) {
+            const menuEl = toggle.closest('.dropdown').querySelector('.dropdown-menu')
+            const popperId = menuEl.dataset.popperId
+            if (menuEl.classList.contains('hidden')) {
+                hideDropdown()
+                menuEl.classList.remove('hidden')
+                showPopper(popperId)
+            } else {
+                menuEl.classList.add('hidden')
+                hidePopper(popperId)
+            }
+        } else if (!menu) {
+            hideDropdown()
+        }
+    })
+
+    function hideDropdown() {
+        document.querySelectorAll('.dropdown-menu').forEach(function (item) {
+            item.classList.add('hidden')
+        })
+    }
+    function showPopper(popperId) {
+        popperInstance[popperId].setOptions(function (options) {
+            return {
+                ...options,
+                modifiers: [
+                    ...options.modifiers,
+                    { name: 'eventListeners', enabled: true },
+                ],
+            }
+        });
+        popperInstance[popperId].update();
+    }
+    function hidePopper(popperId) {
+        popperInstance[popperId].setOptions(function (options) {
+            return {
+                ...options,
+                modifiers: [
+                    ...options.modifiers,
+                    { name: 'eventListeners', enabled: false },
+                ],
+            }
+        });
+    }
+    // end: Popper
+</script>
+</body>
+</html>
