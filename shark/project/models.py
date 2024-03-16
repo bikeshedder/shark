@@ -4,7 +4,6 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from shark.base.models import BaseModel, BillableMixin, TenantMixin
-from shark.billing.models import InvoiceTimeItem
 from shark.utils.time import decimal_hours_to_time
 
 
@@ -38,6 +37,10 @@ class Task(BaseModel, BillableMixin):
     due_by = models.DateField(null=True, blank=True)
     completed_at = models.DateField(null=True, blank=True)
 
+    invoice_item = models.OneToOneField(
+        "billing.InvoiceItem", blank=True, null=True, on_delete=models.SET_NULL
+    )
+
     def __str__(self):
         return self.name
 
@@ -52,8 +55,3 @@ class Task(BaseModel, BillableMixin):
     @property
     def time_actual(self):
         return decimal_hours_to_time(self.hours_actual or Decimal(0))
-
-    @property
-    def invoice(self):
-        item = InvoiceTimeItem.objects.filter(sku=self.pk).first()
-        return None if item is None else item.invoice

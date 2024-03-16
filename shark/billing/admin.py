@@ -43,8 +43,9 @@ class InvoiceItemInline(GrappelliSortableHiddenMixin, admin.TabularInline):
         if request.method == "GET":
             project_id = request.GET.get("project")
             if project_id:
-                tasks = Task.objects.filter(project__id=project_id).all()
-                tasks = [task for task in tasks if not task.invoice]
+                tasks = Task.objects.filter(
+                    project__id=project_id, invoice_item__isnull=True
+                ).all()
                 self.objects = tasks
                 return len(tasks)
         return 0
@@ -138,9 +139,10 @@ class InvoiceAdmin(admin.ModelAdmin):
                         "initial": [
                             {
                                 "text": task.name,
-                                "type": models.InvoiceItem.Type.TimeItem,
-                                "sku": task.pk,
                                 "price": task.rate,
+                                "begin": task.created_at_date,
+                                "end": task.completed_at,
+                                "unit": models.InvoiceItem.Units.HOURS,
                                 "quantity": task.hours_expected,
                                 "vat_rate": Decimal("0.19"),
                             }

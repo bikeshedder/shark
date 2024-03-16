@@ -74,12 +74,3 @@ class InvoiceOptionsMixin(models.Model):
 class BaseModel(TimeStampMixin):
     class Meta:
         abstract = True
-
-
-class ProxyManager(models.Manager):
-    def __init__(self, type):
-        super().__init__()
-        self.type = type
-
-    def get_queryset(self):
-        return super().get_queryset().filter(type=self.type)

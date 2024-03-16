@@ -3,6 +3,7 @@
 # Obsolete with Python 4
 from __future__ import annotations
 
+from copy import copy
 from datetime import date, timedelta
 from decimal import Decimal
 
@@ -12,7 +13,7 @@ from django.utils.formats import date_format
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
-from shark.base.models import BaseModel, ProxyManager, TenantMixin
+from shark.base.models import BaseModel, TenantMixin
 from shark.id_generators.fields import IdField
 from shark.utils.fields import AddressField, LanguageField
 from shark.utils.rounding import round_to_centi
@@ -129,7 +130,7 @@ class Invoice(BaseModel):
             created_at=self.created_at,
             type=self.Type.CORRECTION,
         )
-        c.items = [item.clone() for item in self.items]
+        c.items = [copy(item) for item in self.items]
         for item in c.items:
             item.quantity = -item.quantity
         c.recalculate()
@@ -176,20 +177,14 @@ class InvoiceItem(models.Model):
         verbose_name=_("invoice"),
     )
 
-    class Type(models.TextChoices):
-        TimeItem = "time"
-        ArticleItem = "article"
-
-    type = models.CharField(max_length=10, choices=Type, default=Type.TimeItem)
+    position = models.PositiveSmallIntegerField(verbose_name=_("position"))
+    text = models.CharField(max_length=200, verbose_name=_("description"))
     sku = models.CharField(
         max_length=20,
         blank=True,
         verbose_name=_("SKU"),
         help_text=_("Stock-keeping unit (e.g. Article number)"),
     )
-
-    position = models.PositiveSmallIntegerField(verbose_name=_("position"))
-    text = models.CharField(max_length=200, verbose_name=_("description"))
     quantity = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -199,25 +194,25 @@ class InvoiceItem(models.Model):
     price = models.DecimalField(
         max_digits=10, decimal_places=2, verbose_name=_("price")
     )
+    begin = models.DateField(_("begin"), blank=True, null=True)
+    end = models.DateField(_("end"), blank=True, null=True)
+
+    class Units(models.TextChoices):
+        HOURS = "h"
+        PIECES = "pc"
+
+    unit = models.CharField(choices=Units, default=Units.PIECES)
     discount = models.DecimalField(
         max_digits=3,
         decimal_places=2,
         default=Decimal("0.00"),
         verbose_name=("discount"),
     )
-
-    VAT_RATE_CHOICES = [
-        (Decimal("0.19"), "19%"),
-        (Decimal("0.07"), "7%"),
-        (Decimal("0.00"), "0%"),
-    ]
-
     vat_rate = models.DecimalField(
         max_digits=3,
         decimal_places=2,
         verbose_name=("VAT rate"),
-        choices=VAT_RATE_CHOICES,
-        default=VAT_RATE_CHOICES[0][0],
+        default=Decimal("0.00"),
     )
 
     class Meta:
@@ -226,19 +221,8 @@ class InvoiceItem(models.Model):
         ordering = ["position"]
 
     def __str__(self):
-        return "#%d %s" % (self.position or 0, self.text)
-
-    def clone(self):
-        return InvoiceItem(
-            invoice=self.invoice,
-            position=self.position,
-            quantity=self.quantity,
-            sku=self.sku,
-            text=self.text,
-            price=self.price,
-            discount=self.discount,
-            vat_rate=self.vat_rate,
-        )
+        # Position value is 0-indexed => render value should be incremented
+        return "#%d %s" % (self.position + 1, self.text)
 
     @property
     @admin.display(description=_("Subtotal"), boolean=True)
@@ -258,37 +242,26 @@ class InvoiceItem(models.Model):
     def total(self):
         return self.subtotal - self.discount_amount
 
-
-class InvoiceTimeItem(InvoiceItem):
-    objects = ProxyManager(InvoiceItem.Type.TimeItem)
-
-    class Meta:
-        proxy = True
-
     @property
     @admin.display(description=_("Billing period"))
     def period(self):
+        """
+        Returns the time span between begin and end as a string
+        "SHORT_DATE_BEGIN" - "SHORT_DATE_END"
+
+        However, if BEGIN and END are the same, None is returned because
+        "FROM X TO X" is not actually a period but a singular point in time
+        """
         if self.begin and self.end:
             begin = date_format(self.begin, "SHORT_DATE_FORMAT")
-            end = (
-                date_format(self.end, "SHORT_DATE_FORMAT")
-                if self.end is not None
-                else _("one-time")
-            )
-            return "%s – %s" % (begin, end)
+            end = date_format(self.end, "SHORT_DATE_FORMAT")
+            return "%s – %s" % (begin, end) if begin != end else None
         else:
             return None
 
     @property
     def date(self):
-        return self.begin or self.end if bool(self.begin) != bool(self.end) else None
-
-
-class InvoiceArticleItem(InvoiceItem):
-    objects = ProxyManager(InvoiceItem.Type.ArticleItem)
-
-    class Meta:
-        proxy = True
+        return self.end or self.begin
 
 
 class InvoiceTemplate(BaseModel, TenantMixin):

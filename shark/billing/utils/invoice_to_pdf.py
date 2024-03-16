@@ -37,10 +37,11 @@ def write_pdf(fh, invoice: Invoice, invoice_template: InvoiceTemplate):
 
         template = BriefTemplate()
 
+        #  |  Grappelli Drag and Drop auto positioning starts at 0
+        #  |  Either implement own auto positioning or, simpler,
+        # \|/ adjust the data for rendering
         for item in invoice.items:
-            setattr(item, "period", "")
-            setattr(item, "date", "")
-            setattr(item, "unit", "")
+            item.position += 1
 
         document = Document(
             sender=invoice.sender_lines,
