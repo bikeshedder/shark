@@ -1,8 +1,14 @@
+from typing import TYPE_CHECKING
+
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django_countries.fields import Country
+
+if TYPE_CHECKING:
+    from shark.auth.models import User
+
 
 from shark.base.models import (
     BaseModel,
@@ -12,7 +18,6 @@ from shark.base.models import (
     TenantMixin,
 )
 from shark.id_generators.fields import IdField
-from shark.sepa.fields import AccountInformation
 from shark.utils.fields import EU_COUNTRIES, AddressField, LanguageField
 
 
@@ -33,9 +38,6 @@ class Customer(
         default=PaymentType.INVOICE,
         verbose_name=_("Payment Type"),
     )
-
-    account = AccountInformation(blank=True)
-
     vatin = models.CharField(
         max_length=14,
         blank=True,
@@ -49,10 +51,6 @@ class Customer(
 
     def __str__(self):
         return self.name
-
-    @property
-    def rate(self):
-        return self.hourly_rate
 
     @cached_property
     def days_to_pay(self):
@@ -84,16 +82,16 @@ class Customer(
 
 
 class CustomerNote(BaseModel):
-    customer = models.ForeignKey("customer.Customer", on_delete=models.CASCADE)
-    user = models.ForeignKey(
+    customer: Customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    user: "User" = models.ForeignKey(
         get_user_model(), blank=True, null=True, on_delete=models.SET_NULL
     )
     text = models.TextField()
 
 
 class CustomerAddress(BaseModel):
-    customer = models.ForeignKey(
-        "customer.Customer", on_delete=models.CASCADE, related_name="address_set"
+    customer: Customer = models.ForeignKey(
+        Customer, on_delete=models.CASCADE, related_name="address_set"
     )
     address = AddressField()
     billing_address = models.BooleanField(default=False)

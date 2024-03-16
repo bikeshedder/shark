@@ -1,7 +1,7 @@
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 
-from .models import Tenant, TenantMember
+from .models import Member, Tenant
 
 
 def add_tenant(get_response):
@@ -20,7 +20,7 @@ def add_tenant(get_response):
                 )
 
             if not request.user.is_superuser and tenant:
-                get_object_or_404(TenantMember, user=request.user, tenant=tenant)
+                get_object_or_404(Member, user=request.user, tenant=tenant)
             request.tenant = tenant
 
         response = get_response(request)
