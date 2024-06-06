@@ -91,32 +91,34 @@ class InvoiceAdmin(admin.ModelAdmin):
     }
 
     def get_form(self, request, obj=None, **kwargs):
+        """
+        Prefill form fields as well as possible
+        """
         form = super().get_form(request, obj, **kwargs)
 
-        if obj is None:
-            tenant_address_dict = request.tenant.address.to_dict()
-            for key, value in tenant_address_dict.items():
-                form.base_fields["sender_" + key].initial = value
+        if obj is None and request.method == "GET":
+            if request.tenant:
+                tenant_address_dict = request.tenant.to_dict()
+                for key, value in tenant_address_dict.items():
+                    form.base_fields["sender_" + key].initial = value
 
-            if request.method == "GET":
-                # Prefill form if Invoice is created for a Project
-                project_id = request.GET.get("project")
-                if project_id:
-                    project = Project.objects.get(pk=project_id)
+            project_id = request.GET.get("project")
+            if project_id:
+                project = Project.objects.get(pk=project_id)
 
-                    form.base_fields["customer"].initial = project.customer
-                    customer_address = CustomerAddress.objects.get(
-                        customer=project.customer
-                    )
-                    for key, value in customer_address.address.to_dict().items():
-                        form.base_fields["recipient_" + key].initial = value
-                    form.base_fields["language"].initial = get_language_from_country(
-                        customer_address.address.country
-                    )
+                form.base_fields["customer"].initial = project.customer
+                customer_address = CustomerAddress.objects.get(
+                    customer=project.customer
+                )
+                for key, value in customer_address.address.to_dict().items():
+                    form.base_fields["recipient_" + key].initial = value
+                form.base_fields["language"].initial = get_language_from_country(
+                    customer_address.address.country
+                )
 
-                    # Hide fields that are not supposed to be changed
-                    form.base_fields["customer"].widget = HiddenInput()
-                    form.base_fields["type"].widget = HiddenInput()
+                # Hide fields that are not supposed to be changed
+                form.base_fields["customer"].widget = HiddenInput()
+                form.base_fields["type"].widget = HiddenInput()
 
         return form
 
