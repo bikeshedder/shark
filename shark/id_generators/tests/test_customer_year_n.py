@@ -5,8 +5,9 @@ from django.test import TestCase
 
 from shark.billing.models import Invoice
 from shark.customer.models import Customer
-from shark.id_generators.utils import InvoiceNumberGenerators
 from shark.tenant.models import Tenant
+
+from ..utils import InvoiceNumberGenerators
 
 CURRENT_YEAR = date.today().year
 

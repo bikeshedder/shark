@@ -1,0 +1,34 @@
+{% load heroicons %}
+<div
+    class="card relative h-40 w-full shadow-lg sm:w-60"
+    hx-on::after-request="if (event.detail.requestConfig.verb === 'delete' && event.detail.successful) this.closest('div').remove()"
+>
+    <div class="card-body">
+        <div class="card-title"><h2 class="line-clamp-3">{{ data.name }}</h2></div>
+        <div class="dropdown dropdown-end absolute right-0 top-0">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-sm">{% heroicon_solid "ellipsis-vertical" %}</div>
+            <ul tabindex="0" class="menu dropdown-content z-[1] w-52 rounded-box bg-base-100 p-2 shadow">
+                <li>
+                    <button
+                        hx-get="{% url 'api:project:task-detail' data.id %}"
+                        hx-target="#popup-content"
+                        @htmx:after-request="if (event.detail.successful) isPopupOpen = true"
+                        @click="$el.blur()"
+                    >
+                        {% heroicon_solid "wrench" %}
+                        <p>Edit</p>
+                    </button>
+                    <button
+                        hx-headers='{"X-CSRFToken": "{{ csrf_token }}", "Hx-Trigger": "task-removed"}'
+                        hx-delete="{% url 'api:project:task-detail' data.id %}"
+                        hx-confirm="Are you sure?"
+                    >
+                        {% heroicon_solid "trash" %}
+                        <p>Remove</p>
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <p class="self-end">{{ data.time_actual }}</p>
+    </div>
+</div>

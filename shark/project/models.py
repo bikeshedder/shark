@@ -10,7 +10,7 @@ from shark.utils.time import decimal_hours_to_time
 if TYPE_CHECKING:
     from shark.billing.models import InvoiceItem
     from shark.customer.models import Customer
-    from shark.tenant.models import Member
+    from shark.tenant.models import TenantMember
 
 
 class Project(BaseModel, BillableMixin, TenantMixin):
@@ -43,16 +43,13 @@ class Task(BaseModel, BillableMixin):
     hours_expected = models.DecimalField(
         null=True, blank=True, max_digits=7, decimal_places=2
     )
-    hours_actual = models.DecimalField(
-        null=True, blank=True, max_digits=7, decimal_places=2
-    )
     due_by = models.DateField(null=True, blank=True)
     completed_at = models.DateField(null=True, blank=True)
     invoice_item: "InvoiceItem" = models.OneToOneField(
         "billing.InvoiceItem", blank=True, null=True, on_delete=models.SET_NULL
     )
-    assigned_to: "models.ManyToManyField[Member]" = models.ManyToManyField(
-        "tenant.Member"
+    assigned_to: "models.ManyToManyField[TenantMember]" = models.ManyToManyField(
+        "tenant.TenantMember", blank=True
     )
 
     def __str__(self):
@@ -68,7 +65,8 @@ class Task(BaseModel, BillableMixin):
 
     @property
     def time_actual(self):
-        return decimal_hours_to_time(self.hours_actual or Decimal(0))
+        time = sum(entry.duration for entry in self.tasktimeentry_set.all())
+        return decimal_hours_to_time(Decimal(time))
 
 
 class TaskDescription(BaseModel):
@@ -78,11 +76,20 @@ class TaskDescription(BaseModel):
 
 class TaskTimeEntry(BaseModel):
     task: Task = models.ForeignKey(Task, null=True, on_delete=models.SET_NULL)
-    employee: "Member" = models.ForeignKey(
-        "tenant.Member", null=True, on_delete=models.SET_NULL
+    employee: "TenantMember" = models.ForeignKey(
+        "tenant.TenantMember", null=True, on_delete=models.SET_NULL
     )
-    note = models.TextField(_("note"), blank=True)
+    description = models.CharField(_("description"), blank=True)
     date = models.DateField(_("date"))
     duration = models.DecimalField(
-        _("duration in hours"), max_digits=7, decimal_places=2
+        _("duration in hours"), max_digits=7, decimal_places=2, blank=True
     )
+
+    def save(self, *args, **kwargs):
+        # Empty durations will not be saved
+        # If existing instace's duration is set to 0 it will be deleted
+        if not self.duration or self.duration.is_zero():
+            if self.pk:
+                self.delete()
+            return
+        super().save(*args, **kwargs)

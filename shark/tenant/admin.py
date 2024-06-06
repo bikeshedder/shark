@@ -8,7 +8,7 @@ from . import models
 
 
 class MemberAdmin(admin.StackedInline):
-    model = models.Member
+    model = models.TenantMember
     extra = 0
     inline_classes = ["grp-collapse grp-open"]
 
@@ -39,7 +39,7 @@ class TenantAdmin(admin.ModelAdmin):
     inlines = [MemberAdmin]
 
 
-def TenantAwareAdmin(cls):
+def tenant_aware_admin(cls):
     """
     Decorator to be used for ModelAdmins
 

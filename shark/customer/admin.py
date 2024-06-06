@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
-from shark.tenant.admin import TenantAwareAdmin
+from shark.tenant.admin import tenant_aware_admin
 
 from . import models
 
@@ -18,7 +18,7 @@ class CustomerNoteInline(admin.StackedInline):
     inline_classes = ["grp-collapse grp-open"]
 
 
-@TenantAwareAdmin
+@tenant_aware_admin
 @admin.register(models.Customer)
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ["number", "name", "address_html", "created_at"]

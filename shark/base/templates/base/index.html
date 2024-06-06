@@ -1,16 +1,14 @@
 {% extends "base/site.html" %}
 
 {% block content %}
-<h2 class="text-3xl mb-6">Select Tenant</h2>
-{% include "base/includes/grid-four-cols.html" %}
-    {% for tenant in tenants %}
-    {% include "base/includes/card.html" %}
-    <div class="flex-1 flex justify-center">
-        <a href="{% url 'tenant:index' tenant.name|lower %}" class="text-3xl">{{ tenant.name }}</a>
-        {% empty %}
-        <p>No tenants found.</p>
-        {% endfor %}
+{% for tenant in tenants %}
+<div class="card glass bg-primary text-primary-content">
+    <div class="card-body">
+        <a href="{% url 'tenant:index' tenant.slug %}" class="card-title">{{ tenant.name }}</a>
     </div>
-    </div>
+</div>
+{% empty %}
+<p>No tenants found.</p>
+{% endfor %}
 </div>
 {% endblock content %}

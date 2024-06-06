@@ -24,9 +24,12 @@ def get_settings_value(name, default=RAISE_ERROR):
 
 
 def get_settings_instance(name):
-    v = get_settings_value(name)
-    if isinstance(v, str):
-        v = import_object(v)
-    if inspect.isclass(v):
-        v = v()
-    return v
+    try:
+        v = settings[name]
+        if isinstance(v, str):
+            v = import_object(v)
+        if inspect.isclass(v):
+            v = v()
+        return v
+    except KeyError:
+        return None

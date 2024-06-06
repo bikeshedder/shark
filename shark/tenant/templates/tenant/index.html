@@ -1,13 +1,13 @@
 {% extends "base/site.html" %}
 
 {% block content %}
-{% include "base/includes/grid-three-cols.html" %}
-    {% for project in projects %}
-    {% include "base/includes/card.html" %}
-        <a href="{% url 'project:index' tenant.name|lower project.pk %}">{{ project.name }}</a>
-        {% empty %}
-        <p>No projects found.</p>
-        {% endfor %}
+{% for project in projects %}
+<div class="card glass bg-primary text-primary-content">
+    <div class="card-body">
+        <a href="{% url 'project:index' tenant.slug project.pk %}" class="card-title">{{ project.name }}</a>
     </div>
+{% empty %}
+    <p>No projects found.</p>
 </div>
+{% endfor %}
 {% endblock content %}

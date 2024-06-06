@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.template.defaultfilters import slugify
 
 from shark.auth.models import User
 from shark.base.models import BaseModel, InvoiceOptionsMixin, TenantMixin
@@ -24,6 +25,7 @@ if TYPE_CHECKING:
 class Tenant(BaseModel, InvoiceOptionsMixin):
     name = models.CharField(max_length=255, unique=True)
     address = AddressField()
+    slug = models.SlugField(unique=True)
 
     customer_number_generator = models.CharField(
         choices=CustomerNumberGenerators,
@@ -37,6 +39,10 @@ class Tenant(BaseModel, InvoiceOptionsMixin):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
     @property
     def selected_invoice_template(self) -> InvoiceTemplate:
@@ -56,7 +62,7 @@ class Tenant(BaseModel, InvoiceOptionsMixin):
         return import_object(generator_class)()
 
 
-class Member(BaseModel, TenantMixin):
+class TenantMember(BaseModel, TenantMixin):
     user: "User" = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     projects: "models.ManyToManyField[Project]" = models.ManyToManyField(
         "project.Project", blank=True
@@ -68,6 +74,9 @@ class Member(BaseModel, TenantMixin):
         CUSTOMER_REPRESENTATIVE = "CUST_REP"
 
     role = models.CharField(max_length=10, choices=Role)
+
+    class Meta:
+        db_table = "tenant_member"
 
     def __str__(self):
         return self.user.get_full_name() or self.user.email

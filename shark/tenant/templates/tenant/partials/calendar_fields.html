@@ -1,0 +1,25 @@
+{% for week in data %}
+{% for day in week %}
+<div
+    class="flex h-20 {% if day.day != 0 %}rounded-lg bg-white p-2 cursor-pointer{% endif %}"
+    {% if day.day != 0 %}
+    hx-get="{% url 'project:daily-report' tenant.slug request.GET.project %}"
+    hx-trigger="click"
+    hx-target="#report"
+    hx-vals='{"date": "{{ year }}-{{ month }}-{{ day.day }}"}'
+    tabindex="0"
+    @keyup.space="$el.click()"
+    {% endif %}
+>
+    {% if day.day != 0 %}
+    <p class="text-xl font-semibold">{{ day.day }}</p>
+    <div class="grid w-full place-items-center">
+        {% if day.hours %}<p class="text-xl">{{ day.hours }}</p>{% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endfor %}
+{% endfor %}
+
+{% comment %} Update pdf export button to include new values via out of bands swap {% endcomment %}
+{% if request.htmx %}{% include 'tenant/partials/export_timesheet.html' %}{% endif %}

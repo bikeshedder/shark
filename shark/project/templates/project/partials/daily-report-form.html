@@ -1,0 +1,58 @@
+<form
+    class="flex h-full flex-col gap-2"
+    x-data="{
+        'hours': '0',
+        recalculateHours: function() {
+            const durationFieldArray = Array.from(document.querySelectorAll('.report-duration-td input'));
+            this.hours = durationFieldArray.reduce((total, element) => total + (parseFloat(element.value) || 0), 0).toString();
+        }
+    }"
+    x-init="recalculateHours()"
+    hx-post="{% url 'project:daily-report' tenant.slug data.project_id %}"
+>
+    {% csrf_token %}
+    <div class="overflow-auto">
+        <div class="block w-full">
+            <table class="w-full border-collapse items-center bg-transparent">
+                <thead>
+                    <tr>
+                        <th class="whitespace-nowrap border-y border-solid border-neutral bg-base-300 px-4 py-3 text-left align-middle text-xs font-semibold uppercase text-base-content">Task</th>
+                        <th class="w-20 whitespace-nowrap border-y border-solid border-neutral bg-base-300 px-4 py-3 text-left align-middle text-xs font-semibold uppercase text-base-content">Hours</th>
+                        <th class="w-52 whitespace-nowrap border-y border-solid border-neutral bg-base-300 px-4 py-3 text-left align-middle text-xs font-semibold uppercase text-base-content">Description (optional)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in data.tasks %}
+                    {{ task.formset.management_form }}
+                    {% for form in task.formset %}
+                    <tr>
+                        {{ form.id.as_hidden }}
+                        {{ form.task.as_hidden }}
+                        <th class="max-w-60 m-2 truncate px-4 text-left text-xs">{{ task.name }}</th>
+                        <td @input="recalculateHours()" class="report-duration-td p-1 text-xs">
+                            {{ form.duration }}
+                            {% for error in form.duration.errors %}
+                            <p class="text-red-500">{{ error }}</p>
+                            {% endfor %}
+                        </td>
+                        <td class="whitespace-nowrap p-1 text-xs">
+                            {{ form.description }}
+                            {% for error in form.description.errors %}
+                            <p class="text-red-500">{{ error }}</p>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% empty %}
+                    <tr><th class="pt-4">So empty</th></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="mt-auto flex items-center justify-between">
+        <p>Total hours: <span id="report-total-duration" class="font-bold" x-text="hours"></span></p>
+        <input hidden name="date" value="{{ data.date }}" />
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+</form>

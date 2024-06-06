@@ -14,7 +14,7 @@
             "version": "16"
         },
         "ghcr.io/devcontainers/features/node:1": {
-            "version": "21"
+            "version": "22"
         }
     },
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
@@ -36,7 +36,8 @@
                 "eamodio.gitlens",
                 "redhat.vscode-yaml",
                 "EditorConfig.EditorConfig",
-                "bradlc.vscode-tailwindcss"
+                "bradlc.vscode-tailwindcss",
+                "trapfether.tailwind-raw-reorder"
             ],
             "settings": {
                 "editor.formatOnSave": true,
@@ -50,7 +51,8 @@
                 },
                 "files.exclude": {
                     "**/__pycache__": true
-                }
+                },
+                "tailwind-raw-reorder.tailwindConfigPath": "shark/base/static_src/tailwind.config.js"
             }
         }
     }

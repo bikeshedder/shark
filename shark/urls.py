@@ -21,10 +21,10 @@ from django.shortcuts import redirect
 from django.urls import include, path
 
 urlpatterns = [
-    path("", lambda request: redirect("app/")),
+    path("", lambda _: redirect("app/")),
     path("app/", include("shark.base.urls")),
     path(
-        "app/<str:tenant_name>/",
+        "app/<slug:tenant>/",
         include(
             [
                 path("", include("shark.tenant.urls")),
