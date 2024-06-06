@@ -16,7 +16,7 @@ def index(request: HttpRequest):
     if request.tenant_member.role == TenantMember.Role.ADMIN:
         projects = Project.objects.filter(tenant=request.tenant)
     else:
-        projects = request.tenant_member.projects
+        projects = request.tenant_member.projects.all()
     return render(request, "tenant/index.html", {"projects": projects})
 
 
