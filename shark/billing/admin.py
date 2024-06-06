@@ -98,7 +98,7 @@ class InvoiceAdmin(admin.ModelAdmin):
 
         if obj is None and request.method == "GET":
             if request.tenant:
-                tenant_address_dict = request.tenant.to_dict()
+                tenant_address_dict = request.tenant.address.to_dict()
                 for key, value in tenant_address_dict.items():
                     form.base_fields["sender_" + key].initial = value
 
