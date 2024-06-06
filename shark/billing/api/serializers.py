@@ -79,10 +79,10 @@
 #             "paid_at",
 #         )
 
-#     def get_url(self, instance):
-#         request = self.context["request"]
-#         relative_url = reverse("api:billing:invoice_detail", kwargs={"pk": instance.pk})
-#         return request.build_absolute_uri(relative_url)
+#   def get_url(self, instance):
+#       request = self.context["request"]
+#       relative_url = reverse("api:billing:invoice_detail", kwargs={"pk": instance.pk})
+#       return request.build_absolute_uri(relative_url)
 
 
 # class InvoiceCreateSerializer(serializers.ModelSerializer):

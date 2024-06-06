@@ -1,7 +1,6 @@
 import uuid
 from typing import TYPE_CHECKING, Callable
 
-from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
@@ -18,7 +17,7 @@ if TYPE_CHECKING:
     from shark.customer.models import Customer
 
 from . import sepaxml
-from .utils import anonymize_iban
+from .utils import DEFAULT_SEPA, anonymize_iban
 
 
 class DirectDebitMandate(BaseModel):
@@ -82,7 +81,8 @@ class DirectDebitBatch(BaseModel, TenantMixin):
     due_date = models.DateField(
         _("due date"),
         help_text=_(
-            "Must be min. 5 TARGET dates in the future for the first transaction and 2 target days in the future for recurring transactions."
+            "Must be min. 5 TARGET dates in the future for the first transaction and 2"
+            "target days in the future for recurring transactions."
         ),
     )
     mandate_type = models.CharField(
@@ -129,7 +129,7 @@ class DirectDebitBatch(BaseModel, TenantMixin):
                     debitor_country=txn.mandate.country,
                     debitor_iban=txn.mandate.iban,
                     debitor_bic=txn.mandate.bic,
-                    reference=settings.SHARK["SEPA"]["TRANSACTION_REFERENCE_PREFIX"]
+                    reference=DEFAULT_SEPA["TRANSACTION_REFERENCE_PREFIX"]
                     + txn.reference,
                     amount=txn.amount,
                     mandate_id=txn.mandate.reference,

@@ -1,7 +1,7 @@
 import math
 from decimal import Decimal
 
-from shark.utils.rounding import round_to_centi
+from .rounding import round_to_centi
 
 
 def decimal_hours_to_time(decimal_hours: Decimal) -> str:

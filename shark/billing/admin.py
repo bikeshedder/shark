@@ -13,13 +13,13 @@ from grappelli.forms import GrappelliSortableHiddenMixin
 from shark import get_admin_change_url
 from shark.customer.models import CustomerAddress
 from shark.project.models import Project, Task
-from shark.tenant.admin import TenantAwareAdmin
+from shark.tenant.admin import tenant_aware_admin
 from shark.utils.fields import get_address_fieldlist, get_language_from_country
 
 from . import models
 
 
-class excel_semicolon(csv.excel):
+class ExcelSemicolon(csv.excel):
     delimiter = ";"
 
 
@@ -49,12 +49,6 @@ class InvoiceItemInline(GrappelliSortableHiddenMixin, admin.TabularInline):
                 self.objects = tasks
                 return len(tasks)
         return 0
-
-    def get_formset(self, request, obj=None, **kwargs):
-        # Hide sku field which is tied to a related object
-        fs = super().get_formset(request, obj, **kwargs)
-        fs.form.base_fields["sku"].widget = HiddenInput()
-        return fs
 
 
 @admin.register(models.Invoice)
@@ -217,7 +211,7 @@ class InvoiceAdmin(admin.ModelAdmin):
         queryset = queryset.select_related("customer")
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=invoices.csv"
-        writer = csv.writer(response, dialect=excel_semicolon)
+        writer = csv.writer(response, dialect=ExcelSemicolon)
         cols = [
             ("created_at", lambda iv: iv.created_at.date()),
             ("paid_at", None),
@@ -245,7 +239,7 @@ class InvoiceAdmin(admin.ModelAdmin):
         return response
 
 
-@TenantAwareAdmin
+@tenant_aware_admin
 @admin.register(models.InvoiceTemplate)
 class InvoiceTemplateAdmin(admin.ModelAdmin):
     list_display = (

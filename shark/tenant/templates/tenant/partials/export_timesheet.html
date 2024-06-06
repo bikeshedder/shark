@@ -1,0 +1,11 @@
+<form
+    id="export-form"
+    action="{% url 'tenant:timesheet' tenant.slug %}?project={{ project_id }}&month={{ month }}&year={{ year }}"
+    method="post"
+    target="_blank"
+    class="ml-8"
+    hx-swap-oob="true"
+>
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary">Export as PDF</button>
+</form>

@@ -1,32 +1,32 @@
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
-<script type="text/javascript">
-    function parseShortDate(dateString) {
-        {% if LANGUAGE_CODE == "de" %}
-        const monthNames = {
-           'Januar': 0, 'Februar': 1, 'März': 2, 'April': 3, 'Mai': 4, 'Juni': 5,
-           'Juli': 6, 'August': 7, 'September': 8, 'Oktober': 9, 'November': 10, 'Dezember': 11
-        };
+<script>
+const parseShortDate = (dateString) => {
+    {% if LANGUAGE_CODE == "de" %}
+    const monthNames = {
+        'Januar': 0, 'Februar': 1, 'März': 2, 'April': 3, 'Mai': 4, 'Juni': 5,
+        'Juli': 6, 'August': 7, 'September': 8, 'Oktober': 9, 'November': 10, 'Dezember': 11
+    };
 
-        const parts = dateString.split(' ');
-        const dayWithDot = parts[0]
-        const day = parseInt(dayWithDot.substring(0, dayWithDot.length - 1));
-        const month = monthNames[parts[1]];
-        const year = parseInt(parts[2]);
+    const parts = dateString.split(' ');
+    const dayWithDot = parts[0]
+    const day = parseInt(dayWithDot.substring(0, dayWithDot.length - 1));
+    const month = monthNames[parts[1]];
+    const year = parseInt(parts[2]);
 
-        {% elif LANGUAGE_CODE == "en" %}
-        const monthNames = {
-            'January': 0, 'February': 1, 'March': 2, 'April': 3, 'May': 4, 'June': 5,
-            'July': 6, 'August': 7, 'September': 8, 'October': 9, 'November': 10, 'December': 11
-        };
+    {% elif LANGUAGE_CODE == "en" %}
+    const monthNames = {
+        'January': 0, 'February': 1, 'March': 2, 'April': 3, 'May': 4, 'June': 5,
+        'July': 6, 'August': 7, 'September': 8, 'October': 9, 'November': 10, 'December': 11
+    };
 
-        const parts = dateString.split(' ');
-        const day = parseInt(parts[0]);
-        const month = monthNames[parts[1]];
-        const year = parseInt(parts[2]);
-        {% endif %}
+    const parts = dateString.split(' ');
+    const day = parseInt(parts[0]);
+    const month = monthNames[parts[1]];
+    const year = parseInt(parts[2]);
+    {% endif %}
 
-        return new Date(year, month, day);
-       }
+    return new Date(year, month, day);
+}
 </script>
 

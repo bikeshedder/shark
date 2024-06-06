@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
@@ -6,10 +5,11 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 from django.utils.translation import override as trans_override
 
-from shark.sepa.fields import get_creditor_fieldlist
 from shark.utils.mail import send_templated_mail
 
 from . import models
+from .fields import get_creditor_fieldlist
+from .utils import DEFAULT_SEPA
 
 
 @admin.register(models.DirectDebitMandate)
@@ -72,17 +72,15 @@ class DirectDebitBatchAdmin(admin.ModelAdmin):
                             "transaction": transaction,
                             "customer": transaction.customer,
                             "mandate": transaction.mandate,
-                            "creditor_id": settings.SHARK["SEPA"]["CREDITOR_ID"],
+                            "creditor_id": DEFAULT_SEPA["CREDITOR_ID"],
                         },
-                        from_email=settings.SHARK["SEPA"][
-                            "PRE_NOTIFICATION_EMAIL_FROM"
-                        ],
+                        from_email=DEFAULT_SEPA["PRE_NOTIFICATION_EMAIL_FROM"],
                         to=[
                             address.email
                             # TODO: no email_set exists
                             for address in transaction.customer.email_set.all()
                         ],
-                        bcc=settings.SHARK["SEPA"]["PRE_NOTIFICATION_EMAIL_BCC"],
+                        bcc=DEFAULT_SEPA["PRE_NOTIFICATION_EMAIL_BCC"],
                     )
             self.message_user(
                 request,

@@ -12,45 +12,44 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 
 import environ
+from botocore.config import Config
 from django.utils.translation import gettext_lazy as _
-from django_countries.widgets import LazyChoicesMixin
 
-# Patch django_countries until new version is released
-# This is the only dep that's blocking the upgrade
-# https://github.com/SmileyChris/django-countries/issues/447#issuecomment-1890946593
-LazyChoicesMixin.get_choices = lambda self: self._choices
-LazyChoicesMixin.choices = property(
-    LazyChoicesMixin.get_choices, LazyChoicesMixin.set_choices
-)
-
-env = environ.Env(
-    # set casting, default value
-    DEBUG=(bool, False)
-)
+env = environ.Env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+# Use different env file for CI runs
+# "CI" env variable is set by Github runner
 ENV_FILE = ".env.ci" if env.bool("CI", False) else ".env"
 environ.Env.read_env(os.path.join(BASE_DIR, ENV_FILE))
 
+BASE_URL = env("BASE_URL")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("DEBUG")
+DEBUG = False
 
-ALLOWED_HOSTS = [env("ALLOWED_HOSTS")]
+
+def get_host(url: str):
+    loc = urlparse(url).netloc
+    host = loc.rsplit(":", 1)[0]
+    return host
+
+
+# Allowed hosts should not include protocol
+ALLOWED_HOSTS = [get_host(url) for url in env.list("ALLOWED_HOSTS", default=[BASE_URL])]
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[BASE_URL])
 
 
 # Application definition
-
 INSTALLED_APPS = [
     # Shark applications
     "shark",
@@ -62,6 +61,7 @@ INSTALLED_APPS = [
     "shark.tenant",
     "shark.sepa",
     "shark.id_generators",
+    "supercollect",
     # Django Admin - order is mandatory
     # https://django-grappelli.readthedocs.io/en/latest/dashboard_setup.html#dashboard-setup
     "django.contrib.contenttypes",
@@ -79,6 +79,8 @@ INSTALLED_APPS = [
     "localflavor",
     "rest_framework",
     "storages",
+    "django_htmx",
+    "heroicons",
     "tailwind",
     "django_browser_reload",
 ]
@@ -94,6 +96,8 @@ MIDDLEWARE = [
     "shark.auth.middleware.login_required",
     "shark.tenant.middleware.add_tenant",
     "shark.tenant.middleware.remove_tenant_capturing_group",
+    "django.middleware.gzip.GZipMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",
     "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
@@ -108,6 +112,7 @@ TEMPLATES = [
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
+                "django.template.context_processors.static",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "shark.tenant.context_processors.tenant",
@@ -139,7 +144,7 @@ CACHES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",  # noqa: E501
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
@@ -156,7 +161,7 @@ LOGIN_URL = "/auth/login"
 LOGIN_REDIRECT_URL = "/app/"
 LOGOUT_REDIRECT_URL = LOGIN_URL
 
-# Skip login_required middleware for these apps
+# Apply login_required middleware for these url paths (admin is guarded by default)
 LOGIN_REQUIRED_ROUTES = ["/app"]
 
 # Internationalization
@@ -169,19 +174,33 @@ LANGUAGES = [
 ]
 
 TIME_ZONE = "UTC"
-USE_I18N = True
-USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# Storage Management
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "htdocs" / "static"
-
-# Media files
-
-MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "htdocs" / "media"
+
+
+AWS_S3_ACCESS_KEY_ID = env.str("AWS_S3_ACCESS_KEY_ID")
+AWS_S3_SECRET_ACCESS_KEY = env.str("AWS_S3_SECRET_ACCESS_KEY")
+AWS_S3_ENDPOINT_URL = env.str("AWS_S3_ENDPOINT_URL")
+AWS_S3_CLIENT_CONFIG = Config(max_pool_connections=50)
+AWS_STORAGE_BUCKET_NAME = "shark"
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {"location": "media"},
+    },
+    "staticfiles": {
+        "BACKEND": "storages.backends.s3.S3ManifestStaticStorage",
+        "OPTIONS": {"location": "static", "gzip": True},
+    },
+}
+
+MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/shark/media/"
+STATIC_URL = f"{AWS_S3_ENDPOINT_URL}/shark/static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -190,18 +209,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 FORMAT_MODULE_PATH = "shark.base.formats"
 
-TAILWIND_APP_NAME = "shark.base"
-INTERNAL_IPS = [
-    "127.0.0.1",
-]
-
-# Used for document storage
-AWS_S3_ENDPOINT_URL = "http://minio:9000"
-AWS_S3_ACCESS_KEY_ID = env.str("MINIO_ACCESS_KEY_ID")
-AWS_S3_SECRET_ACCESS_KEY = env.str("MINIO_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = "shark"
-AWS_QUERYSTRING_AUTH = False
-
 GRAPPELLI_INDEX_DASHBOARD = "shark.dashboard.CustomIndexDashboard"
 
 REST_FRAMEWORK = {
@@ -209,19 +216,9 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ),
-    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAdminUser",),
-}
-
-SHARK = {
-    "SEPA": {
-        "CREDITOR_ID": "",
-        "CREDITOR_NAME": "",
-        "CREDITOR_COUNTRY": "DE",
-        "CREDITOR_IBAN": "",
-        "CREDITOR_BIC": "",
-        "DEFAULT_MANDATE_TYPE": "CORE",
-        "TRANSACTION_REFERENCE_PREFIX": "",
-        "PRE_NOTIFICATION_EMAIL_FROM": "",
-        "PRE_NOTIFICATION_EMAIL_BCC": [],
-    },
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_RENDERER_CLASSES": (
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.TemplateHTMLRenderer",
+    ),
 }

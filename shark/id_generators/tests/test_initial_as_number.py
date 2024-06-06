@@ -2,8 +2,9 @@ from django.db import IntegrityError
 from django.test import TestCase
 
 from shark.customer.models import Customer
-from shark.id_generators.utils import CustomerNumberGenerators
 from shark.tenant.models import Tenant
+
+from ..utils import CustomerNumberGenerators
 
 
 class TestInitialNumberGenerator(TestCase):

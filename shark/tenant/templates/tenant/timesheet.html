@@ -1,0 +1,52 @@
+{% extends "base/site.html" %}
+
+{% block content %}
+<div class="flex h-full flex-col" x-data="{ 'reportIsOpen': false }">
+    <div
+        class="flex justify-center"
+        hx-get="{% url 'tenant:timesheet' tenant.slug %}?project={{ project_id }}"
+        hx-trigger="change"
+        hx-target="#calendar-fields"
+        hx-include="select"
+        hx-replace-url="true"
+    >
+        <select name="month" class="w-40">
+            {% now "n" as this_month %}
+            {% with request.GET.month as q_month %}
+            {% for i in months %}
+            <option value="{{ i }}" {% if q_month == i or not q_month and i == this_month %}selected{% endif %}>{{ i }}</option>
+            {% endfor %}
+            {% endwith %}
+        </select>
+        <select name="year" class="w-40">
+            {% now "Y" as this_year %}
+            {% with request.GET.year as q_year %}
+            {% for i in years %}
+            <option value="{{ i }}" {% if q_year == i or not q_year and i == this_year %}selected{% endif %}>{{ i }}</option>
+            {% endfor %}
+            {% endwith %}
+        </select>
+        {% include 'tenant/partials/export_timesheet.html' %}
+    </div>
+    <div class="mt-2 grid grid-cols-7 gap-0 rounded bg-white p-4 text-center text-lg font-semibold">
+        <p>Monday</p>
+        <p>Tuesday</p>
+        <p>Wednesday</p>
+        <p>Thursday</p>
+        <p>Friday</p>
+        <p>Saturday</p>
+        <p>Sunday</p>
+    </div>
+    <div id="calendar-fields" class="grid grid-cols-7 gap-2 overflow-auto rounded p-2" @htmx:after-request="reportIsOpen = true" @focus="console.log('focus fired')">
+        {% include "tenant/partials/calendar_fields.html" with data=data year=year month=month %}
+    </div>
+    <div
+        id="report"
+        class="fixed bottom-0 top-0 z-50 bg-base-100 p-2 opacity-0 shadow-lg transition-all"
+        @click.outside="reportIsOpen = false"
+        @keyup.escape.window="reportIsOpen = false"
+        x-trap="reportIsOpen"
+        :class="reportIsOpen ? 'right-0 opacity-100' : '-right-full'"
+    ></div>
+</div>
+{% endblock content %}

@@ -1,11 +1,11 @@
 from django.contrib import admin
 
-from shark.tenant.admin import TenantAwareAdmin
+from shark.tenant.admin import tenant_aware_admin
 
 from . import models
 
 
-@TenantAwareAdmin
+@tenant_aware_admin
 @admin.register(models.Project)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ["name", "customer", "active"]

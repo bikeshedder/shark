@@ -1,99 +1,46 @@
-{% load static tailwind_tags %}
+{% load static tailwind_tags django_htmx heroicons %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <title>{% block title %}Shark{% endblock title %}</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="{% static 'js/alpinejs-focus-3.13.10.min.js' %}" defer></script>
+    <script src="{% static 'js/alpinejs-3.13.10.min.js' %}" defer></script>
+    <script src="{% static 'js/htmx-1.9.12.min.js' %}" defer></script>
+    {% django_htmx_script %}
     {% tailwind_css %}
     {% block extrahead %}{% endblock extrahead %}
 </head>
 
-<body class="text-gray-800 bg-gray-200 font-inter h-full">
+<body class="flex h-full flex-col bg-base-100 text-base-content" x-data="{ 'isPopupOpen': false }">
 {% include "base/topnav.html" %}
+
 {% block main %}
-<main class="w-full h-full transition-all p-6 pb-2">
+<main class="flex-1 p-4 2xl:overflow-hidden">
+    TESTME
 {% block content %}
 {% endblock content %}
 </main>
 {% endblock main %}
+<div
+    x-show="isPopupOpen"
+    x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="opacity-0 transform scale-90 -translate-x-1/2 -translate-y-1/2"
+    x-transition:enter-end="opacity-100 transform scale-100 -translate-x-1/2 -translate-y-1/2"
+    x-transition:leave="transition ease-in duration-200"
+    x-transition:leave-start="opacity-100 transform scale-100 -translate-x-1/2 -translate-y-1/2"
+    x-transition:leave-end="opacity-0 transform scale-90 -translate-x-1/2 -translate-y-1/2"
+    @htmx:after-request="if (event.detail.successful) isPopupOpen = false"
+    style="display:none;"
+    class="absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 bg-white"
+>
+    <div id="popup-content"></div>
+    <button class="btn btn-ghost btn-sm absolute right-0 top-0" @click="isPopupOpen = false">
+        {% heroicon_solid "x-mark" %}
+    </button>
+</div>
+{% block scripts %}{% endblock scripts %}
 
-<script src="https://unpkg.com/@popperjs/core@2"></script>
-<script>
-    // start: Popper
-    const popperInstance = {}
-    document.querySelectorAll('.dropdown').forEach(function (item, index) {
-        const popperId = 'popper-' + index
-        const toggle = item.querySelector('.dropdown-toggle')
-        const menu = item.querySelector('.dropdown-menu')
-        menu.dataset.popperId = popperId
-        popperInstance[popperId] = Popper.createPopper(toggle, menu, {
-            modifiers: [
-                {
-                    name: 'offset',
-                    options: {
-                        offset: [0, 8],
-                    },
-                },
-                {
-                    name: 'preventOverflow',
-                    options: {
-                        padding: 24,
-                    },
-                },
-            ],
-            placement: 'bottom-end'
-        });
-    })
-    document.addEventListener('click', function (e) {
-        const toggle = e.target.closest('.dropdown-toggle')
-        const menu = e.target.closest('.dropdown-menu')
-        if (toggle) {
-            const menuEl = toggle.closest('.dropdown').querySelector('.dropdown-menu')
-            const popperId = menuEl.dataset.popperId
-            if (menuEl.classList.contains('hidden')) {
-                hideDropdown()
-                menuEl.classList.remove('hidden')
-                showPopper(popperId)
-            } else {
-                menuEl.classList.add('hidden')
-                hidePopper(popperId)
-            }
-        } else if (!menu) {
-            hideDropdown()
-        }
-    })
-
-    function hideDropdown() {
-        document.querySelectorAll('.dropdown-menu').forEach(function (item) {
-            item.classList.add('hidden')
-        })
-    }
-    function showPopper(popperId) {
-        popperInstance[popperId].setOptions(function (options) {
-            return {
-                ...options,
-                modifiers: [
-                    ...options.modifiers,
-                    { name: 'eventListeners', enabled: true },
-                ],
-            }
-        });
-        popperInstance[popperId].update();
-    }
-    function hidePopper(popperId) {
-        popperInstance[popperId].setOptions(function (options) {
-            return {
-                ...options,
-                modifiers: [
-                    ...options.modifiers,
-                    { name: 'eventListeners', enabled: false },
-                ],
-            }
-        });
-    }
-    // end: Popper
-</script>
 </body>
 </html>

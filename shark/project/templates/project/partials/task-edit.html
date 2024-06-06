@@ -1,0 +1,11 @@
+{% load rest_framework %}
+
+<form
+    hx-put="{% url 'api:project:task-detail' data.id %}"
+    hx-headers='{"X-CSRFToken": "{{ csrf_token }}", "Hx-Trigger": "task-changed", "Hx-Refresh": "true"}'
+    class="flex h-full w-full flex-col p-4"
+>
+    {% csrf_token %}
+    {% render_form serializer %}
+    <button class="btn btn-primary" type="submit">Ok</button>
+</form>

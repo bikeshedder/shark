@@ -1,0 +1,19 @@
+<form
+    id="task-create-form"
+    hx-post="{% url 'api:project:task-list' %}"
+    hx-headers='{"hx-trigger": "task-added"}'
+    hx-target="#tasks"
+    hx-swap="beforeend"
+    x-show="open"
+    style="display:none;"
+    @htmx:after-request="if (event.detail.successful) open = false"
+    @click.outside="open = false"
+>
+    {% csrf_token %}
+    <div class="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col rounded-lg bg-white p-4 shadow-lg">
+        <label for="name">Name</label>
+        <input name="name" autocomplete="off" />
+        <input name="project" hidden value="{{ project.id }}"/>
+        <button class="btn btn-primary mt-2" type="submit">Ok</button>
+    </div>
+</form>

@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from shark.utils.fields import get_address_fieldlist
+from .fields import get_address_fieldlist
 
 
 class TestUtilFields(TestCase):

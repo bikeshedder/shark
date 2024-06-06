@@ -31,6 +31,17 @@ module.exports = {
     theme: {
         extend: {},
     },
+    daisyui: {
+        themes: [
+            {
+                nord: {
+                    ...require("daisyui/src/theming/themes")["nord"],
+                    'primary-content': 'white',
+                    '--animation-btn': '0s'
+                },
+            }
+        ]
+    },
     plugins: [
         /**
          * '@tailwindcss/forms' is the forms plugin that provides a minimal styling
@@ -40,5 +51,6 @@ module.exports = {
         require('@tailwindcss/forms'),
         require('@tailwindcss/typography'),
         require('@tailwindcss/aspect-ratio'),
-    ],
+        require('daisyui')
+    ]
 }
