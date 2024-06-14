@@ -39,6 +39,7 @@ typst = "^0.11.0"
 django-htmx = "^1.17.3"
 heroicons = { extras = ["django"], version = "*" }
 supercollect = "^1"
+qrcode = "^7.4.2"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.4"

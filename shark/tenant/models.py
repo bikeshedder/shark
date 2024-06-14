@@ -6,8 +6,6 @@ from django.template.defaultfilters import slugify
 
 from shark.auth.models import User
 from shark.base.models import BaseModel, InvoiceOptionsMixin, TenantMixin
-from shark.billing.models import InvoiceTemplate
-from shark.billing.utils.fake_invoice import EmptyInvoiceTemplate
 from shark.id_generators.utils import (
     CustomerNumberGenerators,
     InvoiceNumberGenerators,
@@ -43,13 +41,6 @@ class Tenant(BaseModel, InvoiceOptionsMixin):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
         super().save(*args, **kwargs)
-
-    @property
-    def selected_invoice_template(self) -> InvoiceTemplate:
-        return (
-            self.invoicetemplate_set.filter(is_selected=True).first()
-            or EmptyInvoiceTemplate()
-        )
 
     def get_customer_number_generator(self):
         # Dynamically import the generator class

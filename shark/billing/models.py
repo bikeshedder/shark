@@ -33,6 +33,9 @@ class Invoice(BaseModel):
         editable=False,
     )
     language = LanguageField(_("language"))
+    template: "InvoiceTemplate" = models.ForeignKey(
+        "billing.InvoiceTemplate", blank=True, null=True, on_delete=models.SET_NULL
+    )
 
     class Type(models.TextChoices):
         INVOICE = "invoice", _("Invoice")
@@ -179,6 +182,13 @@ class InvoiceItem(models.Model):
         verbose_name=_("SKU"),
         help_text=_("Stock-keeping unit (e.g. Article number)"),
     )
+
+    class Units(models.TextChoices):
+        HOURS = "h"
+        DAYS = "d"
+        MONTHS = "m"
+
+    unit = models.CharField(choices=Units, blank=True)
     quantity = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -188,12 +198,6 @@ class InvoiceItem(models.Model):
     price = models.DecimalField(
         max_digits=10, decimal_places=2, verbose_name=_("price")
     )
-
-    class Units(models.TextChoices):
-        HOURS = "h"
-        PIECES = "pc"
-
-    unit = models.CharField(choices=Units, default=Units.HOURS)
     discount = models.DecimalField(
         max_digits=3,
         decimal_places=2,
@@ -260,8 +264,6 @@ class InvoiceItem(models.Model):
 
 class InvoiceTemplate(BaseModel, TenantMixin):
     name = models.CharField(_("Name"))
-    is_selected = models.BooleanField(default=False)
-
     first_page_bg = models.FileField(_("First invoice page bg"), null=True, blank=True)
     later_pages_bg = models.FileField(
         _("Later invoice pages bg"), null=True, blank=True
@@ -271,11 +273,3 @@ class InvoiceTemplate(BaseModel, TenantMixin):
 
     def __str__(self):
         return self.name
-
-    def save(self, *args, **kwargs):
-        if self.is_selected:
-            InvoiceTemplate.objects.filter(tenant=self.tenant).exclude(
-                pk=self.pk
-            ).update(is_selected=False)
-
-        super().save(*args, **kwargs)
