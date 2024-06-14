@@ -7,11 +7,18 @@ from shark.utils.fields import get_address_fieldlist
 from ..models import Invoice
 
 
+class EmptyInvoiceTemplate(object):
+    terms = "For presentational purposes only.\nA fake invoice"
+    first_page_bg = None
+    later_pages_bg = None
+
+
 # Generate fake invoice models without customer relation
 # To be able to preview templates and test pdf generation
 class FakeInvoice(Invoice):
     customer = None
     number = "PREVIEW"
+    template = EmptyInvoiceTemplate()
 
     @property
     def items(self):
@@ -60,9 +67,3 @@ def create_fake_invoice():
     invoice.created_at = date.today()
 
     return invoice
-
-
-class EmptyInvoiceTemplate(object):
-    terms = []
-    first_page_bg = None
-    later_pages_bg = None

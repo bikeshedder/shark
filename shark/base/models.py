@@ -44,6 +44,10 @@ class BillableMixin(models.Model):
     hourly_rate = models.DecimalField(
         _("hourly rate"), max_digits=7, decimal_places=2, blank=True, null=True
     )
+    daily_rate = models.DecimalField(
+        _("daily rate"), max_digits=7, decimal_places=2, blank=True, null=True
+    )
+    # maturity = models.DateField(_("maturity"))
 
     class Meta:
         abstract = True

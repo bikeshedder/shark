@@ -12,19 +12,23 @@ from .utils.fake_invoice import create_fake_invoice
 
 @permission_required("billing.add_invoicetemplate")
 def preview_invoice_template(request, id):
-    invoice_template = get_object_or_404(InvoiceTemplate, id=id)
+    invoice_template = get_object_or_404(
+        InvoiceTemplate.objects.filter(id=id, tenant=request.tenant)
+    )
     invoice = create_fake_invoice()
-    return invoice_to_pdf.as_http_response(invoice, invoice_template)
+    invoice.template = invoice_template
+    return invoice_to_pdf.as_http_response(invoice)
 
 
 @permission_required("billing.change_invoice")
 def invoice_pdf(request, number, correction=False):
-    invoice = get_object_or_404(Invoice, number=number)
+    invoice = get_object_or_404(
+        Invoice.objects.filter(number=number, customer__tenant=request.tenant)
+    )
     if correction:
         invoice = invoice.correction
 
-    invoice_template = request.tenant.selected_invoice_template
-    response = invoice_to_pdf.as_http_response(invoice, invoice_template)
+    response = invoice_to_pdf.as_http_response(invoice)
     if "download" in request.GET:
         filename = "%s.pdf" % invoice.number
         response["Content-Disposition"] = "attachment; filename=%s" % filename

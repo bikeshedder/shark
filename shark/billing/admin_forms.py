@@ -22,10 +22,10 @@ class ItemForm(forms.ModelForm):
             "quantity",
             "sku",
             "text",
-            # "begin",
-            # "end",
+            "begin",
+            "end",
             "price",
-            # "unit",
+            "unit",
             "discount",
             "vat_rate",
         ]

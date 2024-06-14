@@ -54,7 +54,10 @@ class InvoiceItemInline(GrappelliSortableHiddenMixin, admin.TabularInline):
 @admin.register(models.Invoice)
 class InvoiceAdmin(admin.ModelAdmin):
     fieldsets = (
-        (_("general"), {"fields": ("customer", "type", "language")}),
+        (
+            _("general"),
+            {"fields": ("customer", "type", "language", "template")},
+        ),
         (
             _("sender"),
             {"fields": get_address_fieldlist("sender")},
@@ -246,11 +249,8 @@ class InvoiceAdmin(admin.ModelAdmin):
 class InvoiceTemplateAdmin(admin.ModelAdmin):
     list_display = (
         "name",
-        "is_selected",
         "preview_invoice",
     )
-
-    list_editable = ["is_selected"]
 
     @admin.display(description="Preview")
     def preview_invoice(self, obj):
