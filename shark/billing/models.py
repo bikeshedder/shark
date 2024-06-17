@@ -30,7 +30,6 @@ class Invoice(BaseModel):
     number = IdField(
         type="invoice",
         verbose_name=_("number"),
-        editable=False,
     )
     language = LanguageField(_("language"))
     template: "InvoiceTemplate" = models.ForeignKey(

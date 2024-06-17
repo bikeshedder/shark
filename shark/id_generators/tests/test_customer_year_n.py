@@ -10,6 +10,8 @@ from shark.tenant.models import Tenant
 from ..utils import InvoiceNumberGenerators
 
 CURRENT_YEAR = date.today().year
+LAST_TWO_DIGITS = str(CURRENT_YEAR)[2:]
+CURRENT_YEAR = int(LAST_TWO_DIGITS)
 
 
 class TestCustomerYearNGenerator(TestCase):
@@ -23,19 +25,20 @@ class TestCustomerYearNGenerator(TestCase):
 
     def test_first_and_next(self):
         invoice = Invoice.objects.create(customer=self.customer)
-        self.assertEqual(invoice.number, f"{self.customer.number}-{CURRENT_YEAR}-01")
+        self.assertEqual(invoice.number, f"{self.customer.number}-{CURRENT_YEAR}01")
 
         invoice2 = Invoice.objects.create(customer=self.customer)
-        self.assertEqual(invoice2.number, f"{self.customer.number}-{CURRENT_YEAR}-02")
+        self.assertEqual(invoice2.number, f"{self.customer.number}-{CURRENT_YEAR}02")
 
     def test_different_customer(self):
         customer = Customer.objects.create(tenant=self.tenant, name="Bernd")
         invoice = Invoice.objects.create(customer=customer)
-        self.assertEqual(invoice.number, f"{customer.number}-{CURRENT_YEAR}-01")
+        self.assertEqual(invoice.number, f"{customer.number}-{CURRENT_YEAR}01")
 
     def test_uniqueness(self):
+        invoice = Invoice.objects.create(customer=self.customer)
         with self.assertRaises(IntegrityError):
-            Invoice.objects.create(number=f"{self.customer.number}-01")
+            Invoice.objects.create(number=invoice.number)
 
 
 # def test_prefix(self):
