@@ -19,24 +19,24 @@ class TestInitialNumberGenerator(TestCase):
 
     def test_first_and_next(self):
         customer = Customer.objects.create(tenant=self.tenant, name="Anna")
-        self.assertEqual(customer.number, "0101")
+        self.assertEqual(customer.number, "T0101")
 
         customer2 = Customer.objects.create(tenant=self.tenant, name="Anton")
-        self.assertEqual(customer2.number, "0102")
+        self.assertEqual(customer2.number, "T0102")
 
     def test_different_initial(self):
         customer = Customer.objects.create(tenant=self.tenant, name="Bert")
-        self.assertEqual(customer.number, "0201")
+        self.assertEqual(customer.number, "T0201")
 
     def test_uniqueness(self):
         Customer.objects.create(tenant=self.tenant, name="Anna")
         with self.assertRaises(IntegrityError):
-            Customer.objects.create(number="0101")
+            Customer.objects.create(number="T0101")
 
     def test_non_standard_character(self):
         customer = Customer.objects.create(tenant=self.tenant, name=" ")
 
-        self.assertEqual(customer.number, "0001")
+        self.assertEqual(customer.number, "T0001")
 
     # def test_prefix(self):
     #     customer = PrefixedNumberCustomer(name="Anna")

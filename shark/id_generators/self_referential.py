@@ -25,7 +25,7 @@ class InitialAsNumber(IdGenerator):
         self,
         model_class=None,
         field_name=None,
-        prefix="",
+        prefix="T",  # TODO: To edit options, need to store more info in DB
         initial_field_name="name",
         n_length=2,
         n_base=10,
