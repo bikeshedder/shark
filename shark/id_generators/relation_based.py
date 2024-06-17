@@ -115,11 +115,12 @@ class CustomerYearN(IdGenerator):
     """
     Generate numbers of the format
     <prefix><customer_number><separator1><year><separator2><n>
-    e.g. EXAMPLE-2012-01
+    e.g. EXAMPLE-2401
 
     prefix: defaults to ''
     separator1: defaults to '-'
-    separator2: defaults to '-', optional
+    year_length: defaults to 2 (24 instead of 2024)
+    separator2: defaults to '', optional
     n: simple counter with n_length characters to the base n_base
     """
 
@@ -130,8 +131,8 @@ class CustomerYearN(IdGenerator):
         prefix="",
         customer_number_length=20,
         separator1="-",
-        year_length=4,
-        separator2="-",
+        year_length=2,
+        separator2="",
         n_length=2,
         n_base=10,
     ):
@@ -143,14 +144,15 @@ class CustomerYearN(IdGenerator):
         self.n_length = n_length
         self.n_base = n_base
         # <prefix><year><separator1><customer_number><separator2><n>
+        self.format_string_customer_year = "{prefix}{customer_number}{separator1}"
         self.format_string_customer_year = (
-            "{prefix}{customer_number}{separator1}" "{year:04d}{separator2}"
+            self.format_string_customer_year + "{year:%d}{separator2}" % year_length
         )
         self.format_string = self.format_string_customer_year + "{n:0>%ds}" % n_length
         self.max_length = (
             len(prefix)
             + len(separator1)
-            + 4
+            + year_length
             + customer_number_length
             + len(separator2)
             + n_length
@@ -159,12 +161,15 @@ class CustomerYearN(IdGenerator):
     def format(self, customer_number: str, year: int, n: int) -> str:
         return self.format_string.format(
             prefix=self.prefix,
-            year=year,
+            year=self.format_year(year),
             separator1=self.separator1,
             separator2=self.separator2,
             customer_number=customer_number,
             n=self.format_n(n),
         )
+
+    def format_year(self, year):
+        return (("%%0%dd" % self.year_length) % year)[-self.year_length :]
 
     def format_n(self, n: int) -> str:
         return int2base(n, self.n_base)
@@ -202,7 +207,7 @@ class CustomerYearN(IdGenerator):
             prefix=self.prefix,
             customer_number=customer.number,
             separator1=self.separator1,
-            year=today.year,
+            year=self.format_year(today.year),
             separator2=self.separator2,
         )
         return (
