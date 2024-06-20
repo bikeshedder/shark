@@ -64,7 +64,7 @@ def import_items(request):
 
     return TemplateResponse(
         request,
-        "billing/admin/import_items.html",
+        "admin/billing/import_items.html",
         {
             "form": form,
             "adminform": AdminForm(

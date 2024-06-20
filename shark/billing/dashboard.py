@@ -9,7 +9,7 @@ from shark.billing.models import Invoice
 
 class UnpaidInvoicesDashboardModule(DashboardModule):
     title = _("Unpaid invoices")
-    template = "billing/dashboard/unpaid-invoices.html"
+    template = "admin/billing/dashboard/unpaid-invoices.html"
 
     def is_empty(self):
         return False
