@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   app:
@@ -23,7 +23,6 @@ services:
       PGUSER: postgres
       PGPASSWORD: postgres
       DJANGO_SETTINGS_MODULE: shark.settings_dev
-
 
   postgres:
     image: postgres:latest
