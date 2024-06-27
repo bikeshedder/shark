@@ -42,7 +42,7 @@ supercollect = "^1"
 qrcode = "^7.4.2"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.4"
+ruff = "^0.5"
 pre-commit = "^3.6.2"
 
 [tool.ruff.lint]
