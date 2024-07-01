@@ -56,7 +56,16 @@ class InvoiceAdmin(admin.ModelAdmin):
     fieldsets = (
         (
             _("general"),
-            {"fields": ("number", "customer", "type", "language", "template")},
+            {
+                "fields": (
+                    "number",
+                    "issue_date",
+                    "customer",
+                    "type",
+                    "language",
+                    "template",
+                )
+            },
         ),
         (
             _("sender"),

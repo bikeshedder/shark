@@ -69,7 +69,7 @@ def write_pdf(fh, invoice: Invoice):
         document = Document(
             sender=invoice.sender_lines,
             recipient=invoice.recipient_lines,
-            date=date_format(invoice.created_at, "SHORT_DATE_FORMAT"),
+            date=date_format(invoice.issue_date, "SHORT_DATE_FORMAT"),
             content=content,
         )
 
