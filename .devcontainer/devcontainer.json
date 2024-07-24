@@ -37,7 +37,8 @@
                 "redhat.vscode-yaml",
                 "EditorConfig.EditorConfig",
                 "bradlc.vscode-tailwindcss",
-                "trapfether.tailwind-raw-reorder"
+                "trapfether.tailwind-raw-reorder",
+                "pflannery.vscode-versionlens"
             ],
             "settings": {
                 "editor.formatOnSave": true,
