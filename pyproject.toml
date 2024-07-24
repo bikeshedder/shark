@@ -18,32 +18,32 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
-Django = "^5"
-django-grappelli = "^4"
+Django = "^5.0.7"
+django-grappelli = "^4.0.1"
 dinbrief = "^0.5.0"
-django-taggit = "^5"
+django-taggit = "^5.0.1"
 django-localflavor = "^4"
-djangorestframework = "^3.12.4"
+djangorestframework = "^3.15.2"
 django-composite-field = "^2"
-django-countries = "^7.2.1"
-django-storages = "^1.14"
-python-magic = "^0.4.24"
-Wand = "^0.6.7"
-PyPDF3 = "^1.0.5"
-django-environ = "^0.11"
+django-countries = "^7.6.1"
+django-storages = "^1.14.4"
+python-magic = "^0.4.27"
+Wand = "^0.6.13"
+PyPDF3 = "^1.0.6"
+django-environ = "^0.11.2"
 gunicorn = "^22"
-boto3 = "^1.34"
-psycopg = "^3.1.18"
+boto3 = "^1.34.147"
+psycopg = "^3.2.1"
 django-tailwind = { extras = ["reload"], version = "^3.8.0" }
-typst = "^0.11.0"
-django-htmx = "^1.17.3"
-heroicons = { extras = ["django"], version = "*" }
-supercollect = "^1"
+typst = "^0.11.1"
+django-htmx = "^1.18.0"
+heroicons = { extras = ["django"], version = "2.6.0" }
+supercollect = "^1.0.55"
 qrcode = "^7.4.2"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.5"
-pre-commit = "^3.6.2"
+ruff = "^0.5.4"
+pre-commit = "^3.7.1"
 
 [tool.ruff.lint]
 # https://docs.astral.sh/ruff/rules/

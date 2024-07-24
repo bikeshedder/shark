@@ -9,7 +9,6 @@
 !.env.*example
 !.env.ci
 
-!.dockerignore
 !.pre-commit-config.yaml
 
 /htdocs
