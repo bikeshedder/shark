@@ -51,10 +51,11 @@ select = ["E", "W", "F", "DJ", "I", "N"]
 
 [tool.ruff.lint.per-file-ignores]
 # Ignore `E501` (Line too long) in all migration files
-"**/migrations/*" = ["E501"]
+"**/migrations/*" = ["E501", "I001"]
 
 [tool.ruff.format]
 line-ending = "lf"
+exclude = ["**/migrations/*"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
