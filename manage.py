@@ -1,4 +1,4 @@
-#!/usr/bin/env -S poetry run python
+#!/usr/bin/env -S uv run python
 """Django's command-line utility for administrative tasks."""
 
 import os

@@ -4,8 +4,7 @@
 !shark
 !i18n.py
 !manage.py
-!poetry.lock
-!poetry.toml
+!uv.lock
 !pyproject.toml
 
 !docker/entrypoint.sh

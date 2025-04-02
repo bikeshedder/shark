@@ -7,14 +7,16 @@
     "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
     // Features to add to the dev container. More info: https://containers.dev/features.
     "features": {
-        "ghcr.io/devcontainers-contrib/features/poetry:2": {
-            "version": "1.8"
-        },
         "ghcr.io/robbert229/devcontainer-features/postgresql-client:1": {
             "version": "16"
         },
         "ghcr.io/devcontainers/features/node:1": {
             "version": "22"
+        },
+        // https://github.com/va-h/devcontainers-features/tree/main/src/uv
+        // https://github.com/astral-sh/uv
+        "ghcr.io/va-h/devcontainers-features/uv:1": {
+            "version": "0.6.11"
         }
     },
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
@@ -25,7 +27,7 @@
         "minio:9001"
     ],
     // Use 'postCreateCommand' to run commands after the container is created.
-    "postCreateCommand": "poetry install && poetry run pre-commit install && poetry run ./manage.py tailwind install",
+    "postCreateCommand": "uv sync && uv run pre-commit install && uv run python manage.py tailwind install",
     // Configure tool-specific properties.
     "customizations": {
         "vscode": {
