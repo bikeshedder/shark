@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 
 class Project(BaseModel, BillableMixin, TenantMixin):
     name = models.CharField(_("name"), max_length=100)
+    description = models.TextField(blank=True)
     customer: "Customer" = models.ForeignKey(
         "customer.Customer",
         verbose_name=_("customer"),
@@ -31,15 +32,10 @@ class Project(BaseModel, BillableMixin, TenantMixin):
         return self.hourly_rate or self.customer.hourly_rate
 
 
-class ProjectDescription(BaseModel):
-    project: Project = models.OneToOneField(Project, on_delete=models.CASCADE)
-    repository = models.URLField(_("project repository"), blank=True)
-    text = models.TextField(_("description"), blank=True)
-
-
 class Task(BaseModel, BillableMixin):
     project: Project = models.ForeignKey(Project, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
     hours_expected = models.DecimalField(
         null=True, blank=True, max_digits=7, decimal_places=2
     )
@@ -67,11 +63,6 @@ class Task(BaseModel, BillableMixin):
     def time_actual(self):
         time = sum(entry.duration for entry in self.tasktimeentry_set.all())
         return decimal_hours_to_time(Decimal(time))
-
-
-class TaskDescription(BaseModel):
-    task: Task = models.OneToOneField(Task, on_delete=models.CASCADE)
-    text = models.TextField(_("description"), blank=True)
 
 
 class TaskTimeEntry(BaseModel):
