@@ -8,20 +8,19 @@ on:
   workflow_dispatch:
 
 env:
-  POETRY_VERSION: 1.8.3
-  POETRY_VIRTUALENVS_CREATE: false
+  UV_VERSION: 0.6.11
 
 jobs:
   ci:
     strategy:
       matrix:
         python-version: [3.11, 3.12]
-        os: [ubuntu-22.04]
+        os: [ubuntu-24.04]
 
     runs-on: ${{ matrix.os }}
     services:
       postgres:
-        image: postgres:16.2
+        image: postgres:16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -39,23 +38,15 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Set up Poetry dependency cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/pypoetry
-          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: ${{ runner.os }}-poetry-
-
-      - name: Install Poetry
+      - name: Install UV
         run: |
-          curl -sSL https://install.python-poetry.org | python
-          echo "$HOME/.poetry/bin" >> $GITHUB_PATH
+          curl -LsSf https://astral.sh/uv/$UV_VERSION/install.sh | sh
 
       - name: Install dependencies
-        run: poetry install --no-interaction
+        run: uv sync
 
       - name: Check for linter errors
-        run: ruff check
+        run: uv run ruff check
 
       - name: Run tests
-        run: python manage.py test
+        run: uv run python manage.py test
