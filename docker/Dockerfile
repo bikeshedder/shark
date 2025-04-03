@@ -17,7 +17,7 @@ USER debian
 ARG UV_VERSION=0.6.11
 RUN curl -LsSf https://astral.sh/uv/$UV_VERSION/install.sh | sh
 
-WORKDIR /code
+WORKDIR /app
 COPY pyproject.toml uv.lock .
 RUN /home/debian/.local/bin/uv sync
 
