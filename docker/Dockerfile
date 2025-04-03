@@ -11,17 +11,20 @@ RUN apt update && apt install -y \
   python3-dev \
   libmagickwand-dev
 
+# install UV
+ARG UV_VERSION=0.6.11
+RUN python3.12 -m venv /opt/uv && \
+    /opt/uv/bin/pip install uv==$UV_VERSION && \
+    ln -s /opt/uv/bin/uv /usr/local/bin/uv
+
 RUN adduser debian
 USER debian
 
-ARG UV_VERSION=0.6.11
-RUN curl -LsSf https://astral.sh/uv/$UV_VERSION/install.sh | sh
-
 WORKDIR /app
 COPY pyproject.toml uv.lock .
-RUN /home/debian/.local/bin/uv sync
+RUN uv sync
 
 COPY . .
-#RUN /home/debian/.local/bin/uv build
+RUN uv build
 
 ENTRYPOINT ["/app/docker-entrypoint.py"]
