@@ -14,6 +14,7 @@ classifiers = [
 ]
 dependencies = [
     "boto3>=1.37.25",
+    "click>=8.1.8",
     "dinbrief>=0.5.1",
     "django>=5.1.8",
     "django-composite-field>=2.0.1",
@@ -27,6 +28,7 @@ dependencies = [
     "django-tailwind[reload]>=3.9.0",
     "djangorestframework>=3.16.0",
     "heroicons>=2.11.0",
+    "httpx>=0.28.1",
     "psycopg>=3.2.6",
     "pypdf3>=1.0.6",
     "qrcode>=8.0",
@@ -34,6 +36,9 @@ dependencies = [
     "typst>=0.13.2",
     "wand>=0.6.13",
 ]
+
+[tool.setuptools]
+packages = ["shark"]
 
 [tool.ruff.lint]
 # https://docs.astral.sh/ruff/rules/
@@ -48,7 +53,4 @@ line-ending = "lf"
 exclude = ["**/migrations/*"]
 
 [dependency-groups]
-dev = [
-    "pre-commit>=4.2.0",
-    "ruff>=0.11.2",
-]
+dev = ["pre-commit>=4.2.0", "ruff>=0.11.2"]

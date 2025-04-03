@@ -24,5 +24,4 @@ RUN /home/debian/.local/bin/uv sync
 COPY . .
 #RUN /home/debian/.local/bin/uv build
 
-COPY docker/entrypoint.sh .
-ENTRYPOINT ["bash", "/app/entrypoint.sh"]
+ENTRYPOINT ["/app/docker-entrypoint.py"]

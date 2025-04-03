@@ -6,5 +6,4 @@
 !manage.py
 !uv.lock
 !pyproject.toml
-
-!docker/entrypoint.sh
+!docker-entrypoint.py
