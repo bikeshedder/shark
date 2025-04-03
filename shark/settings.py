@@ -15,7 +15,6 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import environ
-from botocore.config import Config
 from django.utils.translation import gettext_lazy as _
 
 env = environ.Env()
@@ -175,32 +174,63 @@ LANGUAGES = [
 
 TIME_ZONE = "UTC"
 
-# Storage Management
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_ROOT = BASE_DIR / "htdocs" / "static"
-MEDIA_ROOT = BASE_DIR / "htdocs" / "media"
+# Django storages / S3
+# https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
 
-
-AWS_S3_ACCESS_KEY_ID = env.str("AWS_S3_ACCESS_KEY_ID")
-AWS_S3_SECRET_ACCESS_KEY = env.str("AWS_S3_SECRET_ACCESS_KEY")
-AWS_S3_ENDPOINT_URL = env.str("AWS_S3_ENDPOINT_URL")
-AWS_S3_CLIENT_CONFIG = Config(max_pool_connections=50)
-AWS_STORAGE_BUCKET_NAME = "shark"
+S3_ENDPOINT_URL = env("S3_ENDPOINT_URL")
+S3_PUBLIC_URL = env("S3_PUBLIC_URL", default=S3_ENDPOINT_URL)
+S3_ACCESS_KEY = env("S3_ACCESS_KEY")
+S3_SECRET_KEY = env("S3_SECRET_KEY")
+S3_BUCKET_STATIC = env("S3_BUCKET_STATIC")
+S3_BUCKET_MEDIA = env("S3_BUCKET_MEDIA")
+S3_OPTIONS = {
+    # According to the django-storages documentation it's also possible
+    # to make those available via `settings.AWS_*` but this doesn't work
+    # for the "staticfiles" storage. Therefore we provide ALL options
+    # via the "OPTIONS" key.
+    "endpoint_url": S3_ENDPOINT_URL,
+    "public_url": S3_PUBLIC_URL,
+    "access_key": S3_ACCESS_KEY,
+    "secret_key": S3_SECRET_KEY,
+    "querystring_auth": False,
+    "file_overwrite": False,
+}
 
 STORAGES = {
-    "default": {
-        "BACKEND": "storages.backends.s3.S3Storage",
-        "OPTIONS": {"location": "media"},
-    },
+    # static
     "staticfiles": {
         "BACKEND": "storages.backends.s3.S3ManifestStaticStorage",
-        "OPTIONS": {"location": "static", "gzip": True},
+        "OPTIONS": {
+            **S3_OPTIONS,
+            "bucket_name": S3_BUCKET_STATIC,
+            "gzip": True,
+        },
+    },
+    # media
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+            **S3_OPTIONS,
+            "bucket_name": S3_BUCKET_MEDIA,
+        },
     },
 }
 
-MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/shark/media/"
-STATIC_URL = f"{AWS_S3_ENDPOINT_URL}/shark/static/"
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/4.2/howto/static-files/
+
+STATIC_URL = f"{S3_PUBLIC_URL}{S3_BUCKET_STATIC}/"
+STATIC_ROOT = None  # BASE_DIR / "htdocs" / "static"
+
+
+# Media files (Files uploaded by users)
+# https://docs.djangoproject.com/en/4.2/topics/files/
+
+MEDIA_URL = f"{S3_PUBLIC_URL}{S3_BUCKET_MEDIA}/"
+MEDIA_ROOT = None  # BASE_DIR / "htdocs" / "media"
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
