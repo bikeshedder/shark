@@ -25,6 +25,6 @@ COPY pyproject.toml uv.lock .
 RUN uv sync
 
 COPY . .
-RUN uv build
+#RUN uv build
 
 ENTRYPOINT ["/app/docker-entrypoint.py"]

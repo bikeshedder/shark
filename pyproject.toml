@@ -39,7 +39,7 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["shark"]
+package-dir = { "shark" = "shark" }
 
 [tool.ruff.lint]
 # https://docs.astral.sh/ruff/rules/
