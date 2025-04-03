@@ -200,7 +200,7 @@ S3_OPTIONS = {
 STORAGES = {
     # static
     "staticfiles": {
-        "BACKEND": "storages.backends.s3.S3ManifestStaticStorage",
+        "BACKEND": "shark.storage.S3ManifestStaticStorage",
         "OPTIONS": {
             **S3_OPTIONS,
             "bucket_name": S3_BUCKET_STATIC,
@@ -209,7 +209,7 @@ STORAGES = {
     },
     # media
     "default": {
-        "BACKEND": "storages.backends.s3.S3Storage",
+        "BACKEND": "shark.storage.S3Storage",
         "OPTIONS": {
             **S3_OPTIONS,
             "bucket_name": S3_BUCKET_MEDIA,
